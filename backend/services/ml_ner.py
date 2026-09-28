@@ -89,8 +89,17 @@ def _get_model():
                 import numpy as np
                 import onnxruntime as ort
                 tok = AutoTokenizer.from_pretrained(artifact, local_files_only=True)
+                # Minimal footprint for tiny containers: single-threaded
+                # execution and no arena growth (default thread pools +
+                # arena blow past 512 MB on Render free instances).
+                opts = ort.SessionOptions()
+                opts.intra_op_num_threads = 1
+                opts.inter_op_num_threads = 1
+                opts.enable_cpu_mem_arena = False
+                opts.enable_mem_pattern = False
                 sess = ort.InferenceSession(
                     os.path.join(artifact, "model.onnx"),
+                    sess_options=opts,
                     providers=["CPUExecutionProvider"])
                 _model = ("onnx", tok, sess, np)
                 _model_available = True

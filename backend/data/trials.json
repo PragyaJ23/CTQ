@@ -1,632 +1,1239 @@
 [
-  {
-    "trial_id": "CTRI/2024/01/062001",
-    "title": "A Randomised Open Label Trial of Glimepiride Add-on to Metformin in Type 2 Diabetes Mellitus",
-    "condition": "Type 2 Diabetes Mellitus",
-    "status": "Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 30,
-    "max_age": 65,
-    "inclusion_criteria": [
-      "Adults aged 30-65 years diagnosed with Type 2 Diabetes Mellitus",
-      "HbA1c between 7.5 and 10.5 percent at screening",
-      "On stable metformin therapy for at least 3 months",
-      "Body mass index between 23 and 35"
-    ],
-    "exclusion_criteria": [
-      "Type 1 diabetes or history of diabetic ketoacidosis",
-      "eGFR below 45",
-      "Pregnant or breastfeeding women",
-      "Severe hepatic impairment with ALT above 3 times upper limit of normal"
-    ],
-    "interventions": [
-      "Glimepiride",
-      "Metformin"
-    ],
-    "sponsor": "Sun Pharma",
-    "locations": [
-      "Siliguri, West Bengal"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/02/062115",
-    "title": "Observational Study of Glycaemic Variability in Newly Diagnosed Type 2 Diabetes Patients in Urban India",
-    "condition": "Type 2 Diabetes",
-    "status": "Recruiting",
-    "phase": "N/A",
-    "study_type": "Observational",
-    "gender": "Both",
-    "min_age": 25,
-    "max_age": 60,
-    "inclusion_criteria": [
-      "Newly diagnosed Type 2 Diabetes within the past 6 months",
-      "Age 25-60 years",
-      "HbA1c between 6.5 and 9 percent",
-      "No previous treatment with insulin"
-    ],
-    "exclusion_criteria": [
-      "Chronic kidney disease with eGFR below 60",
-      "Current use of insulin",
-      "Pregnancy"
-    ],
-    "interventions": [
-      "Continuous glucose monitoring"
-    ],
-    "sponsor": "AIIMS New Delhi",
-    "locations": [
-      "Bengaluru, Karnataka",
-      "Madurai, Tamil Nadu",
-      "Nagpur, Maharashtra"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/03/062318",
-    "title": "Evaluation of a Fixed Dose Combination of Perindopril and Indapamide in Uncontrolled Hypertension",
-    "condition": "Hypertension",
-    "status": "Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 40,
-    "max_age": 75,
-    "inclusion_criteria": [
-      "Adults 40-75 years with uncontrolled hypertension",
-      "Systolic BP between 140 and 180 despite monotherapy",
-      "Diagnosis of hypertension for at least 6 months"
-    ],
-    "exclusion_criteria": [
-      "Secondary hypertension",
-      "Severe renal impairment with eGFR below 30",
-      "History of stroke within past 6 months",
-      "Pregnant or lactating women"
-    ],
-    "interventions": [
-      "Perindopril",
-      "Indapamide"
-    ],
-    "sponsor": "Zydus Cadila",
-    "locations": [
-      "Amritsar, Punjab"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/04/062402",
-    "title": "Phase II Study of a Novel HER2 Targeted Therapy in Metastatic Breast Cancer",
-    "condition": "Breast Cancer",
-    "status": "Recruiting",
-    "phase": "Phase II",
-    "study_type": "Interventional",
-    "gender": "Female",
-    "min_age": 18,
-    "max_age": 70,
-    "inclusion_criteria": [
-      "Histologically confirmed HER2 positive metastatic breast cancer",
-      "Female patients aged 18-70",
-      "ECOG performance status 0-2",
-      "Adequate organ function: hemoglobin above 9, platelets above 100000, ALT below 2.5 times ULN"
-    ],
-    "exclusion_criteria": [
-      "Prior treatment with the same HER2 targeted agent",
-      "Active infection requiring systemic therapy",
-      "Pregnancy or breastfeeding"
-    ],
-    "interventions": [
-      "HER2 targeted monoclonal antibody"
-    ],
-    "sponsor": "Biocon",
-    "locations": [
-      "Kolkata, West Bengal"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/05/062517",
-    "title": "Bioequivalence Study of a Generic Atorvastatin 10 mg Tablet in Healthy Indian Volunteers",
-    "condition": "Healthy Volunteers",
-    "status": "Recruiting",
-    "phase": "Phase I",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 18,
-    "max_age": 45,
-    "inclusion_criteria": [
-      "Healthy adults aged 18-45",
-      "Body mass index between 18.5 and 25",
-      "Normal laboratory parameters within reference range"
-    ],
-    "exclusion_criteria": [
-      "Any chronic disease including diabetes, hypertension, liver or kidney disease",
-      "Smoking or regular alcohol use",
-      "Participation in another clinical trial within past 90 days"
-    ],
-    "interventions": [
-      "Atorvastatin 10 mg"
-    ],
-    "sponsor": "Cipla Ltd",
-    "locations": [
-      "Hubballi, Karnataka",
-      "Ludhiana, Punjab"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/06/062633",
-    "title": "Effects of Yoga Add-on Therapy on Glycaemic Control in Type 2 Diabetes Patients",
-    "condition": "Type 2 Diabetes",
-    "status": "Recruiting",
-    "phase": "N/A",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 35,
-    "max_age": 70,
-    "inclusion_criteria": [
-      "Type 2 Diabetes diagnosed at least 1 year ago",
-      "Age 35-70 years",
-      "HbA1c between 7 and 10 percent",
-      "Willing to attend supervised yoga sessions 3 times per week"
-    ],
-    "exclusion_criteria": [
-      "Proliferative diabetic retinopathy",
-      "Severe musculoskeletal disorders preventing exercise",
-      "Uncontrolled hypertension with systolic BP above 180",
-      "eGFR below 30"
-    ],
-    "interventions": [
-      "Structured yoga program"
-    ],
-    "sponsor": "S-VYASA Bengaluru",
-    "locations": [
-      "Cuttack, Odisha",
-      "Mysuru, Karnataka"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/07/062744",
-    "title": "Study of Empagliflozin in Type 2 Diabetes Patients with Diabetic Nephropathy",
-    "condition": "Type 2 Diabetes with Diabetic Nephropathy",
-    "status": "Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 30,
-    "max_age": 75,
-    "inclusion_criteria": [
-      "Type 2 Diabetes with established diabetic nephropathy",
-      "eGFR between 30 and 75",
-      "Age 30-75 years",
-      "Urinary albumin to creatinine ratio above 300"
-    ],
-    "exclusion_criteria": [
-      "Polycystic kidney disease",
-      "Immunosuppressive therapy within past 6 months",
-      "Type 1 diabetes"
-    ],
-    "interventions": [
-      "Empagliflozin"
-    ],
-    "sponsor": "Boehringer Ingelheim India",
-    "locations": [
-      "Kolkata, West Bengal",
-      "Cuttack, Odisha",
-      "Warangal, Telangana"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/08/062851",
-    "title": "Comparison of Inhaled Budesonide-Formoterol versus Salbutamol in Mild to Moderate Asthma",
-    "condition": "Asthma",
-    "status": "Recruiting",
-    "phase": "Phase IV",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 12,
-    "max_age": 60,
-    "inclusion_criteria": [
-      "Physician diagnosed mild to moderate persistent asthma",
-      "Age 12-60 years",
-      "FEV1 between 60 and 90 percent of predicted at screening",
-      "Non-smoker for at least 1 year"
-    ],
-    "exclusion_criteria": [
-      "Current smoking",
-      "History of life-threatening asthma exacerbation",
-      "Chronic obstructive pulmonary disease"
-    ],
-    "interventions": [
-      "Budesonide-Formoterol inhaler"
-    ],
-    "sponsor": "Cipla Ltd",
-    "locations": [
-      "Mysuru, Karnataka",
-      "Mumbai, Maharashtra"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/09/062966",
-    "title": "Adalimumab Biosimilar in Moderate to Severe Rheumatoid Arthritis Inadequately Controlled by Methotrexate",
-    "condition": "Rheumatoid Arthritis",
-    "status": "Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 18,
-    "max_age": 65,
-    "inclusion_criteria": [
-      "Rheumatoid arthritis as per ACR/EULAR criteria for at least 6 months",
-      "Age 18-65",
-      "Active disease despite methotrexate therapy for 3 months"
-    ],
-    "exclusion_criteria": [
-      "Active tuberculosis or other serious infection",
-      "Severe hepatic impairment",
-      "Pregnancy or breastfeeding",
-      "Prior treatment with any biologic DMARD"
-    ],
-    "interventions": [
-      "Adalimumab biosimilar"
-    ],
-    "sponsor": "Lupin Ltd",
-    "locations": [
-      "Pune, Maharashtra",
-      "Warangal, Telangana",
-      "Siliguri, West Bengal",
-      "Varanasi, Uttar Pradesh"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/10/063019",
-    "title": "Prevalence of Anaemia Among Pregnant Women Attending Antenatal Clinics in Rural India",
-    "condition": "Anaemia in Pregnancy",
-    "status": "Recruiting",
-    "phase": "N/A",
-    "study_type": "Observational",
-    "gender": "Female",
-    "min_age": 18,
-    "max_age": 40,
-    "inclusion_criteria": [
-      "Pregnant women aged 18-40 in second or third trimester",
-      "Willing to provide blood sample for hemoglobin estimation"
-    ],
-    "exclusion_criteria": [
-      "Known hemoglobinopathy",
-      "Malignancy"
-    ],
-    "interventions": [],
-    "sponsor": "PGIMER Chandigarh",
-    "locations": [
-      "Ahmedabad, Gujarat"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/11/063128",
-    "title": "Vitamin D Supplementation in Prediabetic Adults: A Randomised Controlled Trial",
-    "condition": "Prediabetes",
-    "status": "Recruiting",
-    "phase": "Phase II",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 30,
-    "max_age": 60,
-    "inclusion_criteria": [
-      "Prediabetes confirmed by impaired fasting glucose 110-125 or HbA1c 5.7-6.4 percent",
-      "Age 30-60 years",
-      "Serum vitamin D level below 30 ng/mL"
-    ],
-    "exclusion_criteria": [
-      "Diabetes mellitus on treatment",
-      "Chronic kidney disease stage 3 or higher",
-      "History of kidney stones"
-    ],
-    "interventions": [
-      "Vitamin D3 60000 IU weekly"
-    ],
-    "sponsor": "AIIMS New Delhi",
-    "locations": [
-      "Udaipur, Rajasthan",
-      "Hyderabad, Telangana",
-      "Bhubaneswar, Odisha"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2024/12/063237",
-    "title": "Effect of SGLT2 Inhibitor on Cardiac Parameters in Type 2 Diabetes with Heart Failure",
-    "condition": "Type 2 Diabetes with Heart Failure",
-    "status": "Not Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 40,
-    "max_age": 80,
-    "inclusion_criteria": [
-      "Type 2 Diabetes with chronic heart failure NYHA class II-III",
-      "Left ventricular ejection fraction 40 percent or below",
-      "Age 40-80 years"
-    ],
-    "exclusion_criteria": [
-      "Acute decompensated heart failure within past month",
-      "eGFR below 25",
-      "Type 1 diabetes"
-    ],
-    "interventions": [
-      "Dapagliflozin"
-    ],
-    "sponsor": "Apollo Hospitals",
-    "locations": [
-      "Jaipur, Rajasthan"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/01/063344",
-    "title": "Cognitive Behavioural Therapy for Depressive Symptoms in Type 2 Diabetes Patients",
-    "condition": "Type 2 Diabetes with Depression",
-    "status": "Recruiting",
-    "phase": "N/A",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 25,
-    "max_age": 65,
-    "inclusion_criteria": [
-      "Type 2 Diabetes for at least 1 year",
-      "PHQ-9 score between 10 and 20 indicating moderate depression",
-      "Age 25-65 years"
-    ],
-    "exclusion_criteria": [
-      "Current suicidal ideation",
-      "Bipolar disorder or psychosis",
-      "Substance dependence"
-    ],
-    "interventions": [
-      "Cognitive behavioural therapy"
-    ],
-    "sponsor": "NIMHANS Bengaluru",
-    "locations": [
-      "Mumbai, Maharashtra",
-      "Pune, Maharashtra",
-      "New Delhi, Delhi"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/02/063459",
-    "title": "Long Term Safety Registry of a Biosimilar Rituximab in Indian Patients",
-    "condition": "Rituximab Treated Conditions",
-    "status": "Recruiting",
-    "phase": "Phase IV",
-    "study_type": "Observational",
-    "gender": "Both",
-    "min_age": 18,
-    "max_age": 80,
-    "inclusion_criteria": [
-      "Patients prescribed biosimilar rituximab as part of routine care",
-      "Age 18-80 years"
-    ],
-    "exclusion_criteria": [
-      "Inability to attend follow-up visits"
-    ],
-    "interventions": [],
-    "sponsor": "Zydus Cadila",
-    "locations": [
-      "Coimbatore, Tamil Nadu",
-      "Hyderabad, Telangana",
-      "Jodhpur, Rajasthan"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/03/063561",
-    "title": "Screening and Lifestyle Intervention for Non Alcoholic Fatty Liver Disease in Urban Workplaces",
-    "condition": "Non Alcoholic Fatty Liver Disease",
-    "status": "Recruiting",
-    "phase": "N/A",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 25,
-    "max_age": 55,
-    "inclusion_criteria": [
-      "Ultrasound confirmed fatty liver",
-      "Age 25-55 years",
-      "Body mass index above 25",
-      "No significant alcohol consumption"
-    ],
-    "exclusion_criteria": [
-      "Viral hepatitis B or C",
-      "Cirrhosis",
-      "Regular alcohol use"
-    ],
-    "interventions": [
-      "Diet and lifestyle coaching"
-    ],
-    "sponsor": "KEM Hospital Mumbai",
-    "locations": [
-      "Patiala, Punjab"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/04/063673",
-    "title": "A Study to Assess the Efficacy of a Novel Fixed Dose Triple Combination in Moderate to Severe COPD",
-    "condition": "Chronic Obstructive Pulmonary Disease",
-    "status": "Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 40,
-    "max_age": 80,
-    "inclusion_criteria": [
-      "Moderate to severe COPD with post-bronchodilator FEV1/FVC below 0.70",
-      "Age 40-80 years",
-      "Current or former smoker with at least 10 pack years",
-      "History of at least one exacerbation in past year"
-    ],
-    "exclusion_criteria": [
-      "Asthma as primary diagnosis",
-      "Oxygen therapy dependence",
-      "Recent myocardial infarction within 6 months"
-    ],
-    "interventions": [
-      "Triple combination inhaler"
-    ],
-    "sponsor": "Lupin Ltd",
-    "locations": [
-      "Kozhikode, Kerala",
-      "Bengaluru, Karnataka"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/05/063788",
-    "title": "Effectiveness of Insulin Degludec versus Glargine in Insulin Naive Type 2 Diabetes Patients",
-    "condition": "Type 2 Diabetes",
-    "status": "Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 18,
-    "max_age": 70,
-    "inclusion_criteria": [
-      "Type 2 Diabetes inadequately controlled on oral agents",
-      "HbA1c between 7.5 and 11 percent",
-      "Age 18-70 years",
-      "Insulin naive - no previous insulin treatment"
-    ],
-    "exclusion_criteria": [
-      "History of severe hypoglycaemia in past 6 months",
-      "eGFR below 30",
-      "Pregnancy or planned pregnancy",
-      "Active malignancy"
-    ],
-    "interventions": [
-      "Insulin degludec",
-      "Insulin glargine"
-    ],
-    "sponsor": "Novo Nordisk India",
-    "locations": [
-      "Surat, Gujarat",
-      "Udaipur, Rajasthan",
-      "Thiruvananthapuram, Kerala",
-      "Jodhpur, Rajasthan"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/06/063892",
-    "title": "Telemedicine Follow-up versus In-person Visits in Post Myocardial Infarction Patients",
-    "condition": "Post Myocardial Infarction",
-    "status": "Recruiting",
-    "phase": "N/A",
-    "study_type": "Observational",
-    "gender": "Both",
-    "min_age": 30,
-    "max_age": 75,
-    "inclusion_criteria": [
-      "Myocardial infarction within past 3 to 12 months",
-      "Age 30-75 years",
-      "Access to a smartphone"
-    ],
-    "exclusion_criteria": [
-      "Ongoing unstable angina",
-      "Severe cognitive impairment"
-    ],
-    "interventions": [],
-    "sponsor": "Christian Medical College Vellore",
-    "locations": [
-      "Bengaluru, Karnataka"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/07/063911",
-    "title": "Vaccination Response Study in Adults with Type 2 Diabetes",
-    "condition": "Type 2 Diabetes",
-    "status": "Recruiting",
-    "phase": "N/A",
-    "study_type": "Observational",
-    "gender": "Both",
-    "min_age": 40,
-    "max_age": 70,
-    "inclusion_criteria": [
-      "Type 2 Diabetes diagnosed at least 2 years ago",
-      "Age 40-70 years",
-      "HbA1c between 6.5 and 10 percent",
-      "No prior dose of the study vaccine"
-    ],
-    "exclusion_criteria": [
-      "Immunosuppressive therapy",
-      "Acute febrile illness at enrolment",
-      "History of severe allergic reaction to vaccines"
-    ],
-    "interventions": [],
-    "sponsor": "PGIMER Chandigarh",
-    "locations": [
-      "Surat, Gujarat",
-      "Mumbai, Maharashtra",
-      "Patiala, Punjab"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  },
-  {
-    "trial_id": "CTRI/2025/08/064022",
-    "title": "Ertugliflozin versus Placebo Add-on to Metformin in Type 2 Diabetes with Obesity",
-    "condition": "Type 2 Diabetes with Obesity",
-    "status": "Recruiting",
-    "phase": "Phase III",
-    "study_type": "Interventional",
-    "gender": "Both",
-    "min_age": 18,
-    "max_age": 68,
-    "inclusion_criteria": [
-      "Type 2 Diabetes on stable metformin for 8 weeks or more",
-      "Body mass index between 30 and 45",
-      "HbA1c between 7.5 and 10.5 percent",
-      "Age 18-68 years"
-    ],
-    "exclusion_criteria": [
-      "eGFR below 45",
-      "Recurrent genital mycotic infections",
-      "Type 1 diabetes",
-      "Pregnant or breastfeeding women"
-    ],
-    "interventions": [
-      "Ertugliflozin"
-    ],
-    "sponsor": "Pfizer India",
-    "locations": [
-      "Hubballi, Karnataka",
-      "Kanpur, Uttar Pradesh",
-      "Jodhpur, Rajasthan"
-    ],
-    "source": "CTRI (synthetic demo dataset)",
-    "last_updated": "2025-08-15"
-  }
+ {
+  "trial_id": "CTRI/2024/01/062001",
+  "title": "A Randomised Open Label Trial of Glimepiride Add-on to Metformin in Type 2 Diabetes Mellitus",
+  "condition": "Type 2 Diabetes Mellitus",
+  "status": "Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 30.0,
+  "max_age": 65.0,
+  "sponsor": "Sun Pharma",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Adults aged 30-65 years diagnosed with Type 2 Diabetes Mellitus",
+   "HbA1c between 7.5 and 10.5 percent at screening",
+   "On stable metformin therapy for at least 3 months",
+   "Body mass index between 23 and 35"
+  ],
+  "exclusion_criteria": [
+   "Type 1 diabetes or history of diabetic ketoacidosis",
+   "eGFR below 45",
+   "Pregnant or breastfeeding women",
+   "Severe hepatic impairment with ALT above 3 times upper limit of normal"
+  ],
+  "locations": [
+   "Siliguri, West Bengal"
+  ],
+  "interventions": [
+   "Glimepiride",
+   "Metformin"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/02/062115",
+  "title": "Observational Study of Glycaemic Variability in Newly Diagnosed Type 2 Diabetes Patients in Urban India",
+  "condition": "Type 2 Diabetes",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Observational",
+  "gender": "Both",
+  "min_age": 25.0,
+  "max_age": 60.0,
+  "sponsor": "AIIMS New Delhi",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Newly diagnosed Type 2 Diabetes within the past 6 months",
+   "Age 25-60 years",
+   "HbA1c between 6.5 and 9 percent",
+   "No previous treatment with insulin"
+  ],
+  "exclusion_criteria": [
+   "Chronic kidney disease with eGFR below 60",
+   "Current use of insulin",
+   "Pregnancy"
+  ],
+  "locations": [
+   "Bengaluru, Karnataka",
+   "Madurai, Tamil Nadu",
+   "Nagpur, Maharashtra"
+  ],
+  "interventions": [
+   "Continuous glucose monitoring"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/03/062318",
+  "title": "Evaluation of a Fixed Dose Combination of Perindopril and Indapamide in Uncontrolled Hypertension",
+  "condition": "Hypertension",
+  "status": "Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 40.0,
+  "max_age": 75.0,
+  "sponsor": "Zydus Cadila",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Adults 40-75 years with uncontrolled hypertension",
+   "Systolic BP between 140 and 180 despite monotherapy",
+   "Diagnosis of hypertension for at least 6 months"
+  ],
+  "exclusion_criteria": [
+   "Secondary hypertension",
+   "Severe renal impairment with eGFR below 30",
+   "History of stroke within past 6 months",
+   "Pregnant or lactating women"
+  ],
+  "locations": [
+   "Amritsar, Punjab"
+  ],
+  "interventions": [
+   "Perindopril",
+   "Indapamide"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/04/062402",
+  "title": "Phase II Study of a Novel HER2 Targeted Therapy in Metastatic Breast Cancer",
+  "condition": "Breast Cancer",
+  "status": "Recruiting",
+  "phase": "Phase II",
+  "study_type": "Interventional",
+  "gender": "Female",
+  "min_age": 18.0,
+  "max_age": 70.0,
+  "sponsor": "Biocon",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Histologically confirmed HER2 positive metastatic breast cancer",
+   "Female patients aged 18-70",
+   "ECOG performance status 0-2",
+   "Adequate organ function: hemoglobin above 9, platelets above 100000, ALT below 2.5 times ULN"
+  ],
+  "exclusion_criteria": [
+   "Prior treatment with the same HER2 targeted agent",
+   "Active infection requiring systemic therapy",
+   "Pregnancy or breastfeeding"
+  ],
+  "locations": [
+   "Kolkata, West Bengal"
+  ],
+  "interventions": [
+   "HER2 targeted monoclonal antibody"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/05/062517",
+  "title": "Bioequivalence Study of a Generic Atorvastatin 10 mg Tablet in Healthy Indian Volunteers",
+  "condition": "Healthy Volunteers",
+  "status": "Recruiting",
+  "phase": "Phase I",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 45.0,
+  "sponsor": "Cipla Ltd",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Healthy adults aged 18-45",
+   "Body mass index between 18.5 and 25",
+   "Normal laboratory parameters within reference range"
+  ],
+  "exclusion_criteria": [
+   "Any chronic disease including diabetes, hypertension, liver or kidney disease",
+   "Smoking or regular alcohol use",
+   "Participation in another clinical trial within past 90 days"
+  ],
+  "locations": [
+   "Hubballi, Karnataka",
+   "Ludhiana, Punjab"
+  ],
+  "interventions": [
+   "Atorvastatin 10 mg"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/06/062633",
+  "title": "Effects of Yoga Add-on Therapy on Glycaemic Control in Type 2 Diabetes Patients",
+  "condition": "Type 2 Diabetes",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 35.0,
+  "max_age": 70.0,
+  "sponsor": "S-VYASA Bengaluru",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Type 2 Diabetes diagnosed at least 1 year ago",
+   "Age 35-70 years",
+   "HbA1c between 7 and 10 percent",
+   "Willing to attend supervised yoga sessions 3 times per week"
+  ],
+  "exclusion_criteria": [
+   "Proliferative diabetic retinopathy",
+   "Severe musculoskeletal disorders preventing exercise",
+   "Uncontrolled hypertension with systolic BP above 180",
+   "eGFR below 30"
+  ],
+  "locations": [
+   "Cuttack, Odisha",
+   "Mysuru, Karnataka"
+  ],
+  "interventions": [
+   "Structured yoga program"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/07/062744",
+  "title": "Study of Empagliflozin in Type 2 Diabetes Patients with Diabetic Nephropathy",
+  "condition": "Type 2 Diabetes with Diabetic Nephropathy",
+  "status": "Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 30.0,
+  "max_age": 75.0,
+  "sponsor": "Boehringer Ingelheim India",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Type 2 Diabetes with established diabetic nephropathy",
+   "eGFR between 30 and 75",
+   "Age 30-75 years",
+   "Urinary albumin to creatinine ratio above 300"
+  ],
+  "exclusion_criteria": [
+   "Polycystic kidney disease",
+   "Immunosuppressive therapy within past 6 months",
+   "Type 1 diabetes"
+  ],
+  "locations": [
+   "Kolkata, West Bengal",
+   "Cuttack, Odisha",
+   "Warangal, Telangana"
+  ],
+  "interventions": [
+   "Empagliflozin"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/08/062851",
+  "title": "Comparison of Inhaled Budesonide-Formoterol versus Salbutamol in Mild to Moderate Asthma",
+  "condition": "Asthma",
+  "status": "Recruiting",
+  "phase": "Phase IV",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 12.0,
+  "max_age": 60.0,
+  "sponsor": "Cipla Ltd",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Physician diagnosed mild to moderate persistent asthma",
+   "Age 12-60 years",
+   "FEV1 between 60 and 90 percent of predicted at screening",
+   "Non-smoker for at least 1 year"
+  ],
+  "exclusion_criteria": [
+   "Current smoking",
+   "History of life-threatening asthma exacerbation",
+   "Chronic obstructive pulmonary disease"
+  ],
+  "locations": [
+   "Mysuru, Karnataka",
+   "Mumbai, Maharashtra"
+  ],
+  "interventions": [
+   "Budesonide-Formoterol inhaler"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/09/062966",
+  "title": "Adalimumab Biosimilar in Moderate to Severe Rheumatoid Arthritis Inadequately Controlled by Methotrexate",
+  "condition": "Rheumatoid Arthritis",
+  "status": "Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 65.0,
+  "sponsor": "Lupin Ltd",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Rheumatoid arthritis as per ACR/EULAR criteria for at least 6 months",
+   "Age 18-65",
+   "Active disease despite methotrexate therapy for 3 months"
+  ],
+  "exclusion_criteria": [
+   "Active tuberculosis or other serious infection",
+   "Severe hepatic impairment",
+   "Pregnancy or breastfeeding",
+   "Prior treatment with any biologic DMARD"
+  ],
+  "locations": [
+   "Pune, Maharashtra",
+   "Warangal, Telangana",
+   "Siliguri, West Bengal",
+   "Varanasi, Uttar Pradesh"
+  ],
+  "interventions": [
+   "Adalimumab biosimilar"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/10/063019",
+  "title": "Prevalence of Anaemia Among Pregnant Women Attending Antenatal Clinics in Rural India",
+  "condition": "Anaemia in Pregnancy",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Observational",
+  "gender": "Female",
+  "min_age": 18.0,
+  "max_age": 40.0,
+  "sponsor": "PGIMER Chandigarh",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Pregnant women aged 18-40 in second or third trimester",
+   "Willing to provide blood sample for hemoglobin estimation"
+  ],
+  "exclusion_criteria": [
+   "Known hemoglobinopathy",
+   "Malignancy"
+  ],
+  "locations": [
+   "Ahmedabad, Gujarat"
+  ],
+  "interventions": []
+ },
+ {
+  "trial_id": "CTRI/2024/11/063128",
+  "title": "Vitamin D Supplementation in Prediabetic Adults: A Randomised Controlled Trial",
+  "condition": "Prediabetes",
+  "status": "Recruiting",
+  "phase": "Phase II",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 30.0,
+  "max_age": 60.0,
+  "sponsor": "AIIMS New Delhi",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Prediabetes confirmed by impaired fasting glucose 110-125 or HbA1c 5.7-6.4 percent",
+   "Age 30-60 years",
+   "Serum vitamin D level below 30 ng/mL"
+  ],
+  "exclusion_criteria": [
+   "Diabetes mellitus on treatment",
+   "Chronic kidney disease stage 3 or higher",
+   "History of kidney stones"
+  ],
+  "locations": [
+   "Udaipur, Rajasthan",
+   "Hyderabad, Telangana",
+   "Bhubaneswar, Odisha"
+  ],
+  "interventions": [
+   "Vitamin D3 60000 IU weekly"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2024/12/063237",
+  "title": "Effect of SGLT2 Inhibitor on Cardiac Parameters in Type 2 Diabetes with Heart Failure",
+  "condition": "Type 2 Diabetes with Heart Failure",
+  "status": "Not Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 40.0,
+  "max_age": 80.0,
+  "sponsor": "Apollo Hospitals",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Type 2 Diabetes with chronic heart failure NYHA class II-III",
+   "Left ventricular ejection fraction 40 percent or below",
+   "Age 40-80 years"
+  ],
+  "exclusion_criteria": [
+   "Acute decompensated heart failure within past month",
+   "eGFR below 25",
+   "Type 1 diabetes"
+  ],
+  "locations": [
+   "Jaipur, Rajasthan"
+  ],
+  "interventions": [
+   "Dapagliflozin"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2025/01/063344",
+  "title": "Cognitive Behavioural Therapy for Depressive Symptoms in Type 2 Diabetes Patients",
+  "condition": "Type 2 Diabetes with Depression",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 25.0,
+  "max_age": 65.0,
+  "sponsor": "NIMHANS Bengaluru",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Type 2 Diabetes for at least 1 year",
+   "PHQ-9 score between 10 and 20 indicating moderate depression",
+   "Age 25-65 years"
+  ],
+  "exclusion_criteria": [
+   "Current suicidal ideation",
+   "Bipolar disorder or psychosis",
+   "Substance dependence"
+  ],
+  "locations": [
+   "Mumbai, Maharashtra",
+   "Pune, Maharashtra",
+   "New Delhi, Delhi"
+  ],
+  "interventions": [
+   "Cognitive behavioural therapy"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2025/02/063459",
+  "title": "Long Term Safety Registry of a Biosimilar Rituximab in Indian Patients",
+  "condition": "Rituximab Treated Conditions",
+  "status": "Recruiting",
+  "phase": "Phase IV",
+  "study_type": "Observational",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 80.0,
+  "sponsor": "Zydus Cadila",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Patients prescribed biosimilar rituximab as part of routine care",
+   "Age 18-80 years"
+  ],
+  "exclusion_criteria": [
+   "Inability to attend follow-up visits"
+  ],
+  "locations": [
+   "Coimbatore, Tamil Nadu",
+   "Hyderabad, Telangana",
+   "Jodhpur, Rajasthan"
+  ],
+  "interventions": []
+ },
+ {
+  "trial_id": "CTRI/2025/03/063561",
+  "title": "Screening and Lifestyle Intervention for Non Alcoholic Fatty Liver Disease in Urban Workplaces",
+  "condition": "Non Alcoholic Fatty Liver Disease",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 25.0,
+  "max_age": 55.0,
+  "sponsor": "KEM Hospital Mumbai",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Ultrasound confirmed fatty liver",
+   "Age 25-55 years",
+   "Body mass index above 25",
+   "No significant alcohol consumption"
+  ],
+  "exclusion_criteria": [
+   "Viral hepatitis B or C",
+   "Cirrhosis",
+   "Regular alcohol use"
+  ],
+  "locations": [
+   "Patiala, Punjab"
+  ],
+  "interventions": [
+   "Diet and lifestyle coaching"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2025/04/063673",
+  "title": "A Study to Assess the Efficacy of a Novel Fixed Dose Triple Combination in Moderate to Severe COPD",
+  "condition": "Chronic Obstructive Pulmonary Disease",
+  "status": "Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 40.0,
+  "max_age": 80.0,
+  "sponsor": "Lupin Ltd",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Moderate to severe COPD with post-bronchodilator FEV1/FVC below 0.70",
+   "Age 40-80 years",
+   "Current or former smoker with at least 10 pack years",
+   "History of at least one exacerbation in past year"
+  ],
+  "exclusion_criteria": [
+   "Asthma as primary diagnosis",
+   "Oxygen therapy dependence",
+   "Recent myocardial infarction within 6 months"
+  ],
+  "locations": [
+   "Kozhikode, Kerala",
+   "Bengaluru, Karnataka"
+  ],
+  "interventions": [
+   "Triple combination inhaler"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2025/05/063788",
+  "title": "Effectiveness of Insulin Degludec versus Glargine in Insulin Naive Type 2 Diabetes Patients",
+  "condition": "Type 2 Diabetes",
+  "status": "Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 70.0,
+  "sponsor": "Novo Nordisk India",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Type 2 Diabetes inadequately controlled on oral agents",
+   "HbA1c between 7.5 and 11 percent",
+   "Age 18-70 years",
+   "Insulin naive - no previous insulin treatment"
+  ],
+  "exclusion_criteria": [
+   "History of severe hypoglycaemia in past 6 months",
+   "eGFR below 30",
+   "Pregnancy or planned pregnancy",
+   "Active malignancy"
+  ],
+  "locations": [
+   "Surat, Gujarat",
+   "Udaipur, Rajasthan",
+   "Thiruvananthapuram, Kerala",
+   "Jodhpur, Rajasthan"
+  ],
+  "interventions": [
+   "Insulin degludec",
+   "Insulin glargine"
+  ]
+ },
+ {
+  "trial_id": "CTRI/2025/06/063892",
+  "title": "Telemedicine Follow-up versus In-person Visits in Post Myocardial Infarction Patients",
+  "condition": "Post Myocardial Infarction",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Observational",
+  "gender": "Both",
+  "min_age": 30.0,
+  "max_age": 75.0,
+  "sponsor": "Christian Medical College Vellore",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Myocardial infarction within past 3 to 12 months",
+   "Age 30-75 years",
+   "Access to a smartphone"
+  ],
+  "exclusion_criteria": [
+   "Ongoing unstable angina",
+   "Severe cognitive impairment"
+  ],
+  "locations": [
+   "Bengaluru, Karnataka"
+  ],
+  "interventions": []
+ },
+ {
+  "trial_id": "CTRI/2025/07/063911",
+  "title": "Vaccination Response Study in Adults with Type 2 Diabetes",
+  "condition": "Type 2 Diabetes",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Observational",
+  "gender": "Both",
+  "min_age": 40.0,
+  "max_age": 70.0,
+  "sponsor": "PGIMER Chandigarh",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Type 2 Diabetes diagnosed at least 2 years ago",
+   "Age 40-70 years",
+   "HbA1c between 6.5 and 10 percent",
+   "No prior dose of the study vaccine"
+  ],
+  "exclusion_criteria": [
+   "Immunosuppressive therapy",
+   "Acute febrile illness at enrolment",
+   "History of severe allergic reaction to vaccines"
+  ],
+  "locations": [
+   "Surat, Gujarat",
+   "Mumbai, Maharashtra",
+   "Patiala, Punjab"
+  ],
+  "interventions": []
+ },
+ {
+  "trial_id": "CTRI/2025/08/064022",
+  "title": "Ertugliflozin versus Placebo Add-on to Metformin in Type 2 Diabetes with Obesity",
+  "condition": "Type 2 Diabetes with Obesity",
+  "status": "Recruiting",
+  "phase": "Phase III",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 68.0,
+  "sponsor": "Pfizer India",
+  "source": "CTRI (synthetic demo dataset)",
+  "last_updated": "2025-08-15",
+  "inclusion_criteria": [
+   "Type 2 Diabetes on stable metformin for 8 weeks or more",
+   "Body mass index between 30 and 45",
+   "HbA1c between 7.5 and 10.5 percent",
+   "Age 18-68 years"
+  ],
+  "exclusion_criteria": [
+   "eGFR below 45",
+   "Recurrent genital mycotic infections",
+   "Type 1 diabetes",
+   "Pregnant or breastfeeding women"
+  ],
+  "locations": [
+   "Hubballi, Karnataka",
+   "Kanpur, Uttar Pradesh",
+   "Jodhpur, Rajasthan"
+  ],
+  "interventions": [
+   "Ertugliflozin"
+  ]
+ },
+ {
+  "trial_id": "NCT07321886",
+  "title": "A Study of Eloralintide (LY3841136) in Participants With Obesity, or Overweight Without Type 2 Diabetes",
+  "condition": "Obesity",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": null,
+  "sponsor": "Eli Lilly and Company",
+  "source": "ClinicalTrials.gov NCT07321886",
+  "last_updated": "2026-09-22",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "* Have Body Mass Index (BMI) at screening of the following:",
+   "* 30 kilogram per square meter (kg/m2) OR",
+   "* 27 kg/m2 with at least one of the following weight-related health conditions at screening:",
+   "* high blood pressure",
+   "* dyslipidemia",
+   "* obstructive sleep apnea, or",
+   "* heart disease",
+   "* Have a stable body weight (<5% body weight change) for 90 days prior to screening.",
+   "* Have a history of at least one self-reported unsuccessful dietary effort to reduce body weight"
+  ],
+  "exclusion_criteria": [
+   "* Have a prior or planned surgical treatment for obesity (liposuction, cryolipolysis, or abdominoplasty allowed if performed >1 year before screening)",
+   "* Have a prior or planned endoscopic procedure and/or device-based therapy for obesity (prior device-based therapy acceptable if device removal was more than 6 months prior to screening)",
+   "* Have type 1 diabetes or type 2 diabetes",
+   "* Have had within 90 days prior to screening:",
+   "* heart attack",
+   "* coronary artery revascularization",
+   "* unstable angina, or",
+   "* hospitalization due to congestive heart failure",
+   "* Have a history or diagnosis of New York Heart Association Functional Classification Class IV congestive heart failure",
+   "* Have taken medications or alternative remedies intended for weight loss within 90 days of screening"
+  ],
+  "locations": [
+   "Guntur",
+   "Guwahati",
+   "Hyderabad",
+   "Mandya",
+   "Mumbai",
+   "Mysore",
+   "Nagpur",
+   "Nashik",
+   "Pune",
+   "Trichy"
+  ],
+  "interventions": [
+   "DRUG: Eloralintide",
+   "DRUG: Placebo"
+  ]
+ },
+ {
+  "trial_id": "NCT07392190",
+  "title": "A Study of Eloralintide (LY3841136) in Participants With Persistent Obesity Who Are Treated With a Weekly Incretin",
+  "condition": "Overweight",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": null,
+  "sponsor": "Eli Lilly and Company",
+  "source": "ClinicalTrials.gov NCT07392190",
+  "last_updated": "2026-09-22",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "* Are on stable incretin therapy at screening",
+   "* With persistent obesity or overweight defined as:",
+   "* ≥30 kg/m2 OR",
+   "* ≥27 kg/m2 with at least one existing obesity related complication at screening:",
+   "* hypertension",
+   "* dyslipidemia",
+   "* obstructive sleep apnea",
+   "* cardiovascular disease (for example, ischemic cardiovascular disease, New York Heart Association Functional Class I-III heart failure), or",
+   "* type 2 diabetes",
+   "* Have a stable body weight (<5% body weight change) at screening"
+  ],
+  "exclusion_criteria": [
+   "* Have a prior or planned surgical treatment for obesity (liposuction, cryolipolysis, or abdominoplasty allowed if performed >1 year before screening)",
+   "* Have a prior or planned endoscopic procedure and/or device-based therapy for obesity (prior device-based therapy acceptable if device removal was more than 6 months prior to screening)",
+   "* Have type 1 diabetes",
+   "* Have taken any of the following antihyperglycemic medications within 90 days before screening:",
+   "* dipeptidyl peptidase-4 (DPP-4) inhibitors",
+   "* amylin analogs",
+   "* insulin",
+   "* Have had within 90 days prior to screening:",
+   "* heart attack",
+   "* coronary artery revascularization",
+   "* unstable angina, or",
+   "* hospitalization due to congestive heart failure",
+   "* Have a history or diagnosis of New York Heart Association Functional Classification Class IV congestive heart failure"
+  ],
+  "locations": [
+   "Allahābād",
+   "Bangalore",
+   "Chennai",
+   "Hyderabad",
+   "Jaipur",
+   "Kanpur",
+   "Kolhāpur",
+   "Mysore",
+   "Nagpur",
+   "Surat"
+  ],
+  "interventions": [
+   "DRUG: Eloralintide",
+   "DRUG: Placebo"
+  ]
+ },
+ {
+  "trial_id": "NCT07784270",
+  "title": "A Study to Evaluate Effect of AZD6234 in Adult Participants With Type 2 Diabetes Mellitus and Obesity or Overweight",
+  "condition": "Obesity or Overweight",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": null,
+  "sponsor": "AstraZeneca",
+  "source": "ClinicalTrials.gov NCT07784270",
+  "last_updated": "2026-09-22",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "* Males & females (inclusive of all gender identities) age ≥18 years",
+   "* BMI ≥27 kg/m2",
+   "* Diagnosed with T2DM ≥90 days prior to Screening",
+   "* HbA1c value at Screening of ≥6.0% (42 mmol/mol) and ≤10% (86 mmol/mol) managed with diet and exercise alone or with a stable dose of any oral glycaemic-lowering agent (as per local labelling)",
+   "* Stable body weight (≤5% body weight change) for at least 3 months prior to Randomisation",
+   "* History of at least one self-reported unsuccessful attempt to lose body weight in lifetime"
+  ],
+  "exclusion_criteria": [
+   "* Obesity primarily caused by other endocrine disorders",
+   "* Type 1 diabetes mellitus (or any other diabetes mellitus that is not clearly Type 2 diabetes), OR have history of ketoacidosis or hyperosmolar coma/state within 3 months prior to Screening",
+   "* Significant hepatobiliary disease and/or any of the following results at Screening:",
+   "* ALT ≥ 3.0 X ULN",
+   "* AST ≥ 3.0 X ULN",
+   "* TBL > 1.5 X ULN (except for cases of known Gilbert's Syndrome)",
+   "* Has received treatment with a GLP-1 receptor agonist or GLP-1 containing medication for any indication within 3 months before Randomisation",
+   "* Use of insulin therapy for T2DM within 3 months prior to screening"
+  ],
+  "locations": [
+   "Bangalore",
+   "Indore",
+   "Kolkata",
+   "Nagpur",
+   "Pune",
+   "Pune",
+   "Siliguri",
+   "Visakhapatnam"
+  ],
+  "interventions": [
+   "DRUG: AZD6234",
+   "DRUG: Placebo"
+  ]
+ },
+ {
+  "trial_id": "NCT07282600",
+  "title": "A Study of Eloralintide (LY3841136) in Participants With Obesity or Overweight, and Type 2 Diabetes",
+  "condition": "Overweight",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": null,
+  "sponsor": "Eli Lilly and Company",
+  "source": "ClinicalTrials.gov NCT07282600",
+  "last_updated": "2026-09-22",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "* Have type 2 diabetes",
+   "* Are on stable treatment for type 2 diabetes for at least 90 days prior to screening",
+   "* Have a BMI ≥ 27 kg/m2",
+   "* Have a stable body weight (<5% body weight change) for 90 days prior to screening"
+  ],
+  "exclusion_criteria": [
+   "* Have a prior or planned surgical treatment for obesity (liposuction, cryolipolysis, or abdominoplasty allowed if performed >1 year before screening)",
+   "* Have a prior or planned endoscopic procedure and/or device-based therapy for obesity (prior device-based therapy acceptable if device removal was more than 6 months prior to screening)",
+   "* Have type 1 diabetes",
+   "* Have taken any of the following antihyperglycemic medications within 90 days before screening:",
+   "* amylin analogs",
+   "* glucagon-like peptide-1 (GLP-1) receptor agonists",
+   "* glucose-dependent insulinotropic polypeptide/glucagon-like peptide-1 (GIP/GLP) receptor agonists, or",
+   "* insulin",
+   "* Have had within 90 days prior to screening:",
+   "* heart attack",
+   "* coronary artery revascularization",
+   "* unstable angina, or",
+   "* hospitalization due to congestive heart failure",
+   "* Have a history or diagnosis of New York Heart Association Functional Classification Class IV congestive heart failure",
+   "* Have taken medications or alternative remedies intended for weight loss within 90 days of screening"
+  ],
+  "locations": [
+   "Bangalore"
+  ],
+  "interventions": [
+   "DRUG: Eloralintide",
+   "DRUG: Placebo"
+  ]
+ },
+ {
+  "trial_id": "NCT07613307",
+  "title": "A Study of Orforglipron (LY3502970) in Participants With Type 2 Diabetes Who Observe Ramadan Fasting",
+  "condition": "Diabetes Mellitus, Type 2",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 65.0,
+  "sponsor": "Eli Lilly and Company",
+  "source": "ClinicalTrials.gov NCT07613307",
+  "last_updated": "2026-09-22",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "* Have a clinical diagnosis of T2D based on the World Health Organization (WHO) classification or other locally applicable diagnostic standards.",
+   "* Have an HbA1c value of at least 7.0% (53 millimoles per mole (mmol/mol)) to less than 9.5% (91 mmol/mol) at screening.",
+   "* Intend to be compliant with the fast during the Ramadan period.",
+   "* Have had stable body weight self-reported change of 5 kilograms (kg) or lower during the 90 days prior to screening.",
+   "* Have body mass index (BMI) of 25 kilograms per meter square (kg/m2) or higher at screening."
+  ],
+  "exclusion_criteria": [
+   "* Have any form of diabetes other than T2D, including type 1 diabetes (T1D), gestational diabetes, latent autoimmune diabetes, maturity-onset diabetes of the young, and medication-induced diabetes",
+   "* Have a family (first-degree relative) or personal history of medullary thyroid carcinoma or multiple endocrine neoplasia syndrome type 2.",
+   "* Have a history of chronic or acute pancreatitis any time prior to screening",
+   "* Have evidence of a significant, uncontrolled endocrine abnormality, for example, thyrotoxic or adrenal crises, in the opinion of the investigator",
+   "* Have a history of an active or untreated malignancy or are in remission from a clinically significant malignancy for less than 5 years.",
+   "* Have a history of cholecystectomy (surgically removed gallbladder)",
+   "* Have New York Heart Association Functional Classification IV congestive heart-failure."
+  ],
+  "locations": [
+   "Agra",
+   "Hyderabad",
+   "Kanpur",
+   "Kolkata",
+   "Mumbai",
+   "Mysore",
+   "Nashik",
+   "Nellore",
+   "Visakhapatna"
+  ],
+  "interventions": [
+   "DRUG: Orforglipron"
+  ]
+ },
+ {
+  "trial_id": "NCT07754461",
+  "title": "A Study to Test Whether Survodutide Helps People With Type 2 Diabetes Control Their Blood Sugar",
+  "condition": "Type 2 Diabetes",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": null,
+  "sponsor": "Boehringer Ingelheim",
+  "source": "ClinicalTrials.gov NCT07754461",
+  "last_updated": "2026-09-17",
+  "inclusion_criteria": [
+   "Inclusion criteria:",
+   "Male or female, age ≥18 years at the time of signing informed consent, and at least the legal age of consent in countries where it is >18 years",
+   "Diagnosed with type 2 diabetes mellitus (T2D) (e.g. American diabetes association (ADA)/European association for the study of diabetes (EASD) guidelines) and must meet requirements for one of background therapy parts A, B or C:",
+   "Part A: Naïve to insulin therapy and have not used oral or injectable anti-hyperglycaemic (diabetes) medication for at least 90 days prior to screening (Visit 1) and glycosylated haemoglobin A1c (HbA1c) ≥7.0 (≥53 mmol/mol) and <9.5% (<80 mmol/mol) as measured by the central laboratory at screening (Visit 1);",
+   "Part B: Treated with stable dose of oral antidiabetic medication (OAD) for 90 days prior to screening (Visit 1) as monotherapy or combination of: Maximum tolerated dose of metformin and/or Maximum tolerated dose of sulfonylurea and/or Maximum tolerated dose of sodium-glucose cotransporter 2 inhibitor (SGLT2i) and HbA1c ≥7.0% (≥53 mmol/mol) and <10.5% (<91 mmol/mol) as measured by the central laboratory at screening (Visit 1);",
+   "Part C: Stable use of basal insulin at a dose of ≥20 international units (IU)/day with or without stable dose of metformin and/or SGLT2i for 90 days prior to screening (Visit 1) and HbA1c ≥7.0% (≥53 mmol/mol) and <10.5% (<91 mmol/mol) as measured by the central laboratory at screening (Visit 1)",
+   "Body mass index (BMI) ≥23 kg/m2 at screening (Visit 1)",
+   "Signed and dated written informed consent in accordance with international council for harmonisation - good clinical practice (ICH-GCP) and local legislation prior to admission to the trial",
+   "Woman (or women) of childbearing potential (WOCBP) must be ready and able to use highly effective methods of birth control per international council for harmonisation of technical requirements for pharmaceuticals for human use M3 (R2) that result in a low failure rate of less than 1% per year when used consistently and correctly.",
+   "In the investigator's opinion, participants are well-motivated, capable, and willing to: Learn how to self-inject the investigational medicinal product (IMP), as required for this protocol (persons with physical limitations who are not able to perform the injections must have the assistance of an individual trained to inject the IMP); Inject the IMP or accept injection from a designated person; Follow study procedures for the duration of the study, including, but not limited to: follow lifestyle advice (for example, dietary restrictions and exercise plan), maintain a diary, complete required questionnaires, and handle the IMP as described in the instructions for use (IFU)"
+  ],
+  "exclusion_criteria": [
+   "Type 1 diabetes mellitus (T1D) or latent autoimmune diabetes in adults (LADA)",
+   "Treatment within 90 days before screening (Visit 1) up to and including randomisation (Visit 2) with any: glucagon-like peptide-1 receptor (GLP-1R) agonists including GLP-1R agonist/glucose-dependent insulinotropic polypeptide (GIP) combinations, amylin or incretin combinations; Glucose-lowering drugs other than stated in the inclusion criteria for each part (i.e. metformin, Sodium-Glucose Cotransporter 2 Inhibitor (SGLT2i), basal insulin, depending on the background therapy part); Glucose-lowering investigational drug; Any anti-obesity medication including bupropion/naltrexone, orlistat, phentermine, and phentermine/topiramate",
+   "History of ketoacidosis or hyperosmolar state or coma within the last 6 months before screening (Visit 1) up to and including randomisation (Visit 2)",
+   "Hypoglycaemia unawareness or a history of severe hypoglycaemia within the last 3 months before screening (Visit 1) up to and including randomisation (Visit 2)",
+   "Diabetic retinopathy or maculopathy currently under treatment, or that is reasonably anticipated to require such treatment over the duration of the study",
+   "Body weight change (self-reported) >5% within 90 days before screening (Visit 1)",
+   "Previous or planned (during the trial period) treatment for obesity with surgery or a weight loss device, including any prior bariatric surgery. The following are allowed: (1) liposuction and/or abdominoplasty, if performed >1 year before screening (Visit 1), (2) lap banding, if the band has been removed >1 year before screening (Visit 1), (3) intragastric balloon, if the balloon has been removed >1 year before screening (Visit 1), (4) duodenal-jejunal bypass sleeve, if the sleeve has been removed >1 year before screening (Visit 1).",
+   "Answered \"yes\" to any of the suicide-related behaviours (Actual attempt, Interrupted attempt, Aborted attempt, Preparatory act or behaviour) or to the non-suicidal self-injurious behaviour question on the \"Suicidal Behaviour\" section of the Columbia-Suicide Severity Rating Scale (C-SSRS) related to the past 2 years before screening (Visit 1) up to and including randomisation (Visit 2)",
+   "Further exclusion criteria apply."
+  ],
+  "locations": [
+   "Ahmedabad",
+   "Ahmedabad",
+   "Bhubaneswar",
+   "Cuttack",
+   "Hyderabad, Afzalgunj",
+   "Kolhāpur",
+   "Lucknow",
+   "Nagpur",
+   "Nashik",
+   "New Delhi",
+   "Pune",
+   "Trivandrum",
+   "Visakhapatnam"
+  ],
+  "interventions": [
+   "DRUG: Placebo",
+   "DRUG: Survodutide"
+  ]
+ },
+ {
+  "trial_id": "NCT07064473",
+  "title": "EASi-PROTKT™ - A Study to Test Vicadrostat (BI 690517) Taken Together With Empagliflozin in People With Type 2 Diabetes, High Blood Pressure, and Cardiovascular Disease",
+  "condition": "Diabetes Mellitus, Type 2",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": null,
+  "sponsor": "Boehringer Ingelheim",
+  "source": "ClinicalTrials.gov NCT07064473",
+  "last_updated": "2026-09-16",
+  "inclusion_criteria": [
+   "Inclusion Criteria :",
+   "* At least 18 years old at time of consent",
+   "* Signed and dated written informed consent in accordance with ICH-GCP and local legislation prior to admission to the trial",
+   "* Women of childbearing potential (WOCBP) must be ready and able to use highly effective methods of birth control per ICH M3 (R2).",
+   "* Participants with medical history of hypertension and on active pharmacological treatment",
+   "* Participants with medical history of type 2 diabetes mellitus (T2DM) and on active pharmacological treatment",
+   "* Established cardiovascular (CV) disease and on active pharmacological treatment",
+   "* At least one additional risk factor for developing heart failure (HF)"
+  ],
+  "exclusion_criteria": [
+   "* History of HF or hospitalization for HF or treatment of HF",
+   "* Atrial fibrillation or Atrial flutter with a resting heart rate >110 beats per minute (bpm) documented by echocardiogram (ECG) at Visit 1 (screening)",
+   "* Advanced untreated conduction disease or untreated clinically relevant ventricular arrhythmia at Visit 1 (screening)",
+   "* Treatment with an Mineralocorticoid receptor antagonist (MRA)",
+   "* Treatment with amiloride or other potassium-sparing diuretic",
+   "* Receiving the following treatments at Visit 1 (screening) or requiring such treatment before Visit 2 (randomisation), or planned during the trial:",
+   "* A direct renin inhibitor (e.g. aliskiren)",
+   "* More than one Angiotensin-converting enzyme inhibitor (ACEi) and/or Angiotensin receptor blocker (ARB) (including Angiotensin receptor-neprilysin inhibitor (ARNi)) used simultaneously",
+   "* Other aldosterone synthase inhibitors (e.g. baxdrostat)",
+   "* Systemic mineralocorticoid replacement therapy (e.g. fludrocortisone) Further exclusion criteria apply."
+  ],
+  "locations": [
+   "Ahmedabad",
+   "Bengaluru",
+   "Bikaner",
+   "Kanpur",
+   "Kolkata",
+   "Kolkata",
+   "Maharashtra",
+   "Nagpur",
+   "Nashik",
+   "New Dehi",
+   "New Delhi",
+   "New Delhi",
+   "New Delhi",
+   "Pune",
+   "Sāket",
+   "Surat",
+   "Trivandrum",
+   "Visakhapatnam"
+  ],
+  "interventions": [
+   "DRUG: Vicadrostat",
+   "DRUG: Empagliflozin",
+   "DRUG: Placebo matching Vicadrostat"
+  ]
+ },
+ {
+  "trial_id": "NCT03549754",
+  "title": "iCaReMe Global Registry: Multinational Real-world Evidence in Cardiorenal and Metabolic Diseases",
+  "condition": "Type 2 Diabetes",
+  "status": "Recruiting",
+  "phase": "N/A",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": null,
+  "sponsor": "AstraZeneca",
+  "source": "ClinicalTrials.gov NCT03549754",
+  "last_updated": "2026-09-09",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "Being 18 years or older",
+   "Having type 2 diabetes, Hypertension, Heart Failure and/or chronic kidney disease",
+   "Providing written informed consent to participate in the registry"
+  ],
+  "exclusion_criteria": [
+   "Having a life-threatening co-morbidity with life expectancy below 1 year",
+   "Participating in an interventional trial requiring informed consent"
+  ],
+  "locations": [
+   "Ahmedabad",
+   "Kolkata",
+   "Mumbai"
+  ],
+  "interventions": []
+ },
+ {
+  "trial_id": "NCT06932263",
+  "title": "Dose Range Finding Study to Assess Efficacy and Safety of Tozorakimab in Adults With Uncontrolled Asthma on Medium-to-High Dose Inhaled Corticosteroids",
+  "condition": "Asthma",
+  "status": "Recruiting",
+  "phase": "Phase2",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 75.0,
+  "sponsor": "AstraZeneca",
+  "source": "ClinicalTrials.gov NCT06932263",
+  "last_updated": "2026-09-25",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "Provision of signed and dated written informed consent prior to any study-specific procedures.",
+   "Adults aged 18-75, inclusive when signing the informed consent.",
+   "Documented physician-diagnosis of asthma for at least 12 months.",
+   "Treated with medium or high dose ICS in combination with LABA.",
+   "Demonstration of uncontrolled asthma through ACQ-6 score ≥ 1.5 .",
+   "Pre-bronchodilator FEV1 ≥ 40% to ≤ 90% of predicted normal.",
+   "Documented exacerbation history in the last 12 months and biomarker requirements of:",
+   "≥ 2 severe exacerbations OR",
+   "1 severe exacerbation and:",
+   "(i) Eosinophils ≥ 150 cells/µl or (ii) FeNo ≥ 25 ppb",
+   "Participants need to demonstrate a ≥70% compliance for Asthma Daily Diary.",
+   "Women of Child Bearing Potential (WOCBP) must have a negative pregnancy test.",
+   "Contraceptive use by males and females should be consistent with local regulations regarding the methods of contraception for those participating in clinical studies."
+  ],
+  "exclusion_criteria": [
+   "Completed treatment for respiratory infection with antibiotics in the 4 weeks prior to Visit 1.",
+   "Clinically significant pulmonary disease other than asthma .",
+   "Current smokers, former smokers with >10 pack-years history.",
+   "Clinically significant aortic stenosis or pulmonary arterial hypertension.",
+   "Active tuberculosis, hepatitis, HIV, or current diagnosis of cancer or immune complex disease.",
+   "Unstable cardiovascular disorders."
+  ],
+  "locations": [
+   "Belagavi",
+   "Coimbatore",
+   "Dehradun",
+   "Delhi",
+   "Faridabad",
+   "Gurgaon",
+   "Kochi",
+   "Lucknow",
+   "New Delhi",
+   "Vadodara"
+  ],
+  "interventions": [
+   "DRUG: Tozorakimab",
+   "DRUG: Placebo"
+  ]
+ },
+ {
+  "trial_id": "NCT07444567",
+  "title": "Roll-over Study for Participants Who Have Completed a Previous Clinical Study With Benralizumab (Fasenra) and Benefit From Continued Treatment",
+  "condition": "Asthma",
+  "status": "Recruiting",
+  "phase": "Phase3",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 6.0,
+  "max_age": null,
+  "sponsor": "AstraZeneca",
+  "source": "ClinicalTrials.gov NCT07444567",
+  "last_updated": "2026-09-22",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "* 1. Provision of signed and dated written ICF.",
+   "Participants completing minimum required OLE period of a parent study and judged by the Investigator to benefit from continued treatment.",
+   "* 3. Participants must agree to follow the contraception requirements as per their respective parent protocols from study inclusion up to 12 weeks after the last dose of study treatment.",
+   "* 4. Participants without childbearing potential at enrolment must agree to start appropriate contraception if childbearing potential develops during the study and up to 12 weeks after the last dose of study treatment.",
+   "* 5. Participants who are unable to access commercially available benralizumab and clinically indicated for continuation."
+  ],
+  "exclusion_criteria": [
+   "* 1. Ongoing, unresolved AE requiring interruption of treatment at the end of the prior parent study (ie, when the parent study is either completed or closed) that in the Investigator's opinion would prevent restarting benralizumab.",
+   "* 2. Participants who are planning to use live/live-attenuated vaccines.",
+   "* 3. Participants who are planning to use biologic therapies, including B-cell therapies with the exception for the treatment of co-morbidities where no alternative medicine is available.",
+   "* 4. Participants with any medical condition (such as cancer or viral infections [hepatitis]) or psychiatric condition that, in the opinion of the Investigator, could jeopardise or would compromise the participant's ability to participate in this study as determined by the Investigator based on protocol required assessments.",
+   "* 5. Concurrently enrolled in any clinical study (other than a parent study).",
+   "* 6. Participants who discontinued the parent study prior to completing the minimum OLE or treatment period.",
+   "* 7. Local access to commercially available benralizumab."
+  ],
+  "locations": [
+   "Ahmedabad",
+   "Ajmer"
+  ],
+  "interventions": [
+   "DRUG: Benralizumab"
+  ]
+ },
+ {
+  "trial_id": "NCT07219173",
+  "title": "A Study to Evaluate Brenipatide Compared With Placebo in Adult Participants With Uncontrolled Moderate to Severe Asthma",
+  "condition": "Asthma",
+  "status": "Recruiting",
+  "phase": "Phase2",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 18.0,
+  "max_age": 75.0,
+  "sponsor": "Eli Lilly and Company",
+  "source": "ClinicalTrials.gov NCT07219173",
+  "last_updated": "2026-09-22",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "* Physician-diagnosed asthma who have received a physician-prescribed asthma controller medication for at least 12 months prior to screening visit.",
+   "* Participants must have an asthma control questionnaire-6 (ACQ-6) score of ≥1.5 on 2 out of 3 visits before randomization.",
+   "* History of 1 severe asthma exacerbation that led to systemic glucocorticoid treatment in the last 12 months prior to screening visit."
+  ],
+  "exclusion_criteria": [
+   "* Participants are excluded from the study if any of the following criteria apply:",
+   "* An established diagnosis of occupational asthma",
+   "* Known pre-existing, clinically important lung condition other than asthma, including but not limited to:",
+   "* chronic respiratory infection",
+   "* bronchiectasis",
+   "* pulmonary fibrosis",
+   "* allergic bronchopulmonary aspergillosis",
+   "* emphysema",
+   "* chronic bronchitis",
+   "* eosinophilic granulomatosis with polyangiitis",
+   "* chronic obstructive pulmonary disease, and",
+   "* other mimics of asthma, that is, vocal cord dysfunction.",
+   "* Have a current or recent acute, active infection. For at least 30 days before screening visit and up to the randomization visit."
+  ],
+  "locations": [
+   "Aurangabad",
+   "Aurangabad",
+   "Bangalore",
+   "Bhubaneswar",
+   "Dwārka",
+   "Kanpur",
+   "New Delhi",
+   "Pune",
+   "Raipur",
+   "Rohtak"
+  ],
+  "interventions": [
+   "DRUG: Brenipatide",
+   "DRUG: Brenipatide",
+   "DRUG: Placebo"
+  ]
+ },
+ {
+  "trial_id": "NCT04912596",
+  "title": "Pharmacodynamic Equivalence of the Test and Reference Metered Dose Inhalers (MDIs) Containing Albuterol Sulfate in Adult Patients With Stable Mild Asthma",
+  "condition": "Mild Asthma",
+  "status": "Recruiting",
+  "phase": "Na",
+  "study_type": "Interventional",
+  "gender": "Both",
+  "min_age": 20.0,
+  "max_age": 65.0,
+  "sponsor": "Intech Biopharm Ltd.",
+  "source": "ClinicalTrials.gov NCT04912596",
+  "last_updated": "2025-02-17",
+  "inclusion_criteria": [
+   "Inclusion Criteria:",
+   "Male, non-pregnant and non-lactating female subjects (20-65 years of age, inclusive).",
+   "A clinical diagnosis of mild asthma with historical documentation of the asthma diagnosis according to either: (1) the National Asthma Education and Prevention Program (NAEPP) guidelines (2007) or (2) the Global Initiative for Asthma (GINA) Global Strategy for Asthma Management and Prevention (2020).",
+   "Stable mild asthma receiving the following required inhaled medications for at least 1 month prior to screening: Low doses of ICS alone, or in combination with SABA, used regularly with a stable regimen.",
+   "Forced Expiratory Volume in 1 second (FEV1) ≥ 80% of the local predicted normal value after withholding SABA ≥ 8 hours.",
+   "Airway responsiveness to methacholine demonstrated by a pre-albuterol-dose (baseline) PC20 ≤ 8 mg/mL.",
+   "Nonsmoker for at least 6 months prior to the study and a maximum smoking history of 5 pack-years (the equivalent of one pack per day for 5 years).",
+   "Provision of written informed consent.",
+   "Other than asthma, in general good health.",
+   "Body mass index (BMI) between 17 and 35 kg/m2 (inclusive).",
+   "Able to correctly use MDI inhalers.",
+   "Able to perform valid and reproducible pulmonary function tests including no evidence of spirometry effort-induced bronchoconstriction.",
+   "If the subject or subject's partner is of child-bearing potential, a medically acceptable form of contraception will be used for the duration of the study. Medically acceptable contraceptives include: (1) surgical sterilization, (2) Health Authority approved female hormonal contraceptives, (3) an intrauterine device (IUD), (4) condoms with spermicide, or (5) diaphragm with spermicide."
+  ],
+  "exclusion_criteria": [
+   "Evidence of conditions altering airway reactivity to methacholine, including upper or lower respiratory tract infections (e.g., pneumonia, viral bronchitis, allergic rhinitis, sinobronchitis, etc.) within 6 weeks before Screening.",
+   "Evidence of a baseline FEV1 < 60% of the local predicted normal value or FEV1 < 1.5 L.",
+   "History of seasonal asthma exacerbations, in which case the subject should be studied outside of the relevant allergen season.",
+   "History of cystic fibrosis, bronchiectasis, COPD, or other respiratory diseases including COPD, chronic bronchitis, emphysema, tuberculosis, pulmonary carcinoma, pulmonary fibrosis, pulmonary hypertension that, in the opinion of the Investigator, would compromise subject safety or interfere with the evaluations.",
+   "History of cardiovascular, hematological, renal, neurologic, hepatic, psychiatric, endocrine dysfunction, including ECG with evidence of ischemic heart diseases and significant arrhythmias.",
+   "Treatment in an emergency room or hospitalization for acute asthmatic symptoms within 3 months prior to screening.",
+   "Known intolerance or hypersensitivity to any component of the albuterol MDI, beta2 receptor-agonist drug, HFA, any related compounds or methacholine.",
+   "Need for daily oral corticosteroids within 3 months prior to screening.",
+   "Cardiac arrhythmia or 12-lead electrocardiogram (ECG) abnormalities, that in the opinion of the Investigator would compromise subject safety or interfere with the evaluations, or a QTc > 440 ms for males and > 460 ms for females using Fredericia formula.",
+   "Subjects receiving beta blocker via any route or who may require beta blockers during the study.",
+   "History of narrow angle glaucoma, convulsive disorders, hyperthyroidism, uncontrolled diabetes, paradoxical bronchospasm.",
+   "History of malignancies.",
+   "History of alcohol or drug abuse.",
+   "Eye, brain, thoracic, and abdominal surgeries within 3 months prior to screening.",
+   "Use of cromyolyn, leukotriene receptor antagonists (LTRA), nedocromil, zileuton, theophylline, or long-acting beta-agonists (LABA) within 1 month prior to screening.",
+   "History of receiving muscarinic beta2-agonists (MABAs), short-acting muscarinic antagonists (SAMAs), long-acting muscarinic antagonists (LAMAs), anti-IgE, anti-IL5/5R, anti-IL4R, high dose ICS, or systemic corticosteroid for treatment of asthma within 6 months prior to screening.",
+   "Known Human Immunodeficiency Virus (HIV)-positive status.",
+   "Participated in any interventional clinical trials within 1 month prior to screening.",
+   "Pregnancy or breast feeding."
+  ],
+  "locations": [
+   "Ahmedabad",
+   "Belagāve",
+   "Kolkata",
+   "Kolkata",
+   "New Delhi",
+   "Pune",
+   "Pune",
+   "Ulhasnagar"
+  ],
+  "interventions": [
+   "DRUG: Albuterol Sulfate inhalation aerosol 108 mcg per actuation",
+   "DRUG: Proair HFA (Albuterol Sulfate) or FDA authorized generic: Albuterol Sulfate HFA (Teva Pharmaceutical USA, Inc.) Inhalation Aerosol 108 mcg per actuation",
+   "OTHER: Proair HFA or FDA authorized generic: Albuterol Sulfate HFA Inhalation Placebo",
+   "OTHER: Albuterol Sulfate inhalation Placebo",
+   "OTHER: Methacholine"
+  ]
+ }
 ]

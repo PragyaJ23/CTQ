@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  analyzePatient, analyzeCohort, exportCohortExcel, buildPayload, extractDocument, apiErrorMessage,
+  analyzePatient, analyzeCohort, exportCohortExcel, buildPayload, extractDocument,
+  uploadPatients, apiErrorMessage,
 } from "../services/api.js";
 import { Banner, Loading, EligibilityBadge, MatchScore, MetaChip } from "../components/ui.jsx";
 
@@ -114,6 +115,7 @@ function noteToFactsPayload(facts, noteId) {
     disease_duration_months: facts.disease_duration_months,
     symptoms: facts.symptoms || [],
     current_medications: meds,
+    comorbidities: facts.comorbidities || {},
     smoking_status: facts.smoking_status, alcohol_use: facts.alcohol_use,
     pregnancy_status: facts.pregnancy_status,
     height_cm: facts.height_cm, weight_kg: facts.weight_kg,
@@ -121,7 +123,327 @@ function noteToFactsPayload(facts, noteId) {
   };
 }
 
-/** Unstructured data panel: photos/PDF/CSV of medical history -> ML NER -> trials. */
+/** Lab field names that may sit flat on a payload (shown as chips). */
+const LAB_KEYS = new Set([
+  "hba1c", "fasting_glucose", "systolic_bp", "diastolic_bp", "creatinine", "egfr",
+  "hemoglobin", "wbc", "platelets", "alt", "ast", "bilirubin", "cholesterol", "fev1_percent",
+]);
+
+/** Human-readable chips for a flat payload (shared by all tabs). */
+function fmtFacts(facts) {
+  const bits = [];
+  if (facts.age) bits.push(`Age ${facts.age}`);
+  if (facts.gender) bits.push(facts.gender);
+  if (facts.condition) bits.push(facts.condition);
+  if (facts.disease_duration_months) bits.push(`${facts.disease_duration_months} mo`);
+  if (facts.smoking_status) bits.push(`Smoke: ${facts.smoking_status}`);
+  if (facts.alcohol_use) bits.push(`Alcohol: ${facts.alcohol_use}`);
+  if (facts.pregnancy_status) bits.push(facts.pregnancy_status);
+  const meds = (facts.current_medications || []).map((m) =>
+    m.name + (m.dose ? ` ${m.dose}` : "") + (m.frequency ? ` (${m.frequency})` : ""));
+  const labs = facts.labs
+    ? Object.entries(facts.labs).map(([k, v]) => `${k} ${v}`)
+    : Object.entries(facts).filter(([k]) => LAB_KEYS.has(k)).map(([k, v]) => `${k} ${v}`);
+  const symptoms = facts.symptoms || [];
+  return [...bits, ...meds, ...symptoms, ...labs];
+}
+
+/** Backend profile -> form/cohort row (strings for inputs, objects kept). */
+function profileToForm(p) {
+  const out = {};
+  for (const [k, v] of Object.entries(p)) {
+    if (v === null || v === undefined) continue;
+    out[k] = typeof v === "object" ? v : String(v);
+  }
+  return out;
+}
+
+/** Merge structured CSV profiles with ML-extracted note facts.
+ *  Structured values win whenever present; the note fills every gap.
+ *  Matching: exact patient_id -> trailing id digits (U001 <-> S001) -> row order. */
+function mergeStructuredAndNotes(structPatients, noteResults) {
+  const byId = new Map(structPatients.map((p) => [String(p.patient_id), p]));
+  const byDigits = new Map();
+  for (const p of structPatients) {
+    const m = String(p.patient_id).match(/(\d+)\s*$/);
+    if (m && !byDigits.has(m[1])) byDigits.set(m[1], p);
+  }
+  const merged = [];
+  let exact = 0, digits = 0, ordered = 0, notesOnly = 0;
+  noteResults.forEach((r, idx) => {
+    const notePayload = noteToFactsPayload(r.facts, r.note_id);
+    let s = byId.get(String(r.note_id));
+    if (s) exact++;
+    if (!s) {
+      const m = String(r.note_id).match(/(\d+)\s*$/);
+      s = m ? byDigits.get(m[1]) : null;
+      if (s) digits++;
+    }
+    if (!s && structPatients[idx]) { s = structPatients[idx]; ordered++; }
+    if (!s) { notesOnly++; merged.push({ id: notePayload.patient_id, payload: notePayload, source: "notes only" }); return; }
+    const payload = { ...notePayload };
+    for (const [k, v] of Object.entries(s)) {
+      if (v === null || v === undefined || v === "") continue;
+      if (Array.isArray(v) && v.length === 0) continue;
+      if (typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0) continue;
+      payload[k] = v;
+    }
+    if (!payload.patient_id) payload.patient_id = s.patient_id || r.note_id;
+    const flatLabs = Object.fromEntries(Object.entries(payload).filter(([k]) => LAB_KEYS.has(k)));
+    payload.labs = { ...flatLabs, ...(payload.labs || {}) };
+    merged.push({ id: payload.patient_id, payload, source: "structured + notes" });
+  });
+  return { merged, stats: { exact, digits, ordered, notesOnly } };
+}
+
+/** Shared per-patient viewer for "Results for all patients" (any tab). */
+function AllResultsViewer({ allResult, allActive, setAllActive }) {
+  const navigate = useNavigate();
+  const ok = allResult.results.filter((r) => r.ok);
+  const failed = allResult.results.filter((r) => !r.ok);
+  const active = ok[allActive];
+  if (!active) return <Banner kind="warn">No patient results available.</Banner>;
+  const trials = active.response?.results || [];
+  const counts = trials.reduce((acc, t) => {
+    acc[t.eligibility] = (acc[t.eligibility] || 0) + 1; return acc;
+  }, {});
+  return (
+    <div className="section-gap">
+      <h2>Results for all patients</h2>
+      <Banner kind={failed.length === 0 ? "success" : "warn"}>
+        {ok.length} of {allResult.results.length} patients analysed
+        {failed.length > 0 && <> · failed: {failed.map((f) => f.patient_id).join(", ")}</>}
+      </Banner>
+      <div className="card section-gap">
+        <div className="btn-row" style={{ flexWrap: "wrap", marginBottom: "0.6rem" }}>
+          {ok.map((r, i) => (
+            <button key={r.patient_id} type="button"
+              className={`btn ${i === allActive ? "primary" : ""}`}
+              style={{ padding: "0.35rem 0.9rem" }}
+              onClick={() => setAllActive(i)}>
+              {r.patient_id}
+            </button>
+          ))}
+        </div>
+        <div className="btn-row" style={{ marginBottom: "0.6rem" }}>
+          <button type="button" className="btn secondary" disabled={allActive === 0}
+            onClick={() => setAllActive((i) => Math.max(0, i - 1))}>
+            ← Previous patient
+          </button>
+          <span style={{ fontWeight: 600 }}>Patient {allActive + 1} of {ok.length}</span>
+          <button type="button" className="btn secondary"
+            disabled={allActive >= ok.length - 1}
+            onClick={() => setAllActive((i) => Math.min(ok.length - 1, i + 1))}>
+            Next patient →
+          </button>
+          <button type="button" className="btn"
+            onClick={() => {
+              sessionStorage.setItem("ctq_results", JSON.stringify(
+                { response: active.response, profile: {} }));
+              navigate("/results");
+            }}>
+            Open full page view for {active.patient_id}
+          </button>
+        </div>
+        <h3>Trials for {active.patient_id} — {trials.length} checked</h3>
+        <p className="hint" style={{ margin: "0.2rem 0 0.6rem" }}>
+          {Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(" · ")}
+        </p>
+        {trials.map((t) => (
+          <div key={t.trial_id}
+            className={`result-card section-gap ${t.eligibility === "Potentially Eligible" ? "eligible" : t.eligibility === "Not Eligible" ? "not-eligible" : "insufficient"}`}
+            style={{ padding: "0.8rem 1rem" }}>
+            <div className="result-head">
+              <div>
+                <div className="trial-id">{t.trial_id}</div>
+                <div className="result-title">{t.title}</div>
+              </div>
+            </div>
+            <div className="result-meta">
+              <EligibilityBadge status={t.eligibility} />
+              <MatchScore percent={t.match_percent ?? Math.round((t.similarity_score || 0) * 100)}
+                similarity={t.similarity_score} />
+              <MetaChip>{t.condition}</MetaChip>
+              <MetaChip>{t.status}</MetaChip>
+            </div>
+            {t.reasons_for?.length > 0 && (
+              <ul className="hint" style={{ margin: "0.4rem 0 0" }}>
+                {t.reasons_for.slice(0, 3).map((x, i) => <li key={i}>{x}</li>)}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Hybrid panel: structured CSV + unstructured notes -> one merged profile per patient. */
+function HybridPanel() {
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState("");
+  const [error, setError] = useState("");
+  const [structPatients, setStructPatients] = useState(null);
+  const [structName, setStructName] = useState("");
+  const [notesRes, setNotesRes] = useState(null);
+  const [notesName, setNotesName] = useState("");
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [allResult, setAllResult] = useState(null);
+  const [allActive, setAllActive] = useState(0);
+
+  const handleStructured = async (file) => {
+    if (!file) return;
+    setError(""); setAllResult(null);
+    setBusy(`Loading structured patients from “${file.name}”...`);
+    try {
+      const res = await uploadPatients(file);
+      if (!res.patients?.length) throw new Error("No patients found in that file.");
+      setStructPatients(res.patients);
+      setStructName(file.name);
+      setActiveIdx(0);
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const handleNotes = async (file) => {
+    if (!file) return;
+    setError(""); setAllResult(null);
+    setBusy(`Reading “${file.name}” and extracting entities with the ML NER...`);
+    try {
+      const res = await extractDocument(file);
+      setNotesRes(res);
+      setNotesName(file.name);
+      setActiveIdx(0);
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const hybrid = structPatients && notesRes
+    ? mergeStructuredAndNotes(structPatients, notesRes.results)
+    : null;
+  const active = hybrid?.merged[activeIdx] || null;
+
+  const runOne = async () => {
+    setBusy(`Checking every trial in the database for ${active.id}...`);
+    setError("");
+    try {
+      const response = await analyzePatient(active.payload);
+      sessionStorage.setItem("ctq_results", JSON.stringify({ response, profile: active.payload }));
+      navigate("/results");
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const runAll = async () => {
+    setBusy(`Checking every trial in the database for all ${hybrid.merged.length} patients...`);
+    setError("");
+    try {
+      const res = await analyzeCohort(hybrid.merged.map((m) => m.payload));
+      setAllResult(res);
+      setAllActive(0);
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    } finally {
+      setBusy("");
+    }
+  };
+
+  return (
+    <div className="card section-gap">
+      <h2>Hybrid data (structured + unstructured)</h2>
+      <p className="hint">
+        Upload BOTH: a structured patient CSV (form-style columns) and the clinical notes
+        (photo/PDF/CSV). Each patient gets one merged profile — the structured CSV fields are
+        authoritative, and facts extracted from the notes by the DistilBERT ML NER fill every
+        gap the CSV leaves empty.
+      </p>
+      <div className="field-grid">
+        <div className="card" style={{ padding: "0.9rem 1.1rem" }}>
+          <div style={{ fontWeight: 700, marginBottom: "0.3rem" }}>1 · Structured CSV</div>
+          <input type="file" accept=".csv,.xlsx,.xls,.json" disabled={!!busy}
+            onChange={(e) => handleStructured(e.target.files?.[0])} />
+          {structPatients && (
+            <p className="hint" style={{ margin: "0.4rem 0 0" }}>
+              ✓ {structPatients.length} patients from “{structName}”
+            </p>
+          )}
+        </div>
+        <div className="card" style={{ padding: "0.9rem 1.1rem" }}>
+          <div style={{ fontWeight: 700, marginBottom: "0.3rem" }}>2 · Clinical notes (photo / PDF / CSV)</div>
+          <input type="file" accept=".pdf,.png,.jpg,.jpeg,.bmp,.webp,.csv,.xlsx,.xls,.tsv,.txt,.json"
+            disabled={!!busy}
+            onChange={(e) => handleNotes(e.target.files?.[0])} />
+          {notesRes && (
+            <p className="hint" style={{ margin: "0.4rem 0 0" }}>
+              ✓ {notesRes.count} notes extracted from “{notesName}”
+            </p>
+          )}
+        </div>
+      </div>
+      {busy && <Loading text={busy} />}
+      {error && <Banner kind="error">{error}</Banner>}
+
+      {hybrid && (() => {
+        const st = hybrid.stats;
+        return (
+          <>
+            <Banner kind="success">
+              Merged {hybrid.merged.length} patients · matched by exact id: {st.exact} ·
+              by id number: {st.digits} · by row order: {st.ordered}
+              {st.notesOnly > 0 && <> · notes only: {st.notesOnly}</>}
+            </Banner>
+            {active && (
+              <div className="card section-gap" style={{ padding: "0.9rem 1.1rem" }}>
+                <div className="btn-row" style={{ flexWrap: "wrap", marginBottom: "0.5rem" }}>
+                  {hybrid.merged.map((m, i) => (
+                    <button key={m.id + i} type="button"
+                      className={`btn ${i === activeIdx ? "primary" : ""}`}
+                      style={{ padding: "0.3rem 0.8rem" }}
+                      onClick={() => setActiveIdx(i)}>
+                      {m.id}
+                    </button>
+                  ))}
+                </div>
+                <div className="result-head">
+                  <div style={{ fontWeight: 600 }}>{active.id}</div>
+                  <span className="hint">{active.source}</span>
+                </div>
+                <div className="chip-row" style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", margin: "0.5rem 0" }}>
+                  {fmtFacts(active.payload).map((x, i) => (
+                    <span key={i} className="meta-chip">{x}</span>
+                  ))}
+                </div>
+                <div className="btn-row">
+                  <button className="btn primary" disabled={!!busy} onClick={runOne}>
+                    Find Matching Trials for this profile
+                  </button>
+                  {hybrid.merged.length > 1 && (
+                    <button className="btn" disabled={!!busy} onClick={runAll}>
+                      Find Trials for all {hybrid.merged.length} patients
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        );
+      })()}
+
+      {allResult && (
+        <AllResultsViewer allResult={allResult} allActive={allActive} setAllActive={setAllActive} />
+      )}
+    </div>
+  );
+}
 function UnstructuredPanel() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState("");
@@ -186,22 +508,6 @@ function UnstructuredPanel() {
     } finally {
       setBusy("");
     }
-  };
-
-  const fmtFacts = (facts) => {
-    const bits = [];
-    if (facts.age) bits.push(`Age ${facts.age}`);
-    if (facts.gender) bits.push(facts.gender);
-    if (facts.condition) bits.push(facts.condition);
-    if (facts.disease_duration_months) bits.push(`${facts.disease_duration_months} mo`);
-    if (facts.smoking_status) bits.push(`Smoke: ${facts.smoking_status}`);
-    if (facts.alcohol_use) bits.push(`Alcohol: ${facts.alcohol_use}`);
-    if (facts.pregnancy_status) bits.push(facts.pregnancy_status);
-    const meds = (facts.current_medications || []).map((m) =>
-      m.name + (m.dose ? ` ${m.dose}` : "") + (m.frequency ? ` (${m.frequency})` : ""));
-    const labs = Object.entries(facts.labs || {}).map(([k, v]) => `${k} ${v}`);
-    const symptoms = facts.symptoms || [];
-    return [...bits, ...meds, ...symptoms, ...labs];
   };
 
   return (
@@ -274,87 +580,7 @@ function UnstructuredPanel() {
       )}
 
       {allResult && (
-        <div className="section-gap">
-          <h2>Results for all patients</h2>
-          {(() => {
-            const ok = allResult.results.filter((r) => r.ok);
-            const failed = allResult.results.filter((r) => !r.ok);
-            const active = ok[allActive];
-            if (!active) return <Banner kind="warn">No patient results available.</Banner>;
-            const trials = active.response?.results || [];
-            const counts = trials.reduce((acc, t) => {
-              acc[t.eligibility] = (acc[t.eligibility] || 0) + 1; return acc;
-            }, {});
-            return (
-              <>
-                <Banner kind={failed.length === 0 ? "success" : "warn"}>
-                  {ok.length} of {allResult.results.length} patients analysed
-                  {failed.length > 0 && <> · failed: {failed.map((f) => f.patient_id).join(", ")}</>}
-                </Banner>
-                <div className="card section-gap">
-                  <div className="btn-row" style={{ flexWrap: "wrap", marginBottom: "0.6rem" }}>
-                    {ok.map((r, i) => (
-                      <button key={r.patient_id} type="button"
-                        className={`btn ${i === allActive ? "primary" : ""}`}
-                        style={{ padding: "0.35rem 0.9rem" }}
-                        onClick={() => setAllActive(i)}>
-                        {r.patient_id}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="btn-row" style={{ marginBottom: "0.6rem" }}>
-                    <button type="button" className="btn secondary" disabled={allActive === 0}
-                      onClick={() => setAllActive((i) => Math.max(0, i - 1))}>
-                      ← Previous patient
-                    </button>
-                    <span style={{ fontWeight: 600 }}>Patient {allActive + 1} of {ok.length}</span>
-                    <button type="button" className="btn secondary"
-                      disabled={allActive >= ok.length - 1}
-                      onClick={() => setAllActive((i) => Math.min(ok.length - 1, i + 1))}>
-                      Next patient →
-                    </button>
-                    <button type="button" className="btn"
-                      onClick={() => {
-                        sessionStorage.setItem("ctq_results", JSON.stringify(
-                          { response: active.response, profile: {} }));
-                        navigate("/results");
-                      }}>
-                      Open full page view for {active.patient_id}
-                    </button>
-                  </div>
-                  <h3>Trials for {active.patient_id} — {trials.length} checked</h3>
-                  <p className="hint" style={{ margin: "0.2rem 0 0.6rem" }}>
-                    {Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(" · ")}
-                  </p>
-                  {trials.map((t) => (
-                    <div key={t.trial_id}
-                      className={`result-card section-gap ${t.eligibility === "Potentially Eligible" ? "eligible" : t.eligibility === "Not Eligible" ? "not-eligible" : "insufficient"}`}
-                      style={{ padding: "0.8rem 1rem" }}>
-                      <div className="result-head">
-                        <div>
-                          <div className="trial-id">{t.trial_id}</div>
-                          <div className="result-title">{t.title}</div>
-                        </div>
-                      </div>
-                      <div className="result-meta">
-                        <EligibilityBadge status={t.eligibility} />
-                        <MatchScore percent={t.match_percent ?? Math.round((t.similarity_score || 0) * 100)}
-                          similarity={t.similarity_score} />
-                        <MetaChip>{t.condition}</MetaChip>
-                        <MetaChip>{t.status}</MetaChip>
-                      </div>
-                      {t.reasons_for?.length > 0 && (
-                        <ul className="hint" style={{ margin: "0.4rem 0 0" }}>
-                          {t.reasons_for.slice(0, 3).map((x, i) => <li key={i}>{x}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </>
-            );
-          })()}
-        </div>
+        <AllResultsViewer allResult={allResult} allActive={allActive} setAllActive={setAllActive} />
       )}
     </div>
   );
@@ -398,6 +624,29 @@ export default function Matcher() {
   };
 
   const removePatient = (i) => setCohort((list) => list.filter((_, j) => j !== i));
+
+  /** Load a structured patient CSV into the form + cohort rows. */
+  const csvFileRef = useRef(null);
+  const [csvMsg, setCsvMsg] = useState("");
+  const handleStructuredCsv = async (file) => {
+    if (!file) return;
+    setError(""); setCsvMsg("");
+    try {
+      const res = await uploadPatients(file);
+      const list = res.patients || [];
+      if (list.length === 0) throw new Error("No patients found in that file.");
+      const rows = list.map(profileToForm);
+      const [first, ...rest] = rows;
+      setForm((f) => ({ ...f, ...first }));
+      setCohort(rest);
+      setCohortResult(null);
+      setActiveCohort(0);
+      setCsvMsg(`Loaded ${list.length} patient${list.length === 1 ? "" : "s"} from “${file.name}” into the form + cohort below.`);
+      window.scrollTo(0, 0);
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    }
+  };
 
   const updatePatient = (i, patch) =>
     setCohort((list) => list.map((p, j) => (j === i ? { ...p, ...patch } : p)));
@@ -550,8 +799,16 @@ export default function Matcher() {
               <button type="button" className="btn" onClick={downloadExcel} disabled={!!cohortBusy}>
                 ⤓ Download all patients (Excel)
               </button>
+              <button type="button" className="btn" onClick={() => csvFileRef.current?.click()} disabled={!!cohortBusy}>
+                ⤒ Upload structured CSV
+              </button>
+              <input ref={csvFileRef} type="file" accept=".csv,.xlsx,.xls,.json" style={{ display: "none" }}
+                onChange={(e) => { handleStructuredCsv(e.target.files?.[0]); e.target.value = ""; }} />
             </div>
           </div>
+          {csvMsg && (
+            <Banner kind="success" >{csvMsg}</Banner>
+          )}
           {cohort.length > 0 && (
             <div className="btn-row section-gap" style={{ marginBottom: 0 }}>
               <button type="button" className="btn secondary"
@@ -563,7 +820,7 @@ export default function Matcher() {
         </div>
       )}
 
-      <div className="btn-row" style={{ marginBottom: "0.9rem" }}>
+      <div className="btn-row" style={{ marginBottom: "0.9rem", flexWrap: "wrap" }}>
         <button type="button" className={`btn ${tab === "structured" ? "primary" : ""}`}
           onClick={() => setTab("structured")}>
           Structured Data (form)
@@ -572,9 +829,14 @@ export default function Matcher() {
           onClick={() => setTab("unstructured")}>
           Unstructured Data (photos, PDF, CSV)
         </button>
+        <button type="button" className={`btn ${tab === "hybrid" ? "primary" : ""}`}
+          onClick={() => setTab("hybrid")}>
+          Hybrid (structured + unstructured)
+        </button>
       </div>
 
       {tab === "unstructured" && <UnstructuredPanel />}
+      {tab === "hybrid" && <HybridPanel />}
 
       <form onSubmit={submit} style={{ display: tab === "structured" ? "" : "none" }}>
         {error && <Banner kind="error">{error}</Banner>}

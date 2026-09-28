@@ -18,6 +18,13 @@ from typing import Optional
 
 _QA_MODEL = "distilbert-base-cased-distilled-squad"  # cached in the HF hub cache
 
+# Directory holding a pre-quantized int8 copy of the QA model (generated at
+# Docker build time; see Dockerfile). Used when no local HF snapshot exists -
+# small 512 MB containers (Render free) cannot fit torch + fp32 weights + app.
+# Override with the CTQ_NER_ARTIFACT environment variable.
+import os
+_QA_ARTIFACT = os.environ.get("CTQ_NER_ARTIFACT", "") or None
+
 _model = None         # lazily loaded (tokenizer, model, torch) tuple
 _model_available: Optional[bool] = None  # None = not probed yet
 
@@ -36,8 +43,25 @@ def _local_snapshot() -> Optional[str]:
     return None
 
 
+def _artifact_dir() -> Optional[str]:
+    """Return the quantized-artifact directory when it is complete."""
+    if not _QA_ARTIFACT:
+        return None
+    from pathlib import Path
+    art = Path(_QA_ARTIFACT)
+    if (art / "quantized_model.pt").exists() and (art / "tokenizer_config.json").exists():
+        return str(art)
+    return None
+
+
 def _get_model():
-    """Load the QA model once; return None when it is unusable."""
+    """Load the QA model once; return None when it is unusable.
+
+    Load priority: local HF snapshot (developer machines, exact fp32
+    behaviour) -> pre-quantized int8 artifact shipped in the Docker image
+    (~4x smaller, needed for 512 MB containers) -> hub fp32 download (last
+    resort). The first two load fully offline.
+    """
     global _model, _model_available
     if _model_available is False:
         return None
@@ -47,18 +71,33 @@ def _get_model():
             from transformers import (
                 AutoModelForQuestionAnswering, AutoTokenizer,
             )
-            source = _local_snapshot() or _QA_MODEL
-            # Pin local_files_only only when we explicitly resolved the local
-            # snapshot; otherwise allow hub resolution so fresh deployments
-            # (Render/Docker) can download the model into HF_HOME on first run.
-            use_local = source != _QA_MODEL
-            tok = AutoTokenizer.from_pretrained(source, local_files_only=use_local)
-            mdl = AutoModelForQuestionAnswering.from_pretrained(
-                source, local_files_only=use_local)
+            local = _local_snapshot()
+            artifact = _artifact_dir()
+            if local:
+                tok = AutoTokenizer.from_pretrained(local, local_files_only=True)
+                mdl = AutoModelForQuestionAnswering.from_pretrained(
+                    local, local_files_only=True)
+                kind = "fp32 local snapshot"
+            elif artifact:
+                tok = AutoTokenizer.from_pretrained(artifact, local_files_only=True)
+                # dynamically-quantized modules do not round-trip through
+                # save_pretrained/from_pretrained - the artifact holds the
+                # pickled module instead (built by our own Dockerfile).
+                try:
+                    mdl = torch.load(os.path.join(artifact, "quantized_model.pt"),
+                                     weights_only=False, map_location="cpu")
+                except TypeError:  # torch < 2.6 has no weights_only kwarg
+                    mdl = torch.load(os.path.join(artifact, "quantized_model.pt"),
+                                     map_location="cpu")
+                kind = "int8 quantized artifact"
+            else:
+                tok = AutoTokenizer.from_pretrained(_QA_MODEL)
+                mdl = AutoModelForQuestionAnswering.from_pretrained(_QA_MODEL)
+                kind = "fp32 hub download"
             mdl.eval()
             _model = (tok, mdl, torch)
             _model_available = True
-            print(f"[ml_ner] loaded {_QA_MODEL} from {source} for extractive-QA entity extraction")
+            print(f"[ml_ner] loaded {_QA_MODEL} ({kind}) for extractive-QA entity extraction")
         except Exception as exc:  # model missing / corrupted
             _model_available = False
             print(f"[ml_ner] QA model unavailable ({exc}); extraction disabled for this call")

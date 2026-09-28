@@ -27,11 +27,25 @@ COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
  && pip install --no-cache-dir -r /app/backend/requirements.txt
 
+# Pre-quantize the NER QA model to int8 at build time (network is available
+# here, not at runtime on Render). torch + fp32 DistilBERT does not fit in a
+# 512 MB container, but the int8 artifact (~90 MB) does. Dynamic quantization
+# does not round-trip through save_pretrained, so we pickle the module itself.
+COPY scripts/quantize_ner.py /app/scripts/quantize_ner.py
+RUN python /app/scripts/quantize_ner.py
+
 COPY backend/ /app/backend/
 COPY sample_data/ /app/sample_data/
 COPY --from=frontend_build /app/frontend/dist /app/frontend/dist
 
 WORKDIR /app/backend
+
+# Point ml_ner.py at the shipped int8 artifact (used when no local HF
+# snapshot exists; developer machines with the cached fp32 model are
+# unaffected).
+ENV CTQ_NER_ARTIFACT=/app/model_artifact \
+    HF_HOME=/tmp/hf_cache
+
 EXPOSE 8000
 # Render injects PORT; default 8000 for local docker runs
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -293,6 +293,16 @@ def trial_retrieval_load():
     return load_trials()
 
 
+# NOTE: registered BEFORE the /trials/{trial_id:path} catch-all below, which
+# otherwise swallows this route (FastAPI matches in registration order and a
+# path-convertor can match anything, including "live/presets").
+@router.get("/trials/live/presets")
+def live_presets():
+    """Condition presets offered by the live-import panel."""
+    from services.live_trials import PRESET_CONDITIONS
+    return {"conditions": sorted(PRESET_CONDITIONS.keys())}
+
+
 @router.get("/trials/{trial_id:path}")
 def get_trial(trial_id: str):
     trial_retrieval_load()  # ensure DB initialised
@@ -683,18 +693,15 @@ async def extract_document(file: UploadFile = File(...)):
 # Live trial ingestion from ClinicalTrials.gov (Future Scope #3)
 # ---------------------------------------------------------------------------
 
-@router.get("/trials/live/presets")
-def live_presets():
-    """Condition presets offered by the live-import panel."""
-    from services.live_trials import PRESET_CONDITIONS
-    return {"conditions": sorted(PRESET_CONDITIONS.keys())}
-
-
 @router.post("/trials/import/live")
 async def import_live(payload: dict):
     """Fetch real trials from ClinicalTrials.gov and add them to the database.
 
     Payload: {condition, max_studies (<=40), india_only, recruiting_only}
+    Imported trials are also appended to data/trials_live_imported.json so
+    they survive a restart on ephemeral hosts (the SQLite file is not
+    persisted on Render's free tier; trials.json is re-imported at boot and
+    then the sidecar file is replayed on top of it).
     """
     condition = str(payload.get("condition") or "").strip()
     if not condition:
@@ -714,7 +721,27 @@ async def import_live(payload: dict):
                                      india_only=india_only, recruiting_only=recruiting_only)
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    # persist the imported trials for restart survival (best-effort)
+    try:
+        from config import DATA_DIR
+        sidecar = DATA_DIR / "trials_live_imported.json"
+        existing = []
+        if sidecar.exists():
+            try:
+                existing = json.loads(sidecar.read_text(encoding="utf-8"))
+            except Exception:
+                existing = []
+        known = {t.get("trial_id") for t in existing}
+        for t in summary.get("trials", []):
+            if t.get("trial_id") not in known:
+                existing.append(t)
+        sidecar.write_text(json.dumps(existing, ensure_ascii=False), encoding="utf-8")
+    except Exception as exc:
+        print(f"[live_import] sidecar persist failed (non-fatal): {exc}")
+
     summary["condition_label"] = condition
+    summary.pop("trials", None)  # keep the response small (full list via /trials)
     return summary
 
 

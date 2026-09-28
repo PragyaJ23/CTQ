@@ -101,6 +101,18 @@ export const getTrials = (params = {}) => api.get("/trials", { params }).then((r
 export const getTrial = (trialId) =>
   api.get(`/trials/${encodeURIComponent(trialId)}`).then((r) => r.data);
 
+// ---------------------------------------------------------------------------
+// Live trial ingestion (ClinicalTrials.gov)
+// ---------------------------------------------------------------------------
+
+export const getLivePresets = () =>
+  api.get("/trials/live/presets").then((r) => r.data);
+
+export const importLiveTrials = (condition, maxStudies = 15, indiaOnly = true, recruitingOnly = true) =>
+  api.post("/trials/import/live",
+           { condition, max_studies: maxStudies, india_only: indiaOnly, recruiting_only: recruitingOnly },
+           { timeout: 180000 }).then((r) => r.data);
+
 export const getMeta = () => api.get("/meta").then((r) => r.data);
 
 export const getHealth = () => api.get("/health").then((r) => r.data);

@@ -16,7 +16,12 @@ from services.embeddings import cosine_similarity, embed_texts
 
 
 def load_trials() -> List[Trial]:
-    """Load trials from SQLite, importing data/trials.json on first run."""
+    """Load trials from SQLite, importing data/trials.json on first run.
+
+    After the bundled seed, any data/trials_live_imported.json sidecar is
+    replayed on top - that file records trials fetched live from
+    ClinicalTrials.gov, so live imports survive a restart on ephemeral hosts
+    (the SQLite file itself is not persisted on Render's free tier)."""
     database.init_db()
     if database.trial_count() == 0:
         from config import DATA_DIR
@@ -28,6 +33,14 @@ def load_trials() -> List[Trial]:
             trials = [Trial(**item) for item in raw]
             database.upsert_trials(trials)
             print(f"[retrieval] imported {len(trials)} trials from {trials_file.name}")
+        sidecar = DATA_DIR / "trials_live_imported.json"
+        if sidecar.exists():
+            try:
+                extra = [Trial(**item) for item in json.loads(sidecar.read_text(encoding="utf-8"))]
+                database.upsert_trials(extra)
+                print(f"[retrieval] replayed {len(extra)} live-imported trials from {sidecar.name}")
+            except Exception as exc:
+                print(f"[retrieval] live-import sidecar unreadable (skipped): {exc}")
     return database.get_all_trials()
 
 

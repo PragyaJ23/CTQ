@@ -4,6 +4,7 @@ import Home from "./pages/Home.jsx";
 import Matcher from "./pages/Matcher.jsx";
 import Results from "./pages/Results.jsx";
 import Evaluation from "./pages/Evaluation.jsx";
+import Trials from "./pages/Trials.jsx";
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/matcher" element={<Matcher />} />
         <Route path="/results" element={<Results />} />
+        <Route path="/trials" element={<Trials />} />
         <Route path="/evaluation" element={<Evaluation />} />
       </Routes>
     </Layout>

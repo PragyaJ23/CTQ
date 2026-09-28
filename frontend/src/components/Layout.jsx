@@ -5,6 +5,7 @@ import Logo from "./Logo.jsx";
 const LINKS = [
   { to: "/", label: "Home", end: true },
   { to: "/matcher", label: "Find Trials" },
+  { to: "/trials", label: "Trial Database" },
   { to: "/evaluation", label: "Model Evaluation" },
 ];
 

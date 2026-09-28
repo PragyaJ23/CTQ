@@ -1,0 +1,11 @@
+patient_id,age,gender,state,city,condition,disease_duration_months,disease_severity,height_cm,weight_kg,hba1c,fasting_glucose,systolic_bp,diastolic_bp,creatinine,egfr,hemoglobin,wbc,platelets,alt,ast,bilirubin,cholesterol,pregnancy_status,smoking_status,alcohol_use,prior_trial_participation
+S001,48,Male,West Bengal,Kolkata,Type 2 Diabetes Mellitus,48,Moderate,170,82,8.5,,132,84,1.0,80,13.5,7200,240000,25,28,0.8,190,N-A,Never,Never,No
+S002,55,Female,Maharashtra,Pune,Type 2 Diabetes Mellitus,72,Moderate,160,78,9.2,,138,86,1.1,75,12.8,7600,260000,30,26,0.9,205,Not Pregnant,Never,Never,No
+S003,62,Male,Karnataka,Bengaluru,Hypertension,36,Moderate,172,88,,,150,95,1.0,78,14.2,6800,250000,24,27,0.7,180,N-A,Never,Never,No
+S004,24,Female,Tamil Nadu,Chennai,Asthma,48,Mild,158,55,,,,,,,,,,,,,Not Pregnant,Never,Never,No
+S005,58,Male,Gujarat,Ahmedabad,Type 2 Diabetes Mellitus,96,Moderate,175,105,9.8,,142,88,1.2,70,13.9,7400,255000,28,30,0.9,215,N-A,Former,Occasional,No
+S006,35,Male,Delhi,New Delhi,Healthy Volunteer,0,,178,70,,,,,,,,,,,,,N-A,Never,Never,No
+S007,45,Female,Maharashtra,Mumbai,Type 2 Diabetes Mellitus with Diabetic Nephropathy,60,Moderate,162,74,8.9,,136,82,1.4,45,12.5,7100,245000,26,24,0.9,198,Not Pregnant,Never,Never,No
+S008,52,Male,Uttar Pradesh,Lucknow,Type 2 Diabetes Mellitus,120,Moderate,170,80,8.1,,134,84,1.0,85,14.0,7000,250000,26,25,0.8,186,N-A,Never,Never,No
+S009,67,Male,Punjab,Amritsar,Chronic Obstructive Pulmonary Disease,72,Moderate,168,64,,,138,86,1.1,72,14.5,8000,270000,22,24,0.8,175,N-A,Former,Never,No
+S010,32,Female,Telangana,Hyderabad,Prediabetes,12,Mild,165,68,6.1,118,124,80,0.9,92,12.6,6600,240000,23,22,0.7,170,Not Pregnant,Never,Never,No

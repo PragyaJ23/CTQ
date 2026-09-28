@@ -1,0 +1,6 @@
+patient_id,clinical_notes
+D001,"48-year-old male with Type 2 Diabetes Mellitus diagnosed 4 years ago. Height 170 cm, weight 82 kg. Increased thirst and fatigue. On stable Metformin 500 mg twice daily for the last 12 months. HbA1c 8.5 percent, eGFR 80, ALT 25 U/L. No history of liver disease. Does not smoke. Never drinks alcohol."
+D002,"62-year-old male with uncontrolled hypertension for 3 years on Amlodipine 5 mg once daily. Blood pressure 150/95 mmHg. Height 172 cm, weight 88 kg. Non-smoker, no alcohol. eGFR 78."
+D003,"24-year-old female with mild persistent asthma for 4 years using a Salbutamol inhaler as needed. Height 158 cm, weight 55 kg. FEV1 78 percent predicted at screening. No history of COPD. Never smoker. Not pregnant."
+D004,"67-year-old male with moderate to severe COPD for 6 years, former smoker with 30 pack years. Height 168 cm, weight 64 kg. Post-bronchodilator FEV1/FVC 0.55. No history of asthma. Exacerbation last month requiring steroids."
+D005,"35-year-old healthy male volunteer. Height 178 cm, weight 70 kg. Never smokes, never drinks alcohol. No chronic disease. Normal laboratory parameters."

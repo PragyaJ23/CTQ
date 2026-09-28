@@ -1,0 +1,276 @@
+{
+  "description": "Hand-labelled ground truth for the NER benchmark (Regex/rule-based vs BioBERT ML). Each note carries entity-level annotations over the fields CTQ extracts. Negations and distractors are included deliberately.",
+  "fields": ["age", "gender", "condition", "medication", "dose", "frequency", "symptom", "lab", "smoking", "alcohol", "pregnancy", "duration_months"],
+  "notes": [
+    {
+      "id": "NB01",
+      "text": "Patient is a 52 year old female with type 2 diabetes for 12 years. Current medications: Metformin 500 mg twice daily, Glimepiride 1 mg once daily. History: no kidney disease. Denies chest pain. HbA1c 7.0%, eGFR 34.6. Non-smoker, occasional alcohol. Not pregnant.",
+      "labels": {
+        "age": ["52"],
+        "gender": ["female"],
+        "condition": ["type 2 diabetes"],
+        "medication": ["Metformin", "Glimepiride"],
+        "dose": ["500 mg", "1 mg"],
+        "frequency": ["twice daily", "once daily"],
+        "symptom": [],
+        "lab": ["HbA1c 7.0%", "eGFR 34.6"],
+        "smoking": ["Non-smoker"],
+        "alcohol": ["occasional alcohol"],
+        "pregnancy": ["Not pregnant"],
+        "duration_months": ["12 years"]
+      }
+    },
+    {
+      "id": "NB02",
+      "text": "58 year old male, hypertension for 10 years, on Telmisartan 40 mg once daily and Amlodipine 5 mg once daily. Ex-smoker, does not drink alcohol. BP 150/90, creatinine 1.3. Reports headache and dizziness.",
+      "labels": {
+        "age": ["58"],
+        "gender": ["male"],
+        "condition": ["hypertension"],
+        "medication": ["Telmisartan", "Amlodipine"],
+        "dose": ["40 mg", "5 mg"],
+        "frequency": ["once daily", "once daily"],
+        "symptom": ["headache", "dizziness"],
+        "lab": ["BP 150/90", "creatinine 1.3"],
+        "smoking": ["Ex-smoker"],
+        "alcohol": ["does not drink alcohol"],
+        "pregnancy": [],
+        "duration_months": ["10 years"]
+      }
+    },
+    {
+      "id": "NB03",
+      "text": "24 year old female with bronchial asthma since 5 years. Uses Salbutamol 100 mcg inhaler as needed. Also on Montelukast 10 mg at night. Never smoker. Wheezing and shortness of breath on exertion. FEV1 68% predicted.",
+      "labels": {
+        "age": ["24"],
+        "gender": ["female"],
+        "condition": ["bronchial asthma"],
+        "medication": ["Salbutamol", "Montelukast"],
+        "dose": ["100 mcg", "10 mg"],
+        "frequency": ["as needed", "at night"],
+        "symptom": ["Wheezing", "shortness of breath"],
+        "lab": ["FEV1 68%"],
+        "smoking": ["Never smoker"],
+        "alcohol": [],
+        "pregnancy": [],
+        "duration_months": ["5 years"]
+      }
+    },
+    {
+      "id": "NB04",
+      "text": "62 year old man with chronic obstructive pulmonary disease, diagnosed 8 years ago. Current smoker, 20 pack years. On Formoterol 12 mcg twice daily. Cough with sputum, fatigue. No alcohol use.",
+      "labels": {
+        "age": ["62"],
+        "gender": ["man"],
+        "condition": ["chronic obstructive pulmonary disease"],
+        "medication": ["Formoterol"],
+        "dose": ["12 mcg"],
+        "frequency": ["twice daily"],
+        "symptom": ["Cough with sputum", "fatigue"],
+        "lab": [],
+        "smoking": ["Current smoker"],
+        "alcohol": ["No alcohol use"],
+        "pregnancy": [],
+        "duration_months": ["8 years"]
+      }
+    },
+    {
+      "id": "NB05",
+      "text": "45F with type 2 diabetes and hypertension for 6 years. Takes Metformin 1000 mg twice daily, Glimepiride 2 mg once daily, Telmisartan 40 mg once daily. HbA1c 8.2%, fasting glucose 165, eGFR 58. Denies numbness in feet. Not pregnant.",
+      "labels": {
+        "age": ["45"],
+        "gender": ["female"],
+        "condition": ["type 2 diabetes", "hypertension"],
+        "medication": ["Metformin", "Glimepiride", "Telmisartan"],
+        "dose": ["1000 mg", "2 mg", "40 mg"],
+        "frequency": ["twice daily", "once daily", "once daily"],
+        "symptom": [],
+        "lab": ["HbA1c 8.2%", "fasting glucose 165", "eGFR 58"],
+        "smoking": [],
+        "alcohol": [],
+        "pregnancy": ["Not pregnant"],
+        "duration_months": ["6 years"]
+      }
+    },
+    {
+      "id": "NB06",
+      "text": "30 year old healthy male volunteer, never smoked, no alcohol. No medications. No known diseases. All labs normal.",
+      "labels": {
+        "age": ["30"],
+        "gender": ["male"],
+        "condition": [],
+        "medication": [],
+        "dose": [],
+        "frequency": [],
+        "symptom": [],
+        "lab": [],
+        "smoking": ["never smoked"],
+        "alcohol": ["no alcohol"],
+        "pregnancy": [],
+        "duration_months": []
+      }
+    },
+    {
+      "id": "NB07",
+      "text": "55 year old female, type 2 diabetes with diabetic nephropathy for 4 years. On Insulin glargine 20 units at night, Metformin 500 mg twice daily. eGFR 32, hemoglobin 10.4, creatinine 1.9. Swelling of both feet. Never used alcohol.",
+      "labels": {
+        "age": ["55"],
+        "gender": ["female"],
+        "condition": ["type 2 diabetes", "diabetic nephropathy"],
+        "medication": ["Insulin glargine", "Metformin"],
+        "dose": ["20 units", "500 mg"],
+        "frequency": ["at night", "twice daily"],
+        "symptom": ["Swelling of both feet"],
+        "lab": ["eGFR 32", "hemoglobin 10.4", "creatinine 1.9"],
+        "smoking": [],
+        "alcohol": ["Never used alcohol"],
+        "pregnancy": [],
+        "duration_months": ["4 years"]
+      }
+    },
+    {
+      "id": "NB08",
+      "text": "66 year old male, survived a stroke 3 years ago with left-sided weakness. On Aspirin 75 mg once daily, Atorvastatin 40 mg at night. Hypertension for 15 years. Former smoker, quit 3 years back. Walks with support; occasional dizziness.",
+      "labels": {
+        "age": ["66"],
+        "gender": ["male"],
+        "condition": ["stroke", "hypertension"],
+        "medication": ["Aspirin", "Atorvastatin"],
+        "dose": ["75 mg", "40 mg"],
+        "frequency": ["once daily", "at night"],
+        "symptom": ["left-sided weakness", "occasional dizziness"],
+        "lab": [],
+        "smoking": ["Former smoker"],
+        "alcohol": [],
+        "pregnancy": [],
+        "duration_months": ["3 years", "15 years"]
+      }
+    },
+    {
+      "id": "NB09",
+      "text": "28 year old pregnant woman at 26 weeks gestation with anaemia for 2 months. On Iron sucrose 200 mg weekly, Folic acid 5 mg once daily. Hemoglobin 9.1%. Fatigue and breathlessness on climbing stairs. Non-smoker.",
+      "labels": {
+        "age": ["28"],
+        "gender": ["female"],
+        "condition": ["anaemia"],
+        "medication": ["Iron sucrose", "Folic acid"],
+        "dose": ["200 mg", "5 mg"],
+        "frequency": ["weekly", "once daily"],
+        "symptom": ["Fatigue", "breathlessness"],
+        "lab": ["Hemoglobin 9.1%"],
+        "smoking": ["Non-smoker"],
+        "alcohol": [],
+        "pregnancy": ["pregnant"],
+        "duration_months": ["2 months"]
+      }
+    },
+    {
+      "id": "NB10",
+      "text": "70 year old male with heart failure for 5 years. On Empagliflozin 10 mg once daily, Furosemide 40 mg in the morning. Breathlessness while lying flat, swelling over ankles. Creatinine 1.6, eGFR 44. Does not smoke or drink.",
+      "labels": {
+        "age": ["70"],
+        "gender": ["male"],
+        "condition": ["heart failure"],
+        "medication": ["Empagliflozin", "Furosemide"],
+        "dose": ["10 mg", "40 mg"],
+        "frequency": ["once daily", "in the morning"],
+        "symptom": ["Breathlessness while lying flat", "swelling over ankles"],
+        "lab": ["Creatinine 1.6", "eGFR 44"],
+        "smoking": ["Does not smoke"],
+        "alcohol": ["does not drink"],
+        "pregnancy": [],
+        "duration_months": ["5 years"]
+      }
+    },
+    {
+      "id": "NB11",
+      "text": "38 year old woman with rheumatoid arthritis for 7 years. On Methotrexate 15 mg weekly and Folic acid 5 mg weekly. Joint pain in both hands, morning stiffness. No diabetes, no hypertension. HbA1c 5.4%.",
+      "labels": {
+        "age": ["38"],
+        "gender": ["female"],
+        "condition": ["rheumatoid arthritis"],
+        "medication": ["Methotrexate", "Folic acid"],
+        "dose": ["15 mg", "5 mg"],
+        "frequency": ["weekly", "weekly"],
+        "symptom": ["Joint pain in both hands", "morning stiffness"],
+        "lab": ["HbA1c 5.4%"],
+        "smoking": [],
+        "alcohol": [],
+        "pregnancy": [],
+        "duration_months": ["7 years"]
+      }
+    },
+    {
+      "id": "NB12",
+      "text": "49 year old male, newly diagnosed type 2 diabetes within the past 3 months. Not on any medication yet. HbA1c 9.1%, fasting glucose 198. Increased thirst and frequent urination. Smokes occasionally, drinks socially.",
+      "labels": {
+        "age": ["49"],
+        "gender": ["male"],
+        "condition": ["type 2 diabetes"],
+        "medication": [],
+        "dose": [],
+        "frequency": [],
+        "symptom": ["Increased thirst", "frequent urination"],
+        "lab": ["HbA1c 9.1%", "fasting glucose 198"],
+        "smoking": ["Smokes occasionally"],
+        "alcohol": ["drinks socially"],
+        "pregnancy": [],
+        "duration_months": ["3 months"]
+      }
+    },
+    {
+      "id": "NB13",
+      "text": "73 year old female with non-alcoholic fatty liver disease for 2 years. On Vitamin E 400 IU once daily. No diabetes, no hypertension. ALT 62, AST 58. Denies abdominal pain. Never smoked, never drank alcohol.",
+      "labels": {
+        "age": ["73"],
+        "gender": ["female"],
+        "condition": ["non-alcoholic fatty liver disease"],
+        "medication": ["Vitamin E"],
+        "dose": ["400 IU"],
+        "frequency": ["once daily"],
+        "symptom": [],
+        "lab": ["ALT 62", "AST 58"],
+        "smoking": ["Never smoked"],
+        "alcohol": ["never drank alcohol"],
+        "pregnancy": [],
+        "duration_months": ["2 years"]
+      }
+    },
+    {
+      "id": "NB14",
+      "text": "41 year old male, chronic kidney disease stage 3 for 18 months. On Lisinopril 10 mg once daily. Creatinine 2.1, eGFR 41, hemoglobin 10.9. No symptoms reported. Ex-smoker. Occasional alcohol at family functions.",
+      "labels": {
+        "age": ["41"],
+        "gender": ["male"],
+        "condition": ["chronic kidney disease"],
+        "medication": ["Lisinopril"],
+        "dose": ["10 mg"],
+        "frequency": ["once daily"],
+        "symptom": [],
+        "lab": ["Creatinine 2.1", "eGFR 41", "hemoglobin 10.9"],
+        "smoking": ["Ex-smoker"],
+        "alcohol": ["Occasional alcohol"],
+        "pregnancy": [],
+        "duration_months": ["18 months"]
+      }
+    },
+    {
+      "id": "NB15",
+      "text": "36 year old female with type 2 diabetes for 3 years and hypothyroidism for 5 years. Takes Metformin 850 mg twice daily, Thyronorm 50 mcg once daily before breakfast. HbA1c 7.8%, TSH 4.2. Weight gain and fatigue. Not pregnant, never smoked.",
+      "labels": {
+        "age": ["36"],
+        "gender": ["female"],
+        "condition": ["type 2 diabetes", "hypothyroidism"],
+        "medication": ["Metformin", "Thyronorm"],
+        "dose": ["850 mg", "50 mcg"],
+        "frequency": ["twice daily", "once daily"],
+        "symptom": ["Weight gain", "fatigue"],
+        "lab": ["HbA1c 7.8%", "TSH 4.2"],
+        "smoking": ["never smoked"],
+        "alcohol": [],
+        "pregnancy": ["Not pregnant"],
+        "duration_months": ["3 years", "5 years"]
+      }
+    }
+  ]
+}

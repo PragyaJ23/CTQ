@@ -1,0 +1,11 @@
+patient_id,clinical_notes
+U001,"48-year-old male with Type 2 Diabetes Mellitus diagnosed 4 years ago. Height 170 cm, weight 82 kg. Increased thirst and fatigue. On stable Metformin 500 mg twice daily for the last 12 months. HbA1c 8.5 percent, eGFR 80, ALT 25 U/L. No history of liver disease. Does not smoke. Never drinks alcohol."
+U002,"55-year-old female with Type 2 Diabetes Mellitus for 6 years. Height 160 cm, weight 78 kg. On Glimepiride 2 mg once daily for 24 months. HbA1c 9.2 percent, eGFR 75, ALT 30. No history of liver disease. Not pregnant. Never smoker."
+U003,"62-year-old male with uncontrolled hypertension for 3 years on Amlodipine 5 mg once daily. Blood pressure 150/95 mmHg. Height 172 cm, weight 88 kg. Non-smoker, no alcohol. eGFR 78."
+U004,"24-year-old female with mild persistent asthma for 4 years using a Salbutamol inhaler as needed. Height 158 cm, weight 55 kg. FEV1 78 percent predicted at screening. No history of COPD. Never smoker. Not pregnant."
+U005,"58-year-old male, obese with type 2 diabetes for 8 years. Height 175 cm, weight 105 kg. On stable Metformin 1000 mg twice daily for 36 months. HbA1c 9.8 percent, eGFR 70, ALT 28 U/L. Former smoker. No history of cancer."
+U006,"35-year-old healthy male volunteer. Height 178 cm, weight 70 kg. Never smokes, never drinks alcohol. No chronic disease. Normal laboratory parameters."
+U007,"45-year-old female with type 2 diabetes and diabetic nephropathy for 5 years. Height 162 cm, weight 74 kg. eGFR 45, urinary albumin creatinine ratio 350. On Metformin and Empagliflozin. HbA1c 8.9 percent. Not pregnant."
+U008,"52-year-old male with type 2 diabetes for 10 years. Height 170 cm, weight 80 kg. HbA1c 8.1 percent on Metformin 500 mg twice daily for 24 months. eGFR 85, ALT 26 U/L. Never smoker. Not pregnant."
+U009,"67-year-old male with moderate to severe COPD for 6 years, former smoker with 30 pack years. Height 168 cm, weight 64 kg. Recent exacerbation last month."
+U010,"32-year-old female with prediabetes, fasting glucose 118 mg/dL, HbA1c 6.1 percent. Height 165 cm, weight 68 kg. Vitamin D level 22 ng/mL. Never smoker."

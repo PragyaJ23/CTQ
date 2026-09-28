@@ -1,0 +1,21 @@
+# Render Blueprint - deploys CTQ as a single Docker web service.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: ctq-clinical-trial-qualifier
+    runtime: docker
+    plan: free          # free = 512MB RAM; if ML models OOM, switch to standard (2GB)
+    healthCheckPath: /api/health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false     # Render will prompt you to paste the secret (from backend/.env)
+      - key: OMP_NUM_THREADS
+        value: "1"      # cuts torch memory overhead on small instances
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: LLM_ENABLED
+        value: "true"
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      - key: TOP_K_TRIALS
+        value: "0"

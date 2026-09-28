@@ -1,0 +1,632 @@
+[
+  {
+    "trial_id": "CTRI/2024/01/062001",
+    "title": "A Randomised Open Label Trial of Glimepiride Add-on to Metformin in Type 2 Diabetes Mellitus",
+    "condition": "Type 2 Diabetes Mellitus",
+    "status": "Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 30,
+    "max_age": 65,
+    "inclusion_criteria": [
+      "Adults aged 30-65 years diagnosed with Type 2 Diabetes Mellitus",
+      "HbA1c between 7.5 and 10.5 percent at screening",
+      "On stable metformin therapy for at least 3 months",
+      "Body mass index between 23 and 35"
+    ],
+    "exclusion_criteria": [
+      "Type 1 diabetes or history of diabetic ketoacidosis",
+      "eGFR below 45",
+      "Pregnant or breastfeeding women",
+      "Severe hepatic impairment with ALT above 3 times upper limit of normal"
+    ],
+    "interventions": [
+      "Glimepiride",
+      "Metformin"
+    ],
+    "sponsor": "Sun Pharma",
+    "locations": [
+      "Siliguri, West Bengal"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/02/062115",
+    "title": "Observational Study of Glycaemic Variability in Newly Diagnosed Type 2 Diabetes Patients in Urban India",
+    "condition": "Type 2 Diabetes",
+    "status": "Recruiting",
+    "phase": "N/A",
+    "study_type": "Observational",
+    "gender": "Both",
+    "min_age": 25,
+    "max_age": 60,
+    "inclusion_criteria": [
+      "Newly diagnosed Type 2 Diabetes within the past 6 months",
+      "Age 25-60 years",
+      "HbA1c between 6.5 and 9 percent",
+      "No previous treatment with insulin"
+    ],
+    "exclusion_criteria": [
+      "Chronic kidney disease with eGFR below 60",
+      "Current use of insulin",
+      "Pregnancy"
+    ],
+    "interventions": [
+      "Continuous glucose monitoring"
+    ],
+    "sponsor": "AIIMS New Delhi",
+    "locations": [
+      "Bengaluru, Karnataka",
+      "Madurai, Tamil Nadu",
+      "Nagpur, Maharashtra"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/03/062318",
+    "title": "Evaluation of a Fixed Dose Combination of Perindopril and Indapamide in Uncontrolled Hypertension",
+    "condition": "Hypertension",
+    "status": "Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 40,
+    "max_age": 75,
+    "inclusion_criteria": [
+      "Adults 40-75 years with uncontrolled hypertension",
+      "Systolic BP between 140 and 180 despite monotherapy",
+      "Diagnosis of hypertension for at least 6 months"
+    ],
+    "exclusion_criteria": [
+      "Secondary hypertension",
+      "Severe renal impairment with eGFR below 30",
+      "History of stroke within past 6 months",
+      "Pregnant or lactating women"
+    ],
+    "interventions": [
+      "Perindopril",
+      "Indapamide"
+    ],
+    "sponsor": "Zydus Cadila",
+    "locations": [
+      "Amritsar, Punjab"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/04/062402",
+    "title": "Phase II Study of a Novel HER2 Targeted Therapy in Metastatic Breast Cancer",
+    "condition": "Breast Cancer",
+    "status": "Recruiting",
+    "phase": "Phase II",
+    "study_type": "Interventional",
+    "gender": "Female",
+    "min_age": 18,
+    "max_age": 70,
+    "inclusion_criteria": [
+      "Histologically confirmed HER2 positive metastatic breast cancer",
+      "Female patients aged 18-70",
+      "ECOG performance status 0-2",
+      "Adequate organ function: hemoglobin above 9, platelets above 100000, ALT below 2.5 times ULN"
+    ],
+    "exclusion_criteria": [
+      "Prior treatment with the same HER2 targeted agent",
+      "Active infection requiring systemic therapy",
+      "Pregnancy or breastfeeding"
+    ],
+    "interventions": [
+      "HER2 targeted monoclonal antibody"
+    ],
+    "sponsor": "Biocon",
+    "locations": [
+      "Kolkata, West Bengal"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/05/062517",
+    "title": "Bioequivalence Study of a Generic Atorvastatin 10 mg Tablet in Healthy Indian Volunteers",
+    "condition": "Healthy Volunteers",
+    "status": "Recruiting",
+    "phase": "Phase I",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 18,
+    "max_age": 45,
+    "inclusion_criteria": [
+      "Healthy adults aged 18-45",
+      "Body mass index between 18.5 and 25",
+      "Normal laboratory parameters within reference range"
+    ],
+    "exclusion_criteria": [
+      "Any chronic disease including diabetes, hypertension, liver or kidney disease",
+      "Smoking or regular alcohol use",
+      "Participation in another clinical trial within past 90 days"
+    ],
+    "interventions": [
+      "Atorvastatin 10 mg"
+    ],
+    "sponsor": "Cipla Ltd",
+    "locations": [
+      "Hubballi, Karnataka",
+      "Ludhiana, Punjab"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/06/062633",
+    "title": "Effects of Yoga Add-on Therapy on Glycaemic Control in Type 2 Diabetes Patients",
+    "condition": "Type 2 Diabetes",
+    "status": "Recruiting",
+    "phase": "N/A",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 35,
+    "max_age": 70,
+    "inclusion_criteria": [
+      "Type 2 Diabetes diagnosed at least 1 year ago",
+      "Age 35-70 years",
+      "HbA1c between 7 and 10 percent",
+      "Willing to attend supervised yoga sessions 3 times per week"
+    ],
+    "exclusion_criteria": [
+      "Proliferative diabetic retinopathy",
+      "Severe musculoskeletal disorders preventing exercise",
+      "Uncontrolled hypertension with systolic BP above 180",
+      "eGFR below 30"
+    ],
+    "interventions": [
+      "Structured yoga program"
+    ],
+    "sponsor": "S-VYASA Bengaluru",
+    "locations": [
+      "Cuttack, Odisha",
+      "Mysuru, Karnataka"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/07/062744",
+    "title": "Study of Empagliflozin in Type 2 Diabetes Patients with Diabetic Nephropathy",
+    "condition": "Type 2 Diabetes with Diabetic Nephropathy",
+    "status": "Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 30,
+    "max_age": 75,
+    "inclusion_criteria": [
+      "Type 2 Diabetes with established diabetic nephropathy",
+      "eGFR between 30 and 75",
+      "Age 30-75 years",
+      "Urinary albumin to creatinine ratio above 300"
+    ],
+    "exclusion_criteria": [
+      "Polycystic kidney disease",
+      "Immunosuppressive therapy within past 6 months",
+      "Type 1 diabetes"
+    ],
+    "interventions": [
+      "Empagliflozin"
+    ],
+    "sponsor": "Boehringer Ingelheim India",
+    "locations": [
+      "Kolkata, West Bengal",
+      "Cuttack, Odisha",
+      "Warangal, Telangana"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/08/062851",
+    "title": "Comparison of Inhaled Budesonide-Formoterol versus Salbutamol in Mild to Moderate Asthma",
+    "condition": "Asthma",
+    "status": "Recruiting",
+    "phase": "Phase IV",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 12,
+    "max_age": 60,
+    "inclusion_criteria": [
+      "Physician diagnosed mild to moderate persistent asthma",
+      "Age 12-60 years",
+      "FEV1 between 60 and 90 percent of predicted at screening",
+      "Non-smoker for at least 1 year"
+    ],
+    "exclusion_criteria": [
+      "Current smoking",
+      "History of life-threatening asthma exacerbation",
+      "Chronic obstructive pulmonary disease"
+    ],
+    "interventions": [
+      "Budesonide-Formoterol inhaler"
+    ],
+    "sponsor": "Cipla Ltd",
+    "locations": [
+      "Mysuru, Karnataka",
+      "Mumbai, Maharashtra"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/09/062966",
+    "title": "Adalimumab Biosimilar in Moderate to Severe Rheumatoid Arthritis Inadequately Controlled by Methotrexate",
+    "condition": "Rheumatoid Arthritis",
+    "status": "Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 18,
+    "max_age": 65,
+    "inclusion_criteria": [
+      "Rheumatoid arthritis as per ACR/EULAR criteria for at least 6 months",
+      "Age 18-65",
+      "Active disease despite methotrexate therapy for 3 months"
+    ],
+    "exclusion_criteria": [
+      "Active tuberculosis or other serious infection",
+      "Severe hepatic impairment",
+      "Pregnancy or breastfeeding",
+      "Prior treatment with any biologic DMARD"
+    ],
+    "interventions": [
+      "Adalimumab biosimilar"
+    ],
+    "sponsor": "Lupin Ltd",
+    "locations": [
+      "Pune, Maharashtra",
+      "Warangal, Telangana",
+      "Siliguri, West Bengal",
+      "Varanasi, Uttar Pradesh"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/10/063019",
+    "title": "Prevalence of Anaemia Among Pregnant Women Attending Antenatal Clinics in Rural India",
+    "condition": "Anaemia in Pregnancy",
+    "status": "Recruiting",
+    "phase": "N/A",
+    "study_type": "Observational",
+    "gender": "Female",
+    "min_age": 18,
+    "max_age": 40,
+    "inclusion_criteria": [
+      "Pregnant women aged 18-40 in second or third trimester",
+      "Willing to provide blood sample for hemoglobin estimation"
+    ],
+    "exclusion_criteria": [
+      "Known hemoglobinopathy",
+      "Malignancy"
+    ],
+    "interventions": [],
+    "sponsor": "PGIMER Chandigarh",
+    "locations": [
+      "Ahmedabad, Gujarat"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/11/063128",
+    "title": "Vitamin D Supplementation in Prediabetic Adults: A Randomised Controlled Trial",
+    "condition": "Prediabetes",
+    "status": "Recruiting",
+    "phase": "Phase II",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 30,
+    "max_age": 60,
+    "inclusion_criteria": [
+      "Prediabetes confirmed by impaired fasting glucose 110-125 or HbA1c 5.7-6.4 percent",
+      "Age 30-60 years",
+      "Serum vitamin D level below 30 ng/mL"
+    ],
+    "exclusion_criteria": [
+      "Diabetes mellitus on treatment",
+      "Chronic kidney disease stage 3 or higher",
+      "History of kidney stones"
+    ],
+    "interventions": [
+      "Vitamin D3 60000 IU weekly"
+    ],
+    "sponsor": "AIIMS New Delhi",
+    "locations": [
+      "Udaipur, Rajasthan",
+      "Hyderabad, Telangana",
+      "Bhubaneswar, Odisha"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2024/12/063237",
+    "title": "Effect of SGLT2 Inhibitor on Cardiac Parameters in Type 2 Diabetes with Heart Failure",
+    "condition": "Type 2 Diabetes with Heart Failure",
+    "status": "Not Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 40,
+    "max_age": 80,
+    "inclusion_criteria": [
+      "Type 2 Diabetes with chronic heart failure NYHA class II-III",
+      "Left ventricular ejection fraction 40 percent or below",
+      "Age 40-80 years"
+    ],
+    "exclusion_criteria": [
+      "Acute decompensated heart failure within past month",
+      "eGFR below 25",
+      "Type 1 diabetes"
+    ],
+    "interventions": [
+      "Dapagliflozin"
+    ],
+    "sponsor": "Apollo Hospitals",
+    "locations": [
+      "Jaipur, Rajasthan"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/01/063344",
+    "title": "Cognitive Behavioural Therapy for Depressive Symptoms in Type 2 Diabetes Patients",
+    "condition": "Type 2 Diabetes with Depression",
+    "status": "Recruiting",
+    "phase": "N/A",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 25,
+    "max_age": 65,
+    "inclusion_criteria": [
+      "Type 2 Diabetes for at least 1 year",
+      "PHQ-9 score between 10 and 20 indicating moderate depression",
+      "Age 25-65 years"
+    ],
+    "exclusion_criteria": [
+      "Current suicidal ideation",
+      "Bipolar disorder or psychosis",
+      "Substance dependence"
+    ],
+    "interventions": [
+      "Cognitive behavioural therapy"
+    ],
+    "sponsor": "NIMHANS Bengaluru",
+    "locations": [
+      "Mumbai, Maharashtra",
+      "Pune, Maharashtra",
+      "New Delhi, Delhi"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/02/063459",
+    "title": "Long Term Safety Registry of a Biosimilar Rituximab in Indian Patients",
+    "condition": "Rituximab Treated Conditions",
+    "status": "Recruiting",
+    "phase": "Phase IV",
+    "study_type": "Observational",
+    "gender": "Both",
+    "min_age": 18,
+    "max_age": 80,
+    "inclusion_criteria": [
+      "Patients prescribed biosimilar rituximab as part of routine care",
+      "Age 18-80 years"
+    ],
+    "exclusion_criteria": [
+      "Inability to attend follow-up visits"
+    ],
+    "interventions": [],
+    "sponsor": "Zydus Cadila",
+    "locations": [
+      "Coimbatore, Tamil Nadu",
+      "Hyderabad, Telangana",
+      "Jodhpur, Rajasthan"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/03/063561",
+    "title": "Screening and Lifestyle Intervention for Non Alcoholic Fatty Liver Disease in Urban Workplaces",
+    "condition": "Non Alcoholic Fatty Liver Disease",
+    "status": "Recruiting",
+    "phase": "N/A",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 25,
+    "max_age": 55,
+    "inclusion_criteria": [
+      "Ultrasound confirmed fatty liver",
+      "Age 25-55 years",
+      "Body mass index above 25",
+      "No significant alcohol consumption"
+    ],
+    "exclusion_criteria": [
+      "Viral hepatitis B or C",
+      "Cirrhosis",
+      "Regular alcohol use"
+    ],
+    "interventions": [
+      "Diet and lifestyle coaching"
+    ],
+    "sponsor": "KEM Hospital Mumbai",
+    "locations": [
+      "Patiala, Punjab"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/04/063673",
+    "title": "A Study to Assess the Efficacy of a Novel Fixed Dose Triple Combination in Moderate to Severe COPD",
+    "condition": "Chronic Obstructive Pulmonary Disease",
+    "status": "Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 40,
+    "max_age": 80,
+    "inclusion_criteria": [
+      "Moderate to severe COPD with post-bronchodilator FEV1/FVC below 0.70",
+      "Age 40-80 years",
+      "Current or former smoker with at least 10 pack years",
+      "History of at least one exacerbation in past year"
+    ],
+    "exclusion_criteria": [
+      "Asthma as primary diagnosis",
+      "Oxygen therapy dependence",
+      "Recent myocardial infarction within 6 months"
+    ],
+    "interventions": [
+      "Triple combination inhaler"
+    ],
+    "sponsor": "Lupin Ltd",
+    "locations": [
+      "Kozhikode, Kerala",
+      "Bengaluru, Karnataka"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/05/063788",
+    "title": "Effectiveness of Insulin Degludec versus Glargine in Insulin Naive Type 2 Diabetes Patients",
+    "condition": "Type 2 Diabetes",
+    "status": "Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 18,
+    "max_age": 70,
+    "inclusion_criteria": [
+      "Type 2 Diabetes inadequately controlled on oral agents",
+      "HbA1c between 7.5 and 11 percent",
+      "Age 18-70 years",
+      "Insulin naive - no previous insulin treatment"
+    ],
+    "exclusion_criteria": [
+      "History of severe hypoglycaemia in past 6 months",
+      "eGFR below 30",
+      "Pregnancy or planned pregnancy",
+      "Active malignancy"
+    ],
+    "interventions": [
+      "Insulin degludec",
+      "Insulin glargine"
+    ],
+    "sponsor": "Novo Nordisk India",
+    "locations": [
+      "Surat, Gujarat",
+      "Udaipur, Rajasthan",
+      "Thiruvananthapuram, Kerala",
+      "Jodhpur, Rajasthan"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/06/063892",
+    "title": "Telemedicine Follow-up versus In-person Visits in Post Myocardial Infarction Patients",
+    "condition": "Post Myocardial Infarction",
+    "status": "Recruiting",
+    "phase": "N/A",
+    "study_type": "Observational",
+    "gender": "Both",
+    "min_age": 30,
+    "max_age": 75,
+    "inclusion_criteria": [
+      "Myocardial infarction within past 3 to 12 months",
+      "Age 30-75 years",
+      "Access to a smartphone"
+    ],
+    "exclusion_criteria": [
+      "Ongoing unstable angina",
+      "Severe cognitive impairment"
+    ],
+    "interventions": [],
+    "sponsor": "Christian Medical College Vellore",
+    "locations": [
+      "Bengaluru, Karnataka"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/07/063911",
+    "title": "Vaccination Response Study in Adults with Type 2 Diabetes",
+    "condition": "Type 2 Diabetes",
+    "status": "Recruiting",
+    "phase": "N/A",
+    "study_type": "Observational",
+    "gender": "Both",
+    "min_age": 40,
+    "max_age": 70,
+    "inclusion_criteria": [
+      "Type 2 Diabetes diagnosed at least 2 years ago",
+      "Age 40-70 years",
+      "HbA1c between 6.5 and 10 percent",
+      "No prior dose of the study vaccine"
+    ],
+    "exclusion_criteria": [
+      "Immunosuppressive therapy",
+      "Acute febrile illness at enrolment",
+      "History of severe allergic reaction to vaccines"
+    ],
+    "interventions": [],
+    "sponsor": "PGIMER Chandigarh",
+    "locations": [
+      "Surat, Gujarat",
+      "Mumbai, Maharashtra",
+      "Patiala, Punjab"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  },
+  {
+    "trial_id": "CTRI/2025/08/064022",
+    "title": "Ertugliflozin versus Placebo Add-on to Metformin in Type 2 Diabetes with Obesity",
+    "condition": "Type 2 Diabetes with Obesity",
+    "status": "Recruiting",
+    "phase": "Phase III",
+    "study_type": "Interventional",
+    "gender": "Both",
+    "min_age": 18,
+    "max_age": 68,
+    "inclusion_criteria": [
+      "Type 2 Diabetes on stable metformin for 8 weeks or more",
+      "Body mass index between 30 and 45",
+      "HbA1c between 7.5 and 10.5 percent",
+      "Age 18-68 years"
+    ],
+    "exclusion_criteria": [
+      "eGFR below 45",
+      "Recurrent genital mycotic infections",
+      "Type 1 diabetes",
+      "Pregnant or breastfeeding women"
+    ],
+    "interventions": [
+      "Ertugliflozin"
+    ],
+    "sponsor": "Pfizer India",
+    "locations": [
+      "Hubballi, Karnataka",
+      "Kanpur, Uttar Pradesh",
+      "Jodhpur, Rajasthan"
+    ],
+    "source": "CTRI (synthetic demo dataset)",
+    "last_updated": "2025-08-15"
+  }
+]

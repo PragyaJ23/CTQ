@@ -1,0 +1,39 @@
+# --- Secrets ---
+.env
+*.env
+!*.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# --- Node ---
+node_modules/
+frontend/dist/
+*.local
+
+# --- Local databases / generated artifacts / logs ---
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Local share-tunnel + scratch artifacts ---
+cloudflared.exe
+quicktunnel.log
+_shots/
+cohort_test.json
+cohort_test_result.txt
+_single_check.json
+openapi_dump.json
+ppt_extract.txt

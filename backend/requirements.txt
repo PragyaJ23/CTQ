@@ -1,0 +1,22 @@
+# Core backend
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+python-multipart>=0.0.9
+
+# LLM
+groq>=0.11.0
+
+# Embeddings + vector search
+sentence-transformers>=3.0.0
+numpy>=1.26.0
+
+# Data handling + evaluation
+pandas>=2.0.0
+scikit-learn>=1.4.0
+openpyxl>=3.1.0
+
+# File upload parsing (Excel/PDF) + report generation
+pypdf>=4.0.0
+reportlab>=4.0.0

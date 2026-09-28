@@ -65,7 +65,8 @@ story.append(Paragraph(
 story.append(Paragraph(
     "<b>Live result quoted throughout this report:</b> 10 synthetic patients x 21 labelled patient-trial "
     "pairs \u2192 Accuracy 100%, Precision 100%, Recall 100%, F1 100% (TP 11, FP 0, FN 0, TN 10, zero pairs "
-    "excluded) - reproduced from the running app on 27 Sep 2026.", EX))
+    "excluded) - reproduced from the running app on 28 Sep 2026. Scoring against only each patient's top-5 "
+    "best-matching trials also gives 100% (13 pairs scored, 8 reported as outside the ranked scope).", EX))
 
 # ================= 1. WHAT =================
 story.append(Paragraph("1. What the project does", H2))
@@ -76,7 +77,7 @@ story.append(Paragraph(
     "CTQ automates exactly that reading.", BODY))
 story.append(Paragraph("The system performs five jobs:", BODY))
 for t in [
-    "<b>1. Understand the patient.</b> Two input paths on one page: the <b>Structured Data</b> tab (60+ guided form fields, or a structured CSV upload, with a cohort mode for many patients) and the <b>Unstructured Data</b> tab (clinical notes as PDF, photo, CSV, Excel, TXT or JSON). Free text is converted to structured facts by the DistilBERT ML NER - no hand-written regex discovery.",
+    "<b>1. Understand the patient.</b> Three input paths on one page: the <b>Structured Data</b> tab (60+ guided form fields, or a structured CSV upload, with a cohort mode for many patients), the <b>Unstructured Data</b> tab (clinical notes as PDF, photo, CSV, Excel, TXT or JSON), and the <b>Hybrid</b> tab (a structured CSV plus the notes, merged into one authoritative profile per patient - CSV fields win, ML-extracted facts fill every gap). Non-English notes (Hindi and 12 other scripts) are auto-translated to English before extraction. Free text is converted to structured facts by the DistilBERT ML NER - no hand-written regex discovery.",
     "<b>2. Find candidate trials.</b> A structured pre-filter annotates (and only drops clearly impossible) trials; TOP_K_TRIALS=0 means every trial in the 32-trial database is actually checked for each patient.",
     "<b>3. Rank by meaning.</b> The patient profile and each trial's criteria are embedded into vectors (all-MiniLM-L6-v2, local) and compared with cosine similarity. This is the Match Score % - 'how similar is this patient to this trial'.",
     "<b>4. Verify the details.</b> A deterministic rule engine checks everything objectively checkable: numeric lab cut-offs parsed from the criterion text, age and gender windows, medication requirements and durations, comorbidity exclusions, pregnancy and lifestyle criteria. Missing inclusion-side facts produce 'Insufficient Information' rather than a guess; missing exclusion-side facts keep 'Potentially Eligible' with the gap listed.",
@@ -124,7 +125,30 @@ story.append(Image("_ppt_assets/confusion.png", width=12.5 * cm, height=12.5 * c
 story.append(Paragraph(
     "The confusion matrix above is generated from the live run's JSON output, not drawn by hand. FN = 0 means "
     "no eligible trial was ever turned away - the clinically most important property for a screening tool.", BODY))
-story.append(Paragraph("3.2 Honesty mechanism (why nothing was 'guessed')", H3))
+story.append(Paragraph("3.2 Ranking scope - accuracy against the top-K matches (new)", H3))
+story.append(Paragraph(
+    "In real use, a coordinator reads the ranked list from the top - not all 32 trials. The Model Evaluation "
+    "page therefore offers a ranking scope: All trials, Top 3, Top 5 or Top 10. Under a top-K scope, a "
+    "labelled pair is scored only when that trial is among the patient's K best-matching trials (by embedding "
+    "similarity); pairs outside the scope are skipped and reported next to the confusion matrix, so the "
+    "denominator is always visible. On the bundled sample:", BODY))
+scope = Table([
+    ["Scope", "Pairs scored", "Skipped (outside scope)", "Accuracy", "Confusion"],
+    ["All trials", "21", "0", "100%", "TP 11 \u00b7 FP 0 \u00b7 FN 0 \u00b7 TN 10"],
+    ["Top-5 trials per patient", "13", "8", "100%", "TP 9 \u00b7 FP 0 \u00b7 FN 0 \u00b7 TN 4"],
+    ["Top-3 trials per patient", "11", "10", "100%", "TP 9 \u00b7 FP 0 \u00b7 FN 0 \u00b7 TN 2"],
+], colWidths=[4.6 * cm, 2.4 * cm, 3.4 * cm, 2.2 * cm, 5.4 * cm])
+scope.setStyle(TableStyle([
+    ("BACKGROUND", (0, 0), (-1, 0), PRIMARY), ("TEXTCOLOR", (0, 0), (-1, 0), HexColor("#ffffff")),
+    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"), ("FONTSIZE", (0, 0), (-1, -1), 9),
+    ("GRID", (0, 0), (-1, -1), 0.4, HexColor("#d9e6e8")), ("TOPPADDING", (0, 0), (-1, -1), 4),
+    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+]))
+story.append(scope)
+story.append(Paragraph(
+    "The top-5 run keeps FN = 0 and precision = 100% while evaluating the system exactly the way its users "
+    "read the results - the ranked shortlist first.", BODY))
+story.append(Paragraph("3.3 Honesty mechanism (why nothing was 'guessed')", H3))
 story.append(Paragraph(
     "Rows whose prediction is 'Insufficient Information' are excluded from the binary matrix and reported "
     "separately (in this run: zero). If a note genuinely lacks a fact - e.g. an asthma note without FEV1 - the "
@@ -180,29 +204,30 @@ story += shot("07_unstructured_upload", "4.7 Unstructured Data tab - drop any do
     "(notes / clinical_notes / summary / medical_history\u2026) and a patient id column by alias "
     "(patient_id / note_id / id). The same box serves the Model Evaluation page.")
 
-story += shot("08_unstructured_extracted", "4.8 ML NER output - patient 1 of 5",
-    "The 5-patient sample was uploaded; the DistilBERT QA model read each note and the page shows extracted "
-    "fact chips per patient with a 'Patient 1 of 5' stepper. Each patient keeps its own 'Find Matching Trials "
-    "for this profile' button, so users walk through patients one at a time instead of one giant dump - and "
-    "the extracted facts + text download as CSV.")
+story += shot("08_unstructured_extracted", "4.8 Hindi clinical note - auto-translated, then extracted",
+    "The uploaded file contains a fully Hindi discharge note ('\u0930\u092e\u0947\u0936 \u0915\u0941\u092e\u093e\u0930, "
+    "\u0909\u092e\u094d\u0930 48 \u0935\u0930\u094d\u0937... \u092e\u0947\u091f\u092b\u093c\u093e\u0930\u094d\u092e\u093f\u0928 500 "
+    "\u092e\u093f\u0917\u094d\u0930\u093e...'). CTQ detects the Devanagari script, translates the note to English via the "
+    "Groq LLM, and the DistilBERT NER then extracts the complete profile - age 48, male, diabetes, Metformin, "
+    "HbA1c 8.5, eGFR 80, BP 140/85. The banner reports the translation; without it, only Latin-anchored lab "
+    "values ('HbA1c 8.5') would survive. Translation is behind the same rate-limit breaker as the LLM review: "
+    "if Groq is unavailable the original text is used and the UI says so.")
 
-story += shot("09_unstructured_patient2", "4.9 Stepper - next patient",
-    "One click of 'Next patient \u2192' moves to Patient 2 of 5 (a 62-year-old hypertensive male): the chips "
-    "re-render from that patient's own extraction, ready for its own matching run.")
+story += shot("10_evaluation_upload", "4.9 Model Evaluation - zero-preparation demo + ranking scope",
+    "Four numbered steps: unstructured patient file, labelled ground-truth file, ranking scope, run. The "
+    "'Load bundled sample data (10 patients, 21 labels)' button fills both inputs from the app itself - no "
+    "file handling needed for a demo. The ranking-scope buttons choose between scoring all trials and "
+    "scoring only each patient's top-3 / top-5 / top-10 best matches (section 3.2).")
 
-story += shot("10_evaluation_upload", "4.10 Model Evaluation - zero-preparation demo",
-    "Three numbered steps: unstructured patient file, labelled ground-truth file, run. The 'Load bundled "
-    "sample data (10 patients, 21 labels)' button fills both inputs from the app itself - no file handling "
-    "needed for a demo.")
+story += shot("11_evaluation_result", "4.10 The live metrics dashboard (top-5 scope)",
+    "The screenshot shows an actual top-5 scoped run: 13 labelled pairs scored, 8 skipped for falling outside "
+    "a patient's top-5 matches (the count is printed next to the matrix), Accuracy / Precision / Recall / F1 "
+    "at 100%, and the colour-coded confusion matrix. An expandable 'ML extraction details' panel lists the "
+    "facts the NER found for each patient.")
 
-story += shot("11_evaluation_result", "4.11 The live metrics dashboard",
-    "The screenshot shows the actual run reported in section 3: 10 patients, 21 labelled pairs, Accuracy "
-    "100%, Precision 100%, Recall 100%, F1 100%, and the colour-coded confusion matrix (TP 11 \u00b7 FN 0 \u00b7 "
-    "FP 0 \u00b7 TN 10). An expandable 'ML extraction details' panel lists the facts the NER found for each patient.")
-
-story += shot("12_evaluation_table", "4.12 Per-pair predictions vs labels",
-    "Every one of the 21 rows with a \u2713: prediction equals the ground-truth label. The table downloads as "
-    "CSV ('evaluation_predictions.csv') for offline inspection.")
+story += shot("12_evaluation_table", "4.11 Per-pair predictions vs labels",
+    "Each scored row with a \u2713: prediction equals the ground-truth label. The table downloads as CSV "
+    "('evaluation_predictions.csv') for offline inspection.")
 
 # ================= 5. TECH STACK =================
 story.append(PageBreak())
@@ -213,7 +238,8 @@ story.append(Paragraph(
     "ones with a worked example each.", BODY))
 stack = [
     ["Technology", "Role in CTQ", "How it is used here"],
-    ["DistilBERT extractive-QA (distilbert-base-cased-distilled-squad)", "ML NER engine", "Asks one targeted question per clinical field per note ('What is the patient's HbA1c level?'); picks the best answer span SQuAD-style with a no-answer threshold; normalises spans into profile fields. Runs locally on CPU."],
+    ["DistilBERT extractive-QA (distilbert-base-cased-distilled-squad)", "ML NER engine", "Asks one targeted question per clinical field per note ('What is the patient's HbA1c level?'); picks the best answer span SQuAD-style with a no-answer threshold; normalises spans into profile fields. English-only by training - fed by the translation layer for non-English notes. Runs locally on CPU."],
+    ["Groq API (openai/gpt-oss-120b)", "Translation + LLM review", "Two jobs: (1) low-effort multilingual translation of non-Latin notes (Hindi + 12 scripts) to English before extraction, sharing the rate-limit circuit breaker; (2) adversarial second opinion on eligibility with rule-engine fallback."],
     ["RapidOCR (ONNX) + PyMuPDF", "OCR & PDF reading", "Photos/scans of prescriptions \u2192 RapidOCR text; scanned PDF pages are rasterised with PyMuPDF then OCR'd; digital PDFs use pypdf text directly."],
     ["sentence-transformers (all-MiniLM-L6-v2)", "Semantic embeddings", "Encodes the patient profile text and each trial's criteria into 384-d vectors; cosine similarity becomes the Match Score after rescaling."],
     ["Custom rule engine (services/eligibility.py)", "Deterministic checking", "Parses numeric cut-offs from criterion text ('HbA1c between 7.5 and 10.5', 'eGFR below 45'), age/gender windows, medication & duration requirements, comorbidity exclusions; any hard exclusion vetoes eligibility."],
@@ -263,7 +289,21 @@ story.append(Paragraph(
     "only (stays Potentially Eligible, gaps listed). A criterion like \u2018ALT above 3 times the upper limit "
     "of normal\u2019 is recognised as a multiplier phrase, not a literal cut-off of 3.", BODY))
 
-story.append(Paragraph("5.3 The evaluation pipeline in detail", H3))
+story.append(Paragraph("5.3 The multilingual translation layer (Hindi today, 13 scripts)", H3))
+story.append(Paragraph(
+    "The extractive-QA NER is trained on English SQuAD, so a Hindi note used to yield a half-empty profile: "
+    "only Latin-script anchors ('HbA1c 8.5', 'eGFR 80') survived, while Hindi prose (\u0909\u092e\u094d\u0930, "
+    "\u092e\u0947\u091f\u092b\u093c\u093e\u0930\u094d\u092e\u093f\u0928, \u0927\u0942\u092e\u094d\u0930\u092a\u093e\u0928) "
+    "returned nothing. CTQ now closes that gap in three steps:", BODY))
+for t in [
+    "<b>Detect.</b> services/translate.py scans the note's alphabetic characters against Unicode script ranges (Devanagari, Bengali, Gurmukhi, Gujarati, Odia, Tamil, Telugu, Kannada, Malayalam, CJK, Cyrillic, Arabic, Hebrew, Greek). If \u2265 5% belong to a non-Latin script, the note is flagged; detection is instant and offline.",
+    "<b>Translate.</b> The note goes to the Groq LLM with a strict medical-translation prompt (keep every number, unit and lab name exactly as written; \u092e\u0947\u091f\u092b\u093c\u093e\u0930\u094d\u092e\u093f\u0928 \u2192 Metformin; preserve line breaks and [ID] markers) with low reasoning effort to save tokens.",
+    "<b>Extract.</b> The English text flows through the untouched, validated NER pipeline - no change to the extraction behaviour that scored 100% on the English sample.",
+    "<b>Fail safe.</b> Translation shares the LLM rate-limit breaker. With no API key, a 429, or any failure, the original text is used and the UI explains what happened - extraction never breaks because translation did. Hindi-verified result: age 48, male, diabetes, Metformin 500 mg twice daily, HbA1c 8.5, creatinine 1.1, eGFR 80, BP 140/85, Never/Never lifestyle - the complete profile, from pure Hindi input.",
+]:
+    story.append(Paragraph(t, BODY))
+
+story.append(Paragraph("5.4 The evaluation pipeline in detail", H3))
 story.append(Paragraph(
     "POST /api/patient/analyze-batch receives the unstructured patients and the labels; each note is "
     "re-extracted by the ML NER (explicit fields win), every trial is checked for every patient via the "
@@ -273,7 +313,7 @@ story.append(Paragraph(
     "frontend's 'Load bundled sample data' button simply calls /api/evaluation/sample-data, which serves "
     "exactly these CSVs from sample_data/.", BODY))
 
-story.append(Paragraph("5.4 One request, end to end", H3))
+story.append(Paragraph("5.5 One request, end to end", H3))
 story.append(Paragraph(
     "Form submit (or file upload \u2192 ML NER) - buildPayload() structures the JSON - POST /api/patient/analyze "
     "- build_profile() normalises it into PatientProfile - trial_retrieval pre-filters/annotates all 32 trials "
@@ -289,17 +329,29 @@ for t in [
     "<b>Dose-threshold rules.</b> The rule engine can parse 'HbA1c <= 9.0' but not yet 'metformin at least 1500 mg/day'; the dose field on medications makes that check possible.",
     "<b>Real registry data.</b> Point the retrieval layer at a live CTRI export or ClinicalTrials.gov (NCT) JSON - the trial import path already accepts the same schema.",
     "<b>Doctor feedback loop.</b> Human-in-the-loop corrections that feed back into the rules and the evaluation set.",
-    "<b>Multilingual input.</b> Hindi and other Indian-language symptom entry, with translation before matching.",
+    "<b>More languages + speech.</b> Hindi notes ship today (13 scripts detected, translated before extraction); regional speech-to-text dictation and ICD / LOINC coding come next.",
     "<b>Accounts + investigator dashboard.</b> Save patient histories, track which trials were contacted, record enrolment outcomes - turning CTQ from a screener into a workflow tool.",
     "<b>PostgreSQL + deployment.</b> Swap SQLite for PostgreSQL and deploy the API and frontend for multi-user access.",
 ]:
     story.append(Paragraph(t, BODY))
 
+story.append(Paragraph("7. Deployment - live on Render", H2))
+story.append(Paragraph(
+    "CTQ runs publicly at <b>https://ctq-clinical-trial-qualifier.onrender.com</b> (Docker deploy, auto-redeploys "
+    "on every push to master). To fit the free tier's 512 MB RAM, the DistilBERT NER is exported to ONNX int8 at "
+    "Docker build time (66 MB self-contained artifact; onnxruntime with single-thread execution and no arena "
+    "growth - torch is never imported on that path), and embeddings run in a deterministic hashed mode. The "
+    "Groq key is injected as a sync:false environment variable. Known free-tier limits: after 15 minutes idle "
+    "the server sleeps (~50 s cold start on the next request), CPU throttling means very large multi-note "
+    "uploads may time out, and the Groq daily token cap (~200k TPD) occasionally pauses LLM translation/review "
+    "until the breaker resets - the rule engine keeps verdicts flowing either way.", BODY))
+
 story.append(hr())
 story.append(Paragraph(
-    "CTQ - Clinical Trial Qualifier. Backend: FastAPI + SQLite + DistilBERT extractive-QA ML NER + "
-    "sentence-transformers + RapidOCR. Frontend: React + Vite. Trial metadata modelled on the Clinical Trials "
-    "Registry - India (CTRI). All demo data is synthetic; no real patient data is used.", MUT))
+    "CTQ - Clinical Trial Qualifier. Backend: FastAPI + SQLite + DistilBERT extractive-QA ML NER + Groq "
+    "translation/review + sentence-transformers + RapidOCR. Frontend: React + Vite. Deployed on Render. "
+    "Trial metadata modelled on the Clinical Trials Registry - India (CTRI). All demo data is synthetic; no "
+    "real patient data is used.", MUT))
 
 doc = SimpleDocTemplate("CTQ_Full_Project_Report.pdf", pagesize=A4,
                         leftMargin=2 * cm, rightMargin=2 * cm,

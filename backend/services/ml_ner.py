@@ -666,15 +666,48 @@ def extract_height_weight(text: str, claimed: set = None) -> dict:
 # Public entry points
 # ---------------------------------------------------------------------------
 
+_extract_cache: dict = {}          # sha1(note text) -> extraction result dict
+_EXTRACT_CACHE_MAX = 512           # bound memory (Render free tier: each result is small)
+
+
 def extract_entities(clinical_notes: str) -> dict:
+    """Cached wrapper - the real work happens in _extract_entities_uncached.
+
+    Evaluation/batch flows re-send the same notes (upload preview already
+    extracted them, or the user re-runs the same evaluation); the DistilBERT
+    pass dominates latency (~10-20 s/note), so identical text returns the
+    cached result instantly. A code reload or process restart resets it."""
+    import hashlib
+    key = hashlib.sha1((clinical_notes or "").encode("utf-8")).hexdigest()
+    hit = _extract_cache.get(key)
+    if hit is not None:
+        return hit
+    result = _extract_entities_uncached(clinical_notes)
+    if len(_extract_cache) >= _EXTRACT_CACHE_MAX:
+        _extract_cache.pop(next(iter(_extract_cache)))  # FIFO eviction
+    _extract_cache[key] = result
+    return result
+
+
+def _extract_entities_uncached(clinical_notes: str) -> dict:
     """Extract structured facts from free clinical text with the ML model.
 
     Returns profile-shaped facts plus a report of what the engine did (for
     transparency in the UI).
+
+    Non-Latin notes (Hindi and other Indic scripts, CJK, ...) are translated
+    to English first - the extractive-QA NER itself is English-only. When
+    translation is unavailable (no LLM key / rate-limited / failed) the
+    original text is used as-is, which still recovers Latin-anchored lab
+    values like "HbA1c 8.5".
     """
     notes = (clinical_notes or "").strip()
     if not notes:
         return {"facts": {}, "model_used": "none", "detail": "no text supplied"}
+
+    from services.translate import translate_to_english
+    tr = translate_to_english(notes)
+    notes = tr["text"]
 
     facts: dict = {}
     qa_used = _get_model() is not None
@@ -708,11 +741,20 @@ def extract_entities(clinical_notes: str) -> dict:
     if labs:
         facts["labs"] = labs
 
+    detail = ("DistilBERT extractive-QA answered targeted clinical questions; "
+              "answers were normalised into profile fields (ML-only, no regex)")
+    if tr["translated"]:
+        detail = (f"Note was in {tr['source_script']} script and was translated to English "
+                  f"before ML extraction. " + detail)
+    elif tr.get("note"):
+        detail = tr["note"] + ". " + detail
     return {
         "facts": facts,
         "model_used": _QA_MODEL if qa_used else "unavailable",
-        "detail": ("DistilBERT extractive-QA answered targeted clinical questions; "
-                   "answers were normalised into profile fields (ML-only, no regex)"),
+        "translated": tr["translated"],
+        "source_script": tr["source_script"],
+        "translation_note": tr.get("note"),
+        "detail": detail,
     }
 
 

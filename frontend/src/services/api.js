@@ -117,8 +117,9 @@ export const uploadLabels = (file) => {
   return api.post("/upload/labels", fd).then((r) => r.data);
 };
 
-export const runEvaluation = (patients, labels) =>
-  api.post("/patient/analyze-batch", { patients, labels }, { timeout: 600000 }).then((r) => r.data);
+export const runEvaluation = (patients, labels, topK = null) =>
+  api.post("/patient/analyze-batch", { patients, labels },
+           { timeout: 600000, ...(topK ? { params: { top_k: topK } } : {}) }).then((r) => r.data);
 
 export const runSampleEvaluation = () =>
   api.post("/evaluation/run-sample").then((r) => r.data);
@@ -149,8 +150,9 @@ export const analyzeBatch = (patients, labels) =>
 // Cohort mode (multiple patients in one go)
 // ---------------------------------------------------------------------------
 
-export const analyzeCohort = (patients) =>
-  api.post("/cohort/analyze", { patients }, { timeout: 600000 }).then((r) => r.data);
+export const analyzeCohort = (patients, topK = null) =>
+  api.post("/cohort/analyze", { patients },
+           { timeout: 600000, ...(topK ? { params: { top_k: topK } } : {}) }).then((r) => r.data);
 
 export const exportCohortExcel = (patients) =>
   api.post("/cohort/export", { patients }, { responseType: "blob" }).then((r) => r.data);

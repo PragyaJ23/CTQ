@@ -103,6 +103,28 @@ function MCQ({ value, onChange }) {
   );
 }
 
+/** Shared "how many trials to check" picker (used by every tab's submit path). */
+const TRIAL_SCOPES = [
+  { value: "all", label: "All trials" },
+  { value: "5", label: "Top 5" },
+  { value: "10", label: "Top 10" },
+  { value: "15", label: "Top 15" },
+];
+function TrialScopePicker({ value, onChange }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+      <span style={{ fontWeight: 600, fontSize: "0.85rem" }}>Trials to check:</span>
+      <div className="mcq-row">
+        {TRIAL_SCOPES.map((s) => (
+          <button type="button" key={s.value}
+            className={`mcq ${value === s.value ? "selected" : ""}`}
+            onClick={() => onChange(s.value)}>{s.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** Flatten ML-NER facts into the same payload shape the structured form sends. */
 function noteToFactsPayload(facts, noteId) {
   const labs = facts.labs || {};
@@ -290,6 +312,8 @@ function HybridPanel() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [allResult, setAllResult] = useState(null);
   const [allActive, setAllActive] = useState(0);
+  const [trialScope, setTrialScope] = useState("all");
+  const topK = trialScope === "all" ? null : Number(trialScope);
 
   const handleStructured = async (file) => {
     if (!file) return;
@@ -330,10 +354,11 @@ function HybridPanel() {
   const active = hybrid?.merged[activeIdx] || null;
 
   const runOne = async () => {
-    setBusy(`Checking every trial in the database for ${active.id}...`);
+    setBusy(topK ? `Checking the top ${topK} best-matching trials for ${active.id}...`
+                 : `Checking every trial in the database for ${active.id}...`);
     setError("");
     try {
-      const response = await analyzePatient(active.payload);
+      const response = await analyzePatient(active.payload, topK);
       sessionStorage.setItem("ctq_results", JSON.stringify({ response, profile: active.payload }));
       navigate("/results");
     } catch (err) {
@@ -344,10 +369,11 @@ function HybridPanel() {
   };
 
   const runAll = async () => {
-    setBusy(`Checking every trial in the database for all ${hybrid.merged.length} patients...`);
+    setBusy(topK ? `Checking the top ${topK} best-matching trials for all ${hybrid.merged.length} patients...`
+                 : `Checking every trial in the database for all ${hybrid.merged.length} patients...`);
     setError("");
     try {
-      const res = await analyzeCohort(hybrid.merged.map((m) => m.payload));
+      const res = await analyzeCohort(hybrid.merged.map((m) => m.payload), topK);
       setAllResult(res);
       setAllActive(0);
     } catch (err) {
@@ -385,6 +411,10 @@ function HybridPanel() {
           {notesRes && (
             <p className="hint" style={{ margin: "0.4rem 0 0" }}>
               ✓ {notesRes.count} notes extracted from “{notesName}”
+              {notesRes.results.some((r) => r.translated) &&
+                <> · 🌐 translated to English before extraction</>}
+              {notesRes.results.some((r) => r.source_script && !r.translated) &&
+                <> · ⚠ some notes not translated (LLM unavailable)</>}
             </p>
           )}
         </div>
@@ -422,6 +452,9 @@ function HybridPanel() {
                     <span key={i} className="meta-chip">{x}</span>
                   ))}
                 </div>
+                <div className="btn-row" style={{ flexWrap: "wrap", alignItems: "center" }}>
+                  <TrialScopePicker value={trialScope} onChange={setTrialScope} />
+                </div>
                 <div className="btn-row">
                   <button className="btn primary" disabled={!!busy} onClick={runOne}>
                     Find Matching Trials for this profile
@@ -452,6 +485,8 @@ function UnstructuredPanel() {
   const [activeNote, setActiveNote] = useState(0);
   const [allResult, setAllResult] = useState(null);
   const [allActive, setAllActive] = useState(0);
+  const [trialScope, setTrialScope] = useState("all");
+  const topK = trialScope === "all" ? null : Number(trialScope);
   const fileRef = useRef(null);
 
   const handleFile = async (file) => {
@@ -479,11 +514,12 @@ function UnstructuredPanel() {
   };
 
   const analyzeNote = async (facts, noteId) => {
-    setBusy("Matching the extracted profile against every trial in the database...");
+    setBusy(topK ? `Matching the extracted profile against the top ${topK} best-matching trials...`
+                 : "Matching the extracted profile against every trial in the database...");
     setError("");
     try {
       const payload = noteToFactsPayload(facts, noteId);
-      const response = await analyzePatient(payload);
+      const response = await analyzePatient(payload, topK);
       sessionStorage.setItem("ctq_results", JSON.stringify({ response, profile: payload }));
       navigate("/results");
     } catch (err) {
@@ -496,11 +532,12 @@ function UnstructuredPanel() {
   /** ALL patients at once: reuse the structured cohort endpoint, then browse
    *  the in-page per-patient viewer exactly like the structured cohort. */
   const analyzeAllNotes = async () => {
-    setBusy(`Checking every trial in the database for all ${extracted.results.length} patients...`);
+    setBusy(topK ? `Checking the top ${topK} best-matching trials for all ${extracted.results.length} patients...`
+                 : `Checking every trial in the database for all ${extracted.results.length} patients...`);
     setError("");
     try {
       const built = extracted.results.map((r) => noteToFactsPayload(r.facts, r.note_id));
-      const res = await analyzeCohort(built);
+      const res = await analyzeCohort(built, topK);
       setAllResult(res);
       setAllActive(0);
     } catch (err) {
@@ -530,6 +567,20 @@ function UnstructuredPanel() {
             Extracted structured data from <strong>{extracted.count}</strong>
             {extracted.count === 1 ? " note" : " notes"} in “{extracted.filename}” ({extracted.kind}).
           </Banner>
+          {extracted.results.some((r) => r.translated) && (
+            <Banner kind="warn">
+              🌐 {extracted.results.filter((r) => r.translated).length} of {extracted.results.length} note(s)
+              were in a non-English script and were auto-translated to English before ML extraction
+              ({[...new Set(extracted.results.filter((r) => r.translated).map((r) => r.source_script))].join(", ")}).
+            </Banner>
+          )}
+          {extracted.results.some((r) => r.source_script && !r.translated) && (
+            <Banner kind="warn">
+              ⚠ {extracted.results.filter((r) => r.source_script && !r.translated).length} note(s) are in a
+              non-English script but could not be translated (no LLM key / rate-limited) — extraction ran on
+              the untranslated text, so only Latin-script lab values may have been found.
+            </Banner>
+          )}
           {(() => {
             const r = extracted.results[activeNote];
             if (!r) return null;
@@ -544,6 +595,9 @@ function UnstructuredPanel() {
                     <span key={i} className="meta-chip">{x}</span>
                   ))}
                   {fmtFacts(r.facts).length === 0 && <span className="hint">No entities extracted from this note.</span>}
+                </div>
+                <div className="btn-row" style={{ flexWrap: "wrap", alignItems: "center" }}>
+                  <TrialScopePicker value={trialScope} onChange={setTrialScope} />
                 </div>
                 <div className="btn-row">
                   <button className="btn primary" disabled={!!busy} onClick={() => analyzeNote(r.facts, r.note_id)}>
@@ -600,6 +654,7 @@ export default function Matcher() {
   const [cohortBusy, setCohortBusy] = useState("");
   const [cohortResult, setCohortResult] = useState(null);
   const [activeCohort, setActiveCohort] = useState(0);
+  const [trialScope, setTrialScope] = useState("all");   // "all" | "5" | "10" | "15"
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -625,7 +680,10 @@ export default function Matcher() {
 
   const removePatient = (i) => setCohort((list) => list.filter((_, j) => j !== i));
 
-  /** Load a structured patient CSV into the form + cohort rows. */
+  /** Load a structured patient CSV into the form + cohort rows.
+   *  The main form's meds/symptoms/comorbidities live in SEPARATE state
+   *  (meds, symptoms, comorbidities) and are read from there on submit -
+   *  so row 1 of the CSV must populate those states too, not just `form`. */
   const csvFileRef = useRef(null);
   const [csvMsg, setCsvMsg] = useState("");
   const handleStructuredCsv = async (file) => {
@@ -637,7 +695,23 @@ export default function Matcher() {
       if (list.length === 0) throw new Error("No patients found in that file.");
       const rows = list.map(profileToForm);
       const [first, ...rest] = rows;
-      setForm((f) => ({ ...f, ...first }));
+      // Row 1's meds/symptoms/comorbidities live in DEDICATED states (the form
+      // inputs + submit paths read from there), so keep them out of `form` to
+      // avoid a second, stale copy of the same data.
+      const { current_medications, symptoms: rowSymptoms, comorbidities: rowComorb,
+              ...formFields } = first;
+      setForm((f) => ({ ...f, ...formFields }));
+      setMeds(Array.isArray(current_medications)
+        ? current_medications.map((m) => ({
+            name: m?.name || "", dose: m?.dose || "",
+            frequency: m?.frequency || "", duration_months: m?.duration_months ?? "",
+          }))
+        : []);
+      setSymptoms(Array.isArray(rowSymptoms)
+        ? rowSymptoms.filter((s) => typeof s === "string") : []);
+      setSymptomOther("");
+      setComorbidities(Object.fromEntries(
+        COMORBIDITIES.map((c) => [c, (rowComorb || {})[c] === "Yes" ? "Yes" : "No"])));
       setCohort(rest);
       setCohortResult(null);
       setActiveCohort(0);
@@ -656,9 +730,12 @@ export default function Matcher() {
     try {
       const patients = [form, ...cohort].map((p, i) => ({
         ...p,
+        // Patient 1's meds/symptoms/history live in the dedicated form states.
+        ...(i === 0 ? { current_medications: meds,
+                       symptoms: [...symptoms, ...(symptomOther.trim() ? [symptomOther.trim()] : [])] } : {}),
         patient_id: p.patient_id || `P${String(i + 1).padStart(3, "0")}`,
         comorbidities: Object.fromEntries(
-          COMORBIDITIES.map((c) => [c, (p.comorbidities || {})[c] || "No"])),
+          COMORBIDITIES.map((c) => [c, ((i === 0 ? comorbidities : p.comorbidities) || {})[c] || "No"])),
       }));
       const blob = await exportCohortExcel(patients);
       const url = URL.createObjectURL(blob);
@@ -697,19 +774,27 @@ export default function Matcher() {
           return;
         }
       }
-      setCohortBusy(`Checking every trial in the database for ${patients.length} patients...`);
+      setCohortBusy(topK ? `Checking the top ${topK} best-matching trials for ${patients.length} patients...`
+                          : `Checking every trial in the database for ${patients.length} patients...`);
       try {
-        const built = patients.map((p) => {
+        const built = patients.map((p, i) => {
+          // Patient 1 is the main form: read meds/symptoms/history from the
+          // dedicated states (the checkboxes/med rows the user sees + edits).
+          // Patients 2+ carry their own CSV/form data.
+          const isMain = i === 0;
           const fullComorbidities = Object.fromEntries(
-            COMORBIDITIES.map((c) => [c, (p.comorbidities || {})[c] || "No"]));
+            COMORBIDITIES.map((c) =>
+              [c, ((isMain ? comorbidities : p.comorbidities) || {})[c] || "No"]));
           return buildPayload({
             ...p,
             comorbidities: fullComorbidities,
-            current_medications: p.current_medications || meds,
-            symptoms: p.symptoms || [...symptoms, ...(symptomOther.trim() ? [symptomOther.trim()] : [])],
+            current_medications: isMain ? meds : (p.current_medications || meds),
+            symptoms: isMain
+              ? [...symptoms, ...(symptomOther.trim() ? [symptomOther.trim()] : [])]
+              : (p.symptoms || [...symptoms, ...(symptomOther.trim() ? [symptomOther.trim()] : [])]),
           });
         });
-        const res = await analyzeCohort(built);
+        const res = await analyzeCohort(built, topK);
         setCohortResult(res);
         setActiveCohort(0);
         window.scrollTo(0, 0);
@@ -741,7 +826,7 @@ export default function Matcher() {
         current_medications: meds,
         symptoms: [...symptoms, ...(symptomOther.trim() ? [symptomOther.trim()] : [])],
       });
-      const response = await analyzePatient(payload);
+      const response = await analyzePatient(payload, topK);
       sessionStorage.setItem("ctq_results", JSON.stringify({ response, profile: payload }));
       navigate("/results");
     } catch (err) {
@@ -1064,6 +1149,9 @@ export default function Matcher() {
             </div>
           </>
 
+          <div className="btn-row section-gap" style={{ flexWrap: "wrap", alignItems: "center" }}>
+            <TrialScopePicker value={trialScope} onChange={setTrialScope} />
+          </div>
           <div className="btn-row section-gap">
             <button type="submit" className="btn large" disabled={busy || !!cohortBusy}>
               {busy ? "Analyzing..."

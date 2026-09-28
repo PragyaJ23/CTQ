@@ -64,6 +64,7 @@ export default function Evaluation() {
   const [unstructured, setUnstructured] = useState(null);   // {patients:[...]}
   const [unstructInfo, setUnstructInfo] = useState(null);   // preview info
   const [labelInfo, setLabelInfo] = useState(null);
+  const [rankScope, setRankScope] = useState("all");        // "all" | "top5" | "top10" ...
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -76,8 +77,13 @@ export default function Evaluation() {
     setError(""); setResult(null); setBusy(`Reading “${file.name}”...`);
     try {
       const res = await extractDocument(file);
-      // reuse the parsed note text; analyze-batch re-runs the ML NER per patient
-      setUnstructured({ patients: res.results.map((r) => ({ patient_id: r.note_id, text: r.text })) });
+      // Send BOTH the raw text and the facts the upload already extracted -
+      // analyze-batch then skips the second (slow) ML NER pass entirely.
+      setUnstructured({
+        patients: res.results.map((r) => ({
+          patient_id: r.note_id, text: r.text, extracted_facts: r.facts,
+        })),
+      });
       setUnstructInfo({ name: file.name, kind: res.kind, count: res.count });
     } catch (err) {
       setUnstructured(null);
@@ -110,7 +116,8 @@ export default function Evaluation() {
     setBusy("ML NER is converting each unstructured patient into a structured profile, checking every trial, then scoring against the labelled data...");
     setError("");
     try {
-      const res = await runEvaluation(unstructured.patients, labelInfo.labels);
+      const res = await runEvaluation(unstructured.patients, labelInfo.labels,
+                                      rankScope === "all" ? null : Number(rankScope.replace("top", "")));
       setResult(res);
       window.scrollTo(0, 0);
     } catch (err) {
@@ -203,7 +210,26 @@ export default function Evaluation() {
       </div>
 
       <div className="card">
-        <h3>3 · Run evaluation</h3>
+        <h3>3 · Ranking scope</h3>
+        <p className="hint">
+          Which trials should accuracy be scored against? <strong>All trials</strong> checks every
+          trial in the database. <strong>Top-K</strong> scores only each patient's K best-matching
+          trials (by match score) — the way a coordinator actually reads the ranked list. Labelled
+          pairs that fall outside a patient's top-K are skipped and reported.
+        </p>
+        <div className="btn-row">
+          {["all", "top3", "top5", "top10"].map((s) => (
+            <button key={s} type="button"
+              className={`btn ${rankScope === s ? "primary" : ""}`}
+              onClick={() => setRankScope(s)}>
+              {s === "all" ? "All trials" : s === "top3" ? "Top 3 trials" : s === "top5" ? "Top 5 trials" : "Top 10 trials"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <h3>4 · Run evaluation</h3>
         <button className="btn primary" onClick={run}
           disabled={!unstructured || !labelInfo || !!busy}>
           Run Evaluation
@@ -230,6 +256,12 @@ export default function Evaluation() {
 
           <div className="card section-gap">
             <h3>Confusion Matrix</h3>
+            {(result.ranking_scope || "all trials") !== "all trials" && (
+              <p className="hint">
+                Scope: <strong>{result.ranking_scope}</strong> · {result.skipped_outside_top_k} labelled
+                pair(s) skipped for falling outside the ranked scope.
+              </p>
+            )}
             <ConfusionMatrix c={result.metrics.confusion} />
           </div>
 

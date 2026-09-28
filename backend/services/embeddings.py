@@ -70,13 +70,36 @@ def _hashed_embedding(text: str) -> np.ndarray:
     return vec / norm if norm else vec
 
 
+_EMBED_CACHE_MAX = 4096
+_embed_cache: dict = {}   # exact text -> L2-normalised float32 vector
+
+
 def embed_texts(texts: List[str]) -> np.ndarray:
-    """Embed a list of strings -> (n, dim) float32 matrix (L2-normalised)."""
+    """Embed a list of strings -> (n, dim) float32 matrix (L2-normalised).
+
+    A per-process cache keyed on the exact text keeps repeat requests cheap:
+    trial criteria are embedded on EVERY patient check, but they never change
+    between imports, so after the first run each trial embed is a dict lookup.
+    Patient profiles are also cached (evaluation re-runs the same patients)."""
     model = _load_model()
     if model == _FALLBACK_MARKER:
         return np.vstack([_hashed_embedding(t) for t in texts])
-    vectors = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
-    return np.asarray(vectors, dtype=np.float32)
+    todo_idx, todo_texts = [], []
+    out = np.zeros((len(texts), _DIM), dtype=np.float32)
+    for i, t in enumerate(texts):
+        cached = _embed_cache.get(t)
+        if cached is not None:
+            out[i] = cached
+        else:
+            todo_idx.append(i)
+            todo_texts.append(t)
+    if todo_texts:
+        vectors = model.encode(todo_texts, normalize_embeddings=True, show_progress_bar=False)
+        for pos, (i, v) in enumerate(zip(todo_idx, np.asarray(vectors, dtype=np.float32))):
+            out[i] = v
+            if len(_embed_cache) < _EMBED_CACHE_MAX:
+                _embed_cache[todo_texts[pos]] = v
+    return out
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:

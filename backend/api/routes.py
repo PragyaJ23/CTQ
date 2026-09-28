@@ -1,6 +1,7 @@
 """All CTQ API endpoints (see spec §41, §42)."""
 import io
 import json
+import os
 from typing import List, Optional
 
 import pandas as pd
@@ -81,7 +82,7 @@ def analyze_patient(payload: dict, top_k: Optional[int] = Query(None, ge=1, le=1
 
 
 @router.post("/patient/analyze-batch")
-def analyze_batch(payload: dict):
+def analyze_batch(payload: dict, top_k: Optional[int] = Query(None, ge=1, le=100)):
     """Evaluate unstructured patient data against labelled structured data.
 
     Payload:
@@ -115,8 +116,15 @@ def analyze_batch(payload: dict):
         notes = (raw.get("clinical_notes") or raw.get("text") or raw.get("notes")
                  or raw.get("summary") or raw.get("medical_history") or "")
         facts = {}
-        if isinstance(notes, str) and notes.strip():
-            res = extract_entities(notes)
+        pre_extracted = raw.get("extracted_facts")
+        if isinstance(pre_extracted, dict) and pre_extracted:
+            # Fast path: the upload preview already ran the ML NER over this
+            # note - reuse those facts instead of a second slow extraction.
+            facts = pre_extracted
+            extraction_log.append({"patient_id": pid, "model_used": "pre-extracted",
+                                   "facts": facts})
+        elif isinstance(notes, str) and notes.strip():
+            res = extract_entities(notes)   # cached after the first run
             facts = res.get("facts") or {}
             extraction_log.append({"patient_id": pid, "model_used": res["model_used"],
                                    "facts": facts})
@@ -132,40 +140,72 @@ def analyze_batch(payload: dict):
     # 2. check every trial for every patient (same code path as single matching)
     trials_by_id = {t.trial_id: t for t in trial_retrieval_load()}
     all_trials = list(trials_by_id.values())
+    from concurrent.futures import ThreadPoolExecutor
     from services.embeddings import cosine_similarity, embed_texts
     from services.eligibility import evaluate_eligibility
 
-    trial_vecs = {t.trial_id: embed_texts([t.criteria_text()])[0] for t in all_trials}
-    patient_preds: dict = {}
-    for pid, profile in profiles.items():
-        pvec = embed_texts([profile.to_text()])[0]
+    # Trial criteria vectors: batched once (cache makes repeat runs instant).
+    trial_vecs_arr = embed_texts([t.criteria_text() for t in all_trials])
+    trial_vecs = {t.trial_id: trial_vecs_arr[i] for i, t in enumerate(all_trials)}
+
+    # Patient vectors in one batch, then rule-engine checks in a thread pool
+    # (regex parsing releases the GIL enough that threads help on multi-core;
+    # on single-core Render it is still harmless).
+    pids = list(profiles.keys())
+    pvecs = embed_texts([profiles[pid].to_text() for pid in pids])
+
+    def _check_patient(idx_pid):
+        idx, pid = idx_pid
+        profile = profiles[pid]
+        pvec = pvecs[idx]
         preds = {}
         for t in all_trials:
             sim = cosine_similarity(pvec, trial_vecs[t.trial_id])
             rule = evaluate_eligibility(t, profile)
             preds[t.trial_id] = {"eligibility": rule["status"],
                                  "similarity": round(sim, 4)}
-        patient_preds[pid] = preds
+        return pid, preds
+
+    patient_preds: dict = {}
+    workers = min(4, max(1, (os.cpu_count() or 1) - 1))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for pid, preds in pool.map(_check_patient, enumerate(pids)):
+            patient_preds[pid] = preds
 
     # 3. score the labelled pairs
+    #    Ranking scope: top_k=N restricts scoring to each patient's N best-matching
+    #    trials (highest embedding similarity). Labelled pairs outside a patient's
+    #    top-N are skipped and reported - this evaluates the model the way the app
+    #    is actually used (the top matches are what a coordinator sees first).
     unknown_trials = sorted({l["trial_id"] for l in labels} - set(trials_by_id))
     if unknown_trials:
         raise HTTPException(status_code=400,
                             detail=f"Labelled trial IDs not in the database: {', '.join(unknown_trials[:5])}")
 
+    patient_top_k: dict = {}
+    if top_k is not None and top_k > 0:
+        for pid, preds in patient_preds.items():
+            ranked = sorted(preds.items(), key=lambda kv: kv[1]["similarity"], reverse=True)
+            patient_top_k[pid] = {tid for tid, _ in ranked[:top_k]}
+
     from models import EvaluationRow
-    rows, skipped = [], []
+    rows, skipped, skipped_rank = [], [], 0
     for l in labels:
         pid, tid = str(l["patient_id"]), str(l["trial_id"])
         pred = patient_preds.get(pid, {}).get(tid)
         if pred is None:
             skipped.append(f"{pid}->{tid}")
             continue
+        if patient_top_k and pid in patient_top_k and tid not in patient_top_k[pid]:
+            skipped_rank += 1
+            continue
         rows.append(EvaluationRow(patient_id=pid, trial_id=tid,
                                   predicted=pred["eligibility"],
                                   actual=evaluation._normalise_label(l["actual_label"])))
     if not rows:
-        raise HTTPException(status_code=400, detail="No labelled pairs matched the provided patients.")
+        raise HTTPException(status_code=400,
+                            detail="No labelled pairs matched the provided patients"
+                                   + (f" (all {skipped_rank} pairs fell outside the top-{top_k} matches)" if skipped_rank else "") + ".")
     metrics = evaluation.compute_metrics(rows)
     summary = {"accuracy": metrics.accuracy, "precision": metrics.precision,
                "recall": metrics.recall, "f1": metrics.f1,
@@ -176,6 +216,8 @@ def analyze_batch(payload: dict):
         "run_id": run_id,
         "patients_evaluated": len(profiles),
         "pairs_labelled": len(rows),
+        "ranking_scope": (f"top-{top_k} trials per patient (by match score)" if top_k else "all trials"),
+        "skipped_outside_top_k": skipped_rank,
         "skipped_pairs": skipped,
         "metrics": summary,
         "per_trial": metrics.per_trial,
@@ -599,6 +641,8 @@ async def extract_document(file: UploadFile = File(...)):
         res = extract_entities(n["text"])
         results.append({"note_id": n["id"], "facts": res["facts"],
                         "model_used": res["model_used"],
+                        "translated": bool(res.get("translated")),
+                        "source_script": res.get("source_script"),
                         "text": n["text"]})
 
     # downloadable CSV: one row per note, one column per fact

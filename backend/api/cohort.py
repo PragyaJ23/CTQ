@@ -8,7 +8,7 @@ single-patient results.
 from io import BytesIO
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
 from api.routes import analyze_patient
@@ -51,7 +51,7 @@ def _cell(value):
 
 
 @cohort_router.post("/cohort/analyze")
-def analyze_cohort(payload: dict):
+def analyze_cohort(payload: dict, top_k: Optional[int] = Query(None, ge=1, le=200)):
     """Analyse a cohort of structured patients, one full trial check each.
 
     Payload: {"patients": [<same shape as the single-patient form payload>]}
@@ -72,7 +72,7 @@ def analyze_cohort(payload: dict):
         try:
             # call the shared handler directly: pass top_k explicitly, because
             # the FastAPI Query default object is not an int when called this way
-            response = analyze_patient(patient, None)
+            response = analyze_patient(patient, top_k)
             results.append({"patient_id": pid, "ok": True,
                             "response": response.model_dump()})
         except HTTPException as exc:

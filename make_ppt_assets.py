@@ -28,8 +28,8 @@ def arrow(ax, x1, y1, x2, y2, color=DARK):
 fig, ax = plt.subplots(figsize=(12.8, 7.2), dpi=150)
 ax.set_xlim(0, 100); ax.set_ylim(0, 56); ax.axis("off")
 
-box(ax, 2, 44, 20, 9, "Patient Input\nWeb form (structured)\nPDF · CSV · TXT · Excel", SOFT)
-box(ax, 26, 44, 20, 9, "Profile Builder\n(NLP + regex)\nunstructured notes\n\u2192 structured fields", SOFT2)
+box(ax, 2, 44, 20, 9, "Patient Input\nForm · CSV · notes\nPDF · photo (OCR)", SOFT)
+box(ax, 26, 44, 20, 9, "Translate if needed\nHindi + 12 scripts (auto)\n\u2192 ML NER\nDistilBERT extractive-QA\nnotes \u2192 structured fields", SOFT2)
 box(ax, 50, 44, 20, 9, "Trial Retrieval\nsentence-transformers\nall-MiniLM-L6-v2\nsemantic similarity", SOFT3)
 box(ax, 74, 44, 24, 9, "Rule Engine\nage / gender / labs / meds /\ncomorbidities \u2192 INCLUDE / EXCLUDE / UNKNOWN", SOFT)
 
@@ -42,6 +42,7 @@ box(ax, 14, 12, 30, 9, "Results Dashboard\nfilters + verdict cards", SOFT3)
 box(ax, 56, 12, 30, 9, "Evaluation Module\nupload patients + labels\n\u2192 accuracy metrics", SOFT)
 
 arrow(ax, 22, 48.5, 26, 48.5); arrow(ax, 46, 48.5, 50, 48.5); arrow(ax, 70, 48.5, 74, 48.5)
+arrow(ax, 36, 44, 36, 37)          # ML NER -> verdict builder (down-left flow)
 arrow(ax, 86, 44, 86, 37)          # rule engine -> merger
 arrow(ax, 74, 32.5, 70, 32.5)      # LLM -> merger (2nd opinion)
 arrow(ax, 74, 32.5, 74, 32.5)
@@ -59,7 +60,7 @@ ax.set_xlim(0, 100); ax.set_ylim(0, 52); ax.axis("off")
 
 box(ax, 2, 34, 26, 12, "Presentation Tier\nReact 18 + Vite SPA\nreact-router · axios\n Matcher · Results · Evaluation · Trials", SOFT, fs=10.5)
 box(ax, 37, 34, 26, 12, "Application Tier\nFastAPI + Uvicorn\nPydantic validation\nprofile_builder · rule engine\nmatcher · llm_review · evaluation", SOFT2, fs=10.5)
-box(ax, 72, 34, 26, 12, "Data Tier\nSQLite (patients, labels, runs)\ntrials.json \u2192 20 CTRI-format trials\nembeddings cache", SOFT3, fs=10.5)
+box(ax, 72, 34, 26, 12, "Data Tier\nSQLite (evaluation runs)\ntrials.json \u2192 32 CTRI-format trials\nembeddings cache", SOFT3, fs=10.5)
 
 box(ax, 2, 12, 26, 9, "sentence-transformers\nall-MiniLM-L6-v2 (local)", "#ffffff", ec=ACCENT, fs=10)
 box(ax, 37, 12, 26, 9, "Groq API\ngpt-oss-120b (LLM review)", "#fff7e8", ec="#c9a227", fs=10)
@@ -74,18 +75,18 @@ plt.close(fig)
 # ---------------------------------------------------------------- confusion
 fig, axes = plt.subplots(1, 2, figsize=(12.0, 4.6), dpi=150, gridspec_kw={"width_ratios": [1, 1.15]})
 a = axes[0]
-a.imshow([[13, 2], [0, 5]], cmap=matplotlib.colors.LinearSegmentedColormap.from_list("t", ["#ffffff", TEAL]), vmin=0, vmax=15)
-for (i, j), v in {(0,0): "TN = 11", (0,1): "FP = 2", (1,0): "FN = 0", (1,1): "TP = 2"}.items():
+a.imshow([[10, 0], [0, 11]], cmap=matplotlib.colors.LinearSegmentedColormap.from_list("t", ["#ffffff", TEAL]), vmin=0, vmax=11)
+for (i, j), v in {(0,0): "TN = 10", (0,1): "FP = 0", (1,0): "FN = 0", (1,1): "TP = 11"}.items():
     a.text(j, i, v, ha="center", va="center", fontsize=15, fontweight="bold", color=INK)
 a.set_xticks([0, 1]); a.set_xticklabels(["Pred: Not Eligible", "Pred: Eligible"], fontsize=10)
 a.set_yticks([0, 1]); a.set_yticklabels(["Actual: Not Eligible", "Actual: Eligible"], fontsize=10)
-a.set_title("Hand-verified audit \u2014 patient P001 vs 20 trials", fontsize=12, fontweight="bold", color=INK)
+a.set_title("Live evaluation run \u2014 10 patients, 21 labelled pairs", fontsize=12, fontweight="bold", color=INK)
 a.set_xticks([0.5, 1.5], minor=True); a.set_yticks([0.5, 1.5], minor=True)
 a.grid(which="minor", color="white", lw=3); a.tick_params(which="minor", length=0)
 b = axes[1]; b.axis("off")
-tiles = [("Binary accuracy (hand audit)", "86.7%", "13 / 15 labelable pairs"),
-         ("Three-class agreement", "75%", "15 / 20 trials"),
-         ("Benchmark accuracy (1600 pairs)", "97.3%", "TP 93 · FP 27 · FN 6 · TN 1115"),
+tiles = [("Accuracy (live run)", "100%", "21 / 21 pairs \u00b7 precision, recall, F1 also 100%"),
+         ("Top-5 scoped accuracy", "100%", "13 of 21 pairs scored \u00b7 8 outside ranked scope"),
+         ("Hindi note extraction", "works", "auto-translated to English before the ML NER"),
          ("Missed eligible trials (FN)", "0", "no eligible trial turned away")]
 for k, (t, v, s) in enumerate(tiles):
     y = 0.78 - (k // 2) * 0.46; x = 0.02 + (k % 2) * 0.5

@@ -197,10 +197,10 @@ para(tf, "Goal: turn hours of manual eligibility reading into seconds - without 
      size=14, color=DARK, bold=True, first=True)
 c = card(s, 8.6, 2.0, 4.2, 4.25, SOFT, TEAL, title="What the user sees")
 tf = c.text_frame
-for t in ["1.  Structured form OR Unstructured tab",
+for t in ["1.  Structured · Unstructured · Hybrid tabs",
           "2.  Upload notes - PDF / CSV / Excel / photo",
-          "3.  ML NER reads the facts automatically",
-          "4.  Find Trials for one patient or a cohort",
+          "3.  ML NER reads the facts; Hindi notes auto-translate",
+          "4.  Find Trials for one patient or all N patients",
           "5.  Verdict cards with reasons + CSV/Excel export",
           "6.  Model Evaluation page scores the system"]:
     bullet(tf, t, size=12, first=t.startswith("1."), mark="\u2022", after=7)
@@ -277,11 +277,11 @@ para(tf, [("Clinical Trial Qualifier (CTQ) \u2014 ", True, DARK),
           ("an AI-powered clinical trial qualification system that automates patient eligibility screening, with a localized focus on Indian healthcare.", False, INK)],
      size=15, first=True, after=10)
 jobs = [
-    ("Understand the patient", "Structured form (60+ fields) OR unstructured upload: PDF / photo (OCR) / CSV / Excel / TXT; DistilBERT ML NER extracts the facts from free text"),
+    ("Understand the patient", "Structured form (60+ fields), structured CSV, unstructured notes (PDF / photo-OCR / CSV / Excel) or BOTH merged (Hybrid tab); Hindi notes auto-translate to English first; DistilBERT ML NER extracts the facts"),
     ("Find relevant trials", "Semantic search over 32 CTRI/NCT-format trials using sentence embeddings (all-MiniLM-L6-v2)"),
     ("Apply every rule", "Deterministic rule engine checks age, gender, lab cut-offs, medications, comorbidities - criterion by criterion"),
     ("Explain the decision", "Itemised pass / fail / missing reasons quoting the trial's own criteria; three honest verdicts"),
-    ("Measure itself", "One-click Model Evaluation: bundled sample patients + labels \u2192 accuracy, precision, recall, F1, confusion matrix"),
+    ("Measure itself", "One-click Model Evaluation: bundled sample patients + labels \u2192 accuracy, precision, recall, F1, confusion matrix - against ALL trials or only each patient's top-K best matches"),
 ]
 y = 2.75
 for i, (t, b) in enumerate(jobs):
@@ -304,7 +304,8 @@ notes(s, "The five jobs map one-to-one onto the architecture: profile builder (M
 s = new_slide(); header_footer(s, 10)
 slide_title(s, "TOOLS & TECHNOLOGIES USED  (1/2)")
 tf = tx(s, 0.75, 2.0, 11.9, 4.9)
-bullet(tf, ("DistilBERT extractive-QA (distilbert-base-cased-distilled-squad) - ", "the ML NER engine: asks the model targeted clinical questions per note (\u201cWhat is the patient's HbA1c level?\u201d), then maps span answers into profile fields. ML-only extraction - no regex discovery; negation guards reject spans like \u201cNo history of liver disease\u201d as a diagnosis."), first=True, size=14.5)
+bullet(tf, ("DistilBERT extractive-QA (distilbert-base-cased-distilled-squad) - ", "the ML NER engine: asks the model targeted clinical questions per note (\u201cWhat is the patient's HbA1c level?\u201d), then maps span answers into profile fields. ML-only extraction - no regex discovery; negation guards reject spans like \u201cNo history of liver disease\u201d as a diagnosis. Non-English notes (Hindi + 12 more scripts) are auto-translated to English first."), first=True, size=14.5)
+bullet(tf, ("Groq LLM (openai/gpt-oss-120b) - ", "two jobs: a low-effort multilingual translator (Hindi/Indic notes \u2192 English before extraction) and an adversarial second opinion on eligibility - behind a rate-limit circuit breaker with rule-engine fallback."), size=14.5)
 bullet(tf, ("RapidOCR (ONNX) - ", "reads photos/scans of prescriptions and summaries; PyMuPDF rasterises scanned PDF pages so the same OCR can read them."), size=14.5)
 bullet(tf, ("Custom Rule Engine - ", "parses every eligibility criterion (age bands, gender, lab cut-offs such as HbA1c 7.5-10.5 / eGFR \u2265 45, medication requirements, comorbidity exclusions, pregnancy, smoking) and issues Pass / Fail / Missing per criterion; any hard exclusion vetoes the match; missing INCLUSION-side facts produce \u201cInsufficient Information\u201d, missing EXCLUSION-side facts stay \u201cPotentially Eligible\u201d with gaps listed."), size=14.5)
 bullet(tf, ("sentence-transformers (all-MiniLM-L6-v2) - ", "encodes the patient profile and every trial's criteria into 384-dimension vectors locally; cosine similarity ranks all 32 trials (semantic matching, no internet or GPU needed)."), size=14.5)
@@ -315,7 +316,7 @@ notes(s, "Keep it to one sentence per tool; the next slide covers the web stack 
 s = new_slide(); header_footer(s, 11)
 slide_title(s, "TOOLS & TECHNOLOGIES USED  (2/2)")
 tf = tx(s, 0.75, 2.0, 11.9, 4.9)
-bullet(tf, ("React 18 + Vite - ", "single-page frontend: Home, Find Trials (Structured / Unstructured tabs, cohort mode), Model Evaluation; client-side routing with react-router; production build served by the API server."), first=True, size=14.5)
+bullet(tf, ("React 18 + Vite - ", "single-page frontend: Home, Find Trials (Structured / Unstructured / Hybrid tabs, cohort mode), Model Evaluation (with top-K ranking scope); client-side routing with react-router; production build served by the API server."), first=True, size=14.5)
 bullet(tf, ("axios - ", "API client with friendly error mapping; builds the structured profile payload from the form and downloads CSV/Excel blobs."), size=14.5)
 bullet(tf, ("FastAPI + Uvicorn - ", "REST API: /patient/analyze, /patient/analyze-batch (evaluation), /extract/document, /cohort/analyze, /cohort/export, /evaluation/sample-data; one origin serves app + API (no CORS issues)."), size=14.5)
 bullet(tf, ("Pydantic - ", "request/response validation and schemas; rejects impossible values before any AI runs (age \u2264 0, impossible lab values)."), size=14.5)
@@ -338,6 +339,7 @@ slide_title(s, "METHODOLOGY  \u2014  Pipeline stages with a worked example")
 c = card(s, 0.75, 2.0, 5.95, 2.3, WHITE, TEAL, title="Stage 1-2 \u00b7 Input & DistilBERT ML NER")
 tf = c.text_frame
 bullet(tf, "\u201c48-year-old male with Type 2 Diabetes Mellitus diagnosed 4 years ago\u2026 HbA1c 8.5 percent, eGFR 80, ALT 25 U/L. No history of liver disease.\u201d", first=True, size=10.5, mark="\u2022", after=4)
+bullet(tf, "A Hindi note (\u201c\u0909\u092e\u094d\u0930 48 \u0935\u0930\u094d\u0937\u2026 \u092e\u0947\u091f\u092b\u093c\u0949\u0930\u094d\u092e\u093f\u0928 500 \u092e\u093f\u0917\u094d\u0930\u093e\u2026\u201d) is auto-translated to English first \u2192 the same facts come out (age 48, Metformin, HbA1c 8.5\u2026).", size=10.5, mark="\u2022", after=4)
 bullet(tf, "The QA model answers one question per field \u2192 age 48, condition T2DM, duration 48 mo, HbA1c 8.5, eGFR 80, ALT 25; \u201cNo history of\u2026\u201d is negation-guarded.", size=10.5, mark="\u2022", after=0)
 c = card(s, 6.9, 2.0, 5.95, 2.3, SOFT2, TEAL, title="Stage 3 \u00b7 Semantic Retrieval")
 tf = c.text_frame
@@ -358,29 +360,29 @@ s = new_slide(); header_footer(s, 14)
 slide_title(s, "OUTPUT  (1/2)  \u2014  Live demo: matching & cohort")
 s.shapes.add_picture("_shots2/02_matcher_tabs.png", Inches(0.6), Inches(1.85), width=Inches(6.35))
 tf = tx(s, 0.6, 4.62, 6.35, 0.4)
-para(tf, "Fig:  Find Trials - Structured / Unstructured tabs, cohort controls, one-click samples",
+para(tf, "Fig:  Find Trials - Structured / Unstructured / Hybrid tabs, cohort controls, one-click samples",
      size=11, color=GRAY, first=True, align=PP_ALIGN.CENTER)
 s.shapes.add_picture("_shots2/05_results_top.png", Inches(6.55), Inches(1.85), width=Inches(6.35))
 tf = tx(s, 6.55, 4.62, 6.35, 0.4)
 para(tf, "Fig:  Results - all 32 trials checked, ranked, colour-coded verdicts",
      size=11, color=GRAY, first=True, align=PP_ALIGN.CENTER)
-s.shapes.add_picture("_shots2/04_cohort_mode.png", Inches(0.6), Inches(5.35), width=Inches(6.35))
+s.shapes.add_picture("_shots2/04_hybrid_tab.png", Inches(0.6), Inches(5.35), width=Inches(6.35))
 s.shapes.add_picture("_shots2/08_unstructured_extracted.png", Inches(6.55), Inches(5.35), width=Inches(6.35))
 tf = tx(s, 0.75, 7.0, 11.9, 0.35)
-para(tf, "Top row: structured tab + results.  Bottom: cohort mode (\u201c2 patients in the cohort\u201d) and the unstructured ML-NER stepper (Patient 1 of 5).",
+para(tf, "Bottom: Hybrid tab (structured CSV + notes merged per patient) and a Hindi clinical note auto-translated to English, then extracted by the ML NER.",
      size=11.5, color=DARK, first=True, align=PP_ALIGN.CENTER)
-notes(s, "All four shots are live captures of the current build. Demo script: load sample \u2192 results \u2192 add patient \u2192 unstructured upload.")
+notes(s, "All four shots are live captures of the current build. Demo script: load sample \u2192 results \u2192 Hybrid tab \u2192 Hindi note upload.")
 
 # ================= SLIDE 17 · OUTPUT 2/2 =================
 s = new_slide(); header_footer(s, 15)
 slide_title(s, "OUTPUT  (2/2)  \u2014  Live demo: evaluation dashboard")
 s.shapes.add_picture("_shots2/10_evaluation_upload.png", Inches(0.6), Inches(1.85), width=Inches(6.35))
 tf = tx(s, 0.6, 4.62, 6.35, 0.4)
-para(tf, "Fig:  Model Evaluation - bundled sample data loads both inputs in one click",
+para(tf, "Fig:  Model Evaluation - one-click bundled sample + ranking scope (All / Top 3 / Top 5 / Top 10)",
      size=11, color=GRAY, first=True, align=PP_ALIGN.CENTER)
 s.shapes.add_picture("_shots2/11_evaluation_result.png", Inches(6.55), Inches(1.85), width=Inches(6.35))
 tf = tx(s, 6.55, 4.62, 6.35, 0.4)
-para(tf, "Fig:  Live run - 10 patients, 21 labelled pairs, 100% across all metrics",
+para(tf, "Fig:  Live top-5 run - pairs outside a patient's top-5 matches are skipped and counted",
      size=11, color=GRAY, first=True, align=PP_ALIGN.CENTER)
 s.shapes.add_picture("_shots2/12_evaluation_table.png", Inches(0.6), Inches(5.35), width=Inches(12.3))
 tf = tx(s, 0.75, 7.0, 11.9, 0.35)
@@ -394,6 +396,8 @@ slide_title(s, "RESULTS")
 s.shapes.add_picture("_ppt_assets/confusion.png", Inches(2.35), Inches(1.85), width=Inches(8.6))
 tf = tx(s, 0.75, 5.75, 11.9, 1.5)
 bullet(tf, ("Live evaluation run (this build): ", "10 synthetic patients, 21 labelled patient-trial pairs \u2192 Accuracy 100%, Precision 100%, Recall 100%, F1 100% (TP 11 \u00b7 FP 0 \u00b7 FN 0 \u00b7 TN 10; 0 pairs excluded as insufficient)."), first=True, size=14)
+bullet(tf, ("Top-5 ranked scope: ", "scoring only each patient's 5 best-matching trials (the way a coordinator reads the list) keeps accuracy at 100% - 13 pairs scored, 8 reported as outside the ranked scope."), size=14)
+bullet(tf, ("Multilingual extraction: ", "a fully Hindi discharge note auto-translates to English and yields the same complete profile (age, gender, condition, Metformin, HbA1c 8.5, eGFR 80, BP 140/85) - previously only Latin-anchored lab values survived."), size=14)
 bullet(tf, ("Honest by design: ", "notes that genuinely lack a fact degrade to \u201cInsufficient Information\u201d instead of a guess - such rows are reported separately, never counted as a class."), size=14)
 bullet(tf, ("Same pipeline everywhere: ", "single matching, cohort screening and evaluation share one code path, so the score reflects what users actually get."), size=14)
 notes(s, "Lead with FN=0 (clinically most important). Explain the honesty rule, then note the shared code path.")
@@ -407,7 +411,7 @@ items = [
     ("Live trial ingestion", "Pull real trials from the CTRI / ClinicalTrials.gov APIs instead of the bundled database"),
     ("Cohort analytics", "Per-site recruitment funnels and auto-screening schedules for coordinators"),
     ("Doctor feedback loop", "Human-in-the-loop corrections that feed back into rules and the evaluation set"),
-    ("Multilingual notes", "Hindi and regional-language clinical text with ICD / LOINC coding"),
+    ("More languages + voice", "Hindi ships today (13 scripts detected); add regional speech-to-text and ICD / LOINC coding"),
 ]
 y = 2.0
 for i, (t, b) in enumerate(items):
@@ -448,9 +452,9 @@ tf = tx(s, 1.0, 3.0, 11.3, 0.5)
 para(tf, "Questions?", size=22, color=INK, first=True, align=PP_ALIGN.CENTER)
 c = card(s, 2.6, 4.1, 8.1, 1.5, SOFT, TEAL, title="Live demo")
 tf = c.text_frame
-para(tf, "https://limousines-this-phys-due.trycloudflare.com", size=14, color=DARK, bold=True,
+para(tf, "https://ctq-clinical-trial-qualifier.onrender.com", size=14, color=DARK, bold=True,
      first=True, align=PP_ALIGN.CENTER, after=3)
-para(tf, "(temporary demo link \u2014 if down, the PDF report CTQ_Full_Project_Report.pdf shows the same screens)",
+para(tf, "(live deployment - first load after 15 min idle wakes the free-tier server in ~50 s; the PDF report CTQ_Full_Project_Report.pdf shows the same screens)",
      size=11, color=GRAY, align=PP_ALIGN.CENTER, after=0)
 notes(s, "Demo script: Home \u2192 Find Trials \u2192 load Diabetes sample \u2192 Find Matching Trials \u2192 open an eligible card \u2192 Evaluation \u2192 Load bundled sample data \u2192 Run.")
 

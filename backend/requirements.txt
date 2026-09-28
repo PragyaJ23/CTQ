@@ -12,6 +12,10 @@ groq>=0.11.0
 sentence-transformers>=3.0.0
 numpy>=1.26.0
 
+# NER runtime for slim containers (ONNX int8 artifact; torch stays for
+# dev machines that load the fp32 HF snapshot)
+onnxruntime>=1.17.0
+
 # Data handling + evaluation
 pandas>=2.0.0
 scikit-learn>=1.4.0

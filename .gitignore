@@ -37,3 +37,4 @@ cohort_test_result.txt
 _single_check.json
 openapi_dump.json
 ppt_extract.txt
+_ner_onnx/

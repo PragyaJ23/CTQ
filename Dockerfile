@@ -27,12 +27,14 @@ COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
  && pip install --no-cache-dir -r /app/backend/requirements.txt
 
-# Pre-quantize the NER QA model to int8 at build time (network is available
-# here, not at runtime on Render). torch + fp32 DistilBERT does not fit in a
-# 512 MB container, but the int8 artifact (~90 MB) does. Dynamic quantization
-# does not round-trip through save_pretrained, so we pickle the module itself.
+# Pre-export the NER QA model to ONNX int8 at build time (network is
+# available here, not at runtime on Render). onnxruntime needs a fraction of
+# torch's RAM (~120 MB vs ~450 MB resident), which is what lets the NER fit
+# a 512 MB container. The export tooling is uninstalled afterwards.
 COPY scripts/quantize_ner.py /app/scripts/quantize_ner.py
-RUN python /app/scripts/quantize_ner.py
+RUN pip install --no-cache-dir onnx onnxscript \
+ && python /app/scripts/quantize_ner.py \
+ && pip uninstall -y onnx onnxscript
 
 COPY backend/ /app/backend/
 COPY sample_data/ /app/sample_data/

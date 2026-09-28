@@ -44,12 +44,12 @@ def _local_snapshot() -> Optional[str]:
 
 
 def _artifact_dir() -> Optional[str]:
-    """Return the quantized-artifact directory when it is complete."""
+    """Return the ONNX artifact directory when it is complete."""
     if not _QA_ARTIFACT:
         return None
     from pathlib import Path
     art = Path(_QA_ARTIFACT)
-    if (art / "quantized_model.pt").exists() and (art / "tokenizer_config.json").exists():
+    if (art / "model.onnx").exists() and (art / "tokenizer_config.json").exists():
         return str(art)
     return None
 
@@ -57,47 +57,55 @@ def _artifact_dir() -> Optional[str]:
 def _get_model():
     """Load the QA model once; return None when it is unusable.
 
-    Load priority: local HF snapshot (developer machines, exact fp32
-    behaviour) -> pre-quantized int8 artifact shipped in the Docker image
-    (~4x smaller, needed for 512 MB containers) -> hub fp32 download (last
-    resort). The first two load fully offline.
+    Load priority: local HF snapshot (developer machines, exact fp32 torch
+    behaviour) -> ONNX int8 artifact shipped in the Docker image (onnxruntime,
+    ~120 MB resident instead of ~450 MB for torch - this is what lets the NER
+    fit a 512 MB container) -> hub fp32 torch download (last resort). The
+    first two load fully offline.
     """
     global _model, _model_available
     if _model_available is False:
         return None
     if _model is None:
         try:
-            import torch
-            from transformers import (
-                AutoModelForQuestionAnswering, AutoTokenizer,
-            )
+            from transformers import AutoTokenizer  # lightweight, no torch import
             local = _local_snapshot()
             artifact = _artifact_dir()
             if local:
+                import torch
+                from transformers import AutoModelForQuestionAnswering
                 tok = AutoTokenizer.from_pretrained(local, local_files_only=True)
                 mdl = AutoModelForQuestionAnswering.from_pretrained(
                     local, local_files_only=True)
-                kind = "fp32 local snapshot"
-            elif artifact:
+                mdl.eval()
+                _model = (tok, mdl, torch)
+                _model_available = True
+                print(f"[ml_ner] loaded {_QA_MODEL} (fp32 local snapshot, torch) "
+                      f"for extractive-QA entity extraction")
+                return _model
+            if artifact:
+                # ONNX runtime path: torch is never imported, saving ~300 MB
+                # resident RAM - this is what fits the NER into 512 MB.
+                import numpy as np
+                import onnxruntime as ort
                 tok = AutoTokenizer.from_pretrained(artifact, local_files_only=True)
-                # dynamically-quantized modules do not round-trip through
-                # save_pretrained/from_pretrained - the artifact holds the
-                # pickled module instead (built by our own Dockerfile).
-                try:
-                    mdl = torch.load(os.path.join(artifact, "quantized_model.pt"),
-                                     weights_only=False, map_location="cpu")
-                except TypeError:  # torch < 2.6 has no weights_only kwarg
-                    mdl = torch.load(os.path.join(artifact, "quantized_model.pt"),
-                                     map_location="cpu")
-                kind = "int8 quantized artifact"
-            else:
-                tok = AutoTokenizer.from_pretrained(_QA_MODEL)
-                mdl = AutoModelForQuestionAnswering.from_pretrained(_QA_MODEL)
-                kind = "fp32 hub download"
+                sess = ort.InferenceSession(
+                    os.path.join(artifact, "model.onnx"),
+                    providers=["CPUExecutionProvider"])
+                _model = ("onnx", tok, sess, np)
+                _model_available = True
+                print(f"[ml_ner] loaded {_QA_MODEL} (ONNX int8 artifact, onnxruntime) "
+                      f"for extractive-QA entity extraction")
+                return _model
+            import torch
+            from transformers import AutoModelForQuestionAnswering
+            tok = AutoTokenizer.from_pretrained(_QA_MODEL)
+            mdl = AutoModelForQuestionAnswering.from_pretrained(_QA_MODEL)
             mdl.eval()
             _model = (tok, mdl, torch)
             _model_available = True
-            print(f"[ml_ner] loaded {_QA_MODEL} ({kind}) for extractive-QA entity extraction")
+            print(f"[ml_ner] loaded {_QA_MODEL} (fp32 hub download, torch) "
+                  f"for extractive-QA entity extraction")
         except Exception as exc:  # model missing / corrupted
             _model_available = False
             print(f"[ml_ner] QA model unavailable ({exc}); extraction disabled for this call")
@@ -114,6 +122,8 @@ def _qa(question: str, context: str) -> str:
     bundle = _get_model()
     if bundle is None or not context.strip():
         return ""
+    if bundle[0] == "onnx":
+        return _qa_onnx(bundle, question, context)
     tok, model, torch = bundle
     try:
         inputs = tok(question, context, return_tensors="pt", truncation="only_second",
@@ -131,6 +141,32 @@ def _qa(question: str, context: str) -> str:
             return ""
         score = float(start_logits[start_idx] + end_logits[end_idx])
         if score < 2.0:  # weak evidence
+            return ""
+        ids = inputs["input_ids"][0][start_idx:end_idx + 1]
+        ans = tok.decode(ids, skip_special_tokens=True).strip()
+        return ans[:200]
+    except Exception:
+        return ""
+
+
+def _qa_onnx(bundle, question: str, context: str) -> str:
+    """ONNX-runtime variant of _qa (identical span-selection logic)."""
+    _, tok, sess, np = bundle
+    try:
+        inputs = tok(question, context, return_tensors="np", truncation="only_second",
+                     max_length=384)
+        feed = {"input_ids": inputs["input_ids"].astype(np.int64),
+                "attention_mask": inputs["attention_mask"].astype(np.int64)}
+        start_logits, end_logits = sess.run(None, feed)
+        start_logits, end_logits = start_logits[0], end_logits[0]
+        start_idx = int(start_logits.argmax())
+        end_idx = int(end_logits.argmax())
+        if start_idx == 0 or end_idx == 0 or end_idx < start_idx:
+            return ""
+        if end_idx - start_idx > 40:
+            return ""
+        score = float(start_logits[start_idx] + end_logits[end_idx])
+        if score < 2.0:
             return ""
         ids = inputs["input_ids"][0][start_idx:end_idx + 1]
         ans = tok.decode(ids, skip_special_tokens=True).strip()

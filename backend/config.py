@@ -21,6 +21,10 @@ class Settings(BaseSettings):
 
     # --- Embeddings ---
     embedding_model: str = "all-MiniLM-L6-v2"
+    # "auto" loads the sentence-transformers model; "hashed" skips it and uses
+    # the built-in deterministic hashed bag-of-words embeddings (lower memory:
+    # needed when a small container must also hold the NER model).
+    embedding_backend: str = "auto"
 
     # --- Matching pipeline ---
     top_k_trials: int = 0  # 0 = check ALL retrieved trials (no top-K cut)

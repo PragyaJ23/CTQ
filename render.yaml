@@ -17,5 +17,7 @@ services:
         value: "true"
       - key: EMBEDDING_MODEL
         value: all-MiniLM-L6-v2
+      - key: EMBEDDING_BACKEND
+        value: hashed   # free tier: skip MiniLM (~200 MB) so the int8 NER fits; delete on paid plans
       - key: TOP_K_TRIALS
         value: "0"

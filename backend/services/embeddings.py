@@ -26,6 +26,12 @@ def _load_model():
     global _model, _model_failed
     if _model is not None or _model_failed:
         return _model
+    if settings.embedding_backend == "hashed":
+        print("[embeddings] EMBEDDING_BACKEND=hashed - using fallback hashed embeddings "
+              "(no sentence-transformers model loaded; saves ~200 MB RAM)")
+        _model = _FALLBACK_MARKER
+        _model_failed = True
+        return _model
     try:
         from sentence_transformers import SentenceTransformer
 

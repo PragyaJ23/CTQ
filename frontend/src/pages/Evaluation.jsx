@@ -168,10 +168,10 @@ export default function Evaluation() {
         <h3>Sample data</h3>
         <p className="hint">
           No files handy? Load the synthetic sample set shipped with the app: 10 patient notes
-          plus 21 labelled patient/trial pairs. Then just press <strong>Run Evaluation</strong>.
+          plus 17 labelled patient/trial pairs. Then just press <strong>Run Evaluation</strong>.
         </p>
         <button type="button" className="btn" onClick={loadSample} disabled={!!busy}>
-          Load bundled sample data (10 patients, 21 labels)
+          Load bundled sample data (10 patients, 17 labels)
         </button>
       </div>
 

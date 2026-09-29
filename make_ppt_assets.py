@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# Generates diagram images for the CTQ presentation:
-#   _ppt_assets/flowchart.png      - end-to-end methodology flowchart
+# Generates diagram images for the CTQ presentation/report (current system):
+#   _ppt_assets/flowchart.png      - end-to-end matching pipeline
 #   _ppt_assets/architecture.png   - system architecture (3-tier)
-#   _ppt_assets/confusion.png      - evaluation confusion matrix + accuracy tiles
+#   _ppt_assets/confusion.png      - evaluation confusion matrix + metric tiles
 import os
 os.environ.setdefault("MPLBACKEND", "Agg")
 import matplotlib
@@ -25,75 +25,80 @@ def arrow(ax, x1, y1, x2, y2, color=DARK):
                  mutation_scale=22, lw=2.0, color=color, shrinkA=2, shrinkB=2))
 
 # ---------------------------------------------------------------- flowchart
-fig, ax = plt.subplots(figsize=(12.8, 7.2), dpi=150)
-ax.set_xlim(0, 100); ax.set_ylim(0, 56); ax.axis("off")
+fig, ax = plt.subplots(figsize=(12.8, 7.4), dpi=150)
+ax.set_xlim(0, 100); ax.set_ylim(0, 58); ax.axis("off")
 
-box(ax, 2, 44, 20, 9, "Patient Input\nForm · CSV · notes\nPDF · photo (OCR)", SOFT)
-box(ax, 26, 44, 20, 9, "Translate if needed\nHindi + 12 scripts (auto)\n\u2192 ML NER\nDistilBERT extractive-QA\nnotes \u2192 structured fields", SOFT2)
-box(ax, 50, 44, 20, 9, "Trial Retrieval\nsentence-transformers\nall-MiniLM-L6-v2\nsemantic similarity", SOFT3)
-box(ax, 74, 44, 24, 9, "Rule Engine\nage / gender / labs / meds /\ncomorbidities \u2192 INCLUDE / EXCLUDE / UNKNOWN", SOFT)
+box(ax, 2, 45, 21, 10, "Patient Input\nStructured form / CSV\n(cohort mode) OR\nnotes · PDF · photo (OCR)", SOFT, fs=9.5)
+box(ax, 27, 45, 21, 10, "Translate if needed\nHindi + 12 scripts (Groq)\nML NER: DistilBERT\nextractive-QA, parallel", SOFT2, fs=9.5)
+box(ax, 52, 45, 20, 10, "Trial Retrieval\n84 CTRI / CTG trials\nall-MiniLM-L6-v2\n+ cosine ranking", SOFT3, fs=9.5)
+box(ax, 76, 45, 22, 10, "Rule Engine\nchecks EVERY trial\nage · labs · meds ·\ncomorbidities", SOFT, fs=9.5)
 
-box(ax, 74, 28, 24, 9, "Match Merger\nrule veto + similarity\n\u2192 final score", "#ffffff", ec=DARK)
-box(ax, 50, 28, 20, 9, "LLM Review (Groq\ngpt-oss-120b)\nadversarial 2nd opinion", "#fff7e8", ec="#c9a227")
-box(ax, 26, 28, 20, 9, "Verdict Builder\nPotentially Eligible /\nNot Eligible /\nInsufficient Information", SOFT)
-box(ax, 2, 28, 20, 9, "Explainer\nitemised reasons with\nquotes from the trial", SOFT2)
+box(ax, 76, 29, 22, 10, "LLM Review (Groq\ngpt-oss-120b)\ntop-15 most similar,\nparallel + answer cache", "#fff7e8", ec="#c9a227", fs=9.5)
+box(ax, 52, 29, 20, 10, "Verdict Merger\nrule veto + LLM 2nd\nopinion \u2192 final verdict\n+ itemised reasons", SOFT3, fs=9.5)
+box(ax, 27, 29, 21, 10, "Results Page\nverdict cards \u00b7 CSV\ncohort Excel export\nper-patient stepper", SOFT2, fs=9.5)
+box(ax, 2, 29, 21, 10, "Evaluation Module\nlabelled pairs \u2192\naccuracy · P · R · F1\nconfusion matrix", SOFT, fs=9.5)
 
-box(ax, 14, 12, 30, 9, "Results Dashboard\nfilters + verdict cards", SOFT3)
-box(ax, 56, 12, 30, 9, "Evaluation Module\nupload patients + labels\n\u2192 accuracy metrics", SOFT)
+box(ax, 14, 12, 32, 9, "Deployment\nRender Docker \u00b7 ONNX int8 NER (512 MB)\nFreebuff dashboard for agents", SOFT3, fs=9.5)
+box(ax, 54, 12, 32, 9, "Performance layer\nparallel extraction \u00b7 top-15 LLM cap\nanswer cache \u00b7 10-patient cohort \u2248 100 s", SOFT, fs=9.5)
 
-arrow(ax, 22, 48.5, 26, 48.5); arrow(ax, 46, 48.5, 50, 48.5); arrow(ax, 70, 48.5, 74, 48.5)
-arrow(ax, 36, 44, 36, 37)          # ML NER -> verdict builder (down-left flow)
-arrow(ax, 86, 44, 86, 37)          # rule engine -> merger
-arrow(ax, 74, 32.5, 70, 32.5)      # LLM -> merger (2nd opinion)
-arrow(ax, 74, 32.5, 74, 32.5)
-arrow(ax, 60, 32.5, 46, 32.5)      # merger -> verdict builder
-arrow(ax, 26, 32.5, 22, 32.5)      # verdict builder -> explainer
-arrow(ax, 12, 28, 20, 21)          # explainer -> dashboard
-arrow(ax, 71, 28, 66, 21)          # merger -> evaluation
+arrow(ax, 23, 50, 27, 50)          # input -> translate/NER
+arrow(ax, 48, 50, 52, 50)          # NER -> retrieval
+arrow(ax, 72, 50, 76, 50)          # retrieval -> rule engine
+arrow(ax, 87, 45, 87, 39)          # rule engine -> LLM review lane
+arrow(ax, 76, 34, 72, 34)          # LLM review -> merger
+arrow(ax, 52, 34, 48, 34)          # merger -> results
+arrow(ax, 27, 34, 23, 34)          # results -> evaluation
+arrow(ax, 87, 29, 87, 21)          # down to performance layer
+arrow(ax, 46, 16.5, 54, 16.5)      # deployment <-> performance tie
 ax.set_title("CTQ Methodology \u2014 end-to-end matching pipeline", fontsize=15, fontweight="bold", color=INK, pad=14)
 fig.savefig("_ppt_assets/flowchart.png", bbox_inches="tight", facecolor=BG)
 plt.close(fig)
 
 # ------------------------------------------------------------- architecture
-fig, ax = plt.subplots(figsize=(12.8, 6.6), dpi=150)
-ax.set_xlim(0, 100); ax.set_ylim(0, 52); ax.axis("off")
+fig, ax = plt.subplots(figsize=(12.8, 7.0), dpi=150)
+ax.set_xlim(0, 100); ax.set_ylim(0, 56); ax.axis("off")
 
-box(ax, 2, 34, 26, 12, "Presentation Tier\nReact 18 + Vite SPA\nreact-router · axios\n Matcher · Results · Evaluation · Trials", SOFT, fs=10.5)
-box(ax, 37, 34, 26, 12, "Application Tier\nFastAPI + Uvicorn\nPydantic validation\nprofile_builder · rule engine\nmatcher · llm_review · evaluation", SOFT2, fs=10.5)
-box(ax, 72, 34, 26, 12, "Data Tier\nSQLite (evaluation runs)\ntrials.json \u2192 32 CTRI-format trials\nembeddings cache", SOFT3, fs=10.5)
+box(ax, 2, 36, 29, 13, "Presentation Tier\nReact 18 + Vite SPA \u00b7 react-router \u00b7 axios\nMatcher (structured + unstructured tabs,\ncohort, top-K picker) \u00b7 Results \u00b7 Trial\nDatabase (live CTG import) \u00b7 Evaluation", SOFT, fs=9)
+box(ax, 36, 36, 29, 13, "Application Tier\nFastAPI + Uvicorn \u00b7 Pydantic schemas\nprofile_builder \u00b7 trial_retrieval\neligibility (rule engine) \u00b7 matching\nllm (breaker + cache) \u00b7 translate \u00b7 ml_ner", SOFT2, fs=9)
+box(ax, 70, 36, 28, 13, "Data Tier\ntrials.json: 84 trials (32 CTRI demo\n+ 52 CTG live-imported) + sidecar\nSQLite (evaluation runs)\nHF model cache \u00b7 embedding cache", SOFT3, fs=9)
 
-box(ax, 2, 12, 26, 9, "sentence-transformers\nall-MiniLM-L6-v2 (local)", "#ffffff", ec=ACCENT, fs=10)
-box(ax, 37, 12, 26, 9, "Groq API\ngpt-oss-120b (LLM review)", "#fff7e8", ec="#c9a227", fs=10)
-box(ax, 72, 12, 26, 9, "ReportLab\nPDF export of results", "#ffffff", ec=ACCENT, fs=10)
+box(ax, 2, 16, 22, 9, "sentence-transformers\nall-MiniLM-L6-v2 (local)", "#ffffff", ec=ACCENT, fs=9.5)
+box(ax, 27, 16, 22, 9, "DistilBERT extractive-QA\nNER (torch / ONNX int8)", "#ffffff", ec=ACCENT, fs=9.5)
+box(ax, 52, 16, 22, 9, "Groq API gpt-oss-120b\ntranslation + LLM review", "#fff7e8", ec="#c9a227", fs=9.5)
+box(ax, 77, 16, 21, 9, "RapidOCR + PyMuPDF\nphoto / scanned-PDF text", "#ffffff", ec=ACCENT, fs=9.5)
 
-arrow(ax, 28, 40, 37, 40); arrow(ax, 63, 40, 72, 40)
-arrow(ax, 15, 34, 15, 21); arrow(ax, 50, 34, 50, 21); arrow(ax, 85, 34, 85, 21)
+box(ax, 2, 2, 96, 8, "Deployment: Render Docker (auto-deploy on push to master) \u00b7 production bundle served by FastAPI \u00b7 localhost dev: Vite :5173 + Uvicorn :8000", SOFT, fs=10)
+arrow(ax, 31, 42.5, 36, 42.5); arrow(ax, 65, 42.5, 70, 42.5)
+arrow(ax, 13, 36, 13, 25); arrow(ax, 38, 36, 38, 25); arrow(ax, 63, 36, 63, 25); arrow(ax, 87, 36, 87, 25)
 ax.set_title("CTQ System Architecture", fontsize=15, fontweight="bold", color=INK, pad=14)
 fig.savefig("_ppt_assets/architecture.png", bbox_inches="tight", facecolor=BG)
 plt.close(fig)
 
 # ---------------------------------------------------------------- confusion
-fig, axes = plt.subplots(1, 2, figsize=(12.0, 4.6), dpi=150, gridspec_kw={"width_ratios": [1, 1.15]})
+# Live numbers: 80 structured patients x 84 trials = 1,600 labelled pairs
+# (run 3, 29 Sep 2026). 104 pairs predicted Insufficient Information are
+# excluded from the binary matrix; 42 labelled Insufficient likewise.
+fig, axes = plt.subplots(1, 2, figsize=(12.4, 4.8), dpi=150, gridspec_kw={"width_ratios": [1, 1.2]})
 a = axes[0]
-a.imshow([[10, 0], [0, 11]], cmap=matplotlib.colors.LinearSegmentedColormap.from_list("t", ["#ffffff", TEAL]), vmin=0, vmax=11)
-for (i, j), v in {(0,0): "TN = 10", (0,1): "FP = 0", (1,0): "FN = 0", (1,1): "TP = 11"}.items():
-    a.text(j, i, v, ha="center", va="center", fontsize=15, fontweight="bold", color=INK)
+a.imshow([[1303, 10], [79, 62]], cmap=matplotlib.colors.LinearSegmentedColormap.from_list("t", ["#ffffff", TEAL]), vmin=0, vmax=1303)
+for (i, j), v in {(0,0): "TN = 1303", (0,1): "FP = 10", (1,0): "FN = 79", (1,1): "TP = 62"}.items():
+    a.text(j, i, v, ha="center", va="center", fontsize=14, fontweight="bold", color=INK)
 a.set_xticks([0, 1]); a.set_xticklabels(["Pred: Not Eligible", "Pred: Eligible"], fontsize=10)
 a.set_yticks([0, 1]); a.set_yticklabels(["Actual: Not Eligible", "Actual: Eligible"], fontsize=10)
-a.set_title("Live evaluation run \u2014 10 patients, 21 labelled pairs", fontsize=12, fontweight="bold", color=INK)
+a.set_title("Structured sweep \u2014 80 patients \u00d7 84 trials (1,454 scored pairs)", fontsize=11.5, fontweight="bold", color=INK)
 a.set_xticks([0.5, 1.5], minor=True); a.set_yticks([0.5, 1.5], minor=True)
 a.grid(which="minor", color="white", lw=3); a.tick_params(which="minor", length=0)
 b = axes[1]; b.axis("off")
-tiles = [("Accuracy (live run)", "100%", "21 / 21 pairs \u00b7 precision, recall, F1 also 100%"),
-         ("Top-5 scoped accuracy", "100%", "13 of 21 pairs scored \u00b7 8 outside ranked scope"),
-         ("Hindi note extraction", "works", "auto-translated to English before the ML NER"),
-         ("Missed eligible trials (FN)", "0", "no eligible trial turned away")]
+tiles = [("Accuracy (binary pairs)", "93.9%", "1,365 of 1,454 scored pairs correct \u00b7 specificity 99.2%"),
+         ("Conservative by design", "104", "pairs returned Insufficient Information instead of guessing (excluded, tracked)"),
+         ("Trial database", "84", "32 CTRI synthetic + 52 live-imported ClinicalTrials.gov recruiting-in-India"),
+         ("Cohort speed", "\u2248100 s", "10 unstructured patients \u00d7 84 trials \u2014 extraction parallelised, LLM capped to top-15")]
 for k, (t, v, s) in enumerate(tiles):
-    y = 0.78 - (k // 2) * 0.46; x = 0.02 + (k % 2) * 0.5
+    y = 0.80 - (k // 2) * 0.46; x = 0.02 + (k % 2) * 0.5
     b.add_patch(FancyBboxPatch((x, y - 0.28), 0.46, 0.34, boxstyle="round,pad=0.02,rounding_size=0.05",
                  fc=SOFT, ec=TEAL, lw=1.5))
-    b.text(x + 0.23, y - 0.02, v, ha="center", va="center", fontsize=20, fontweight="bold", color=DARK)
-    b.text(x + 0.23, y - 0.19, t + "\n" + s, ha="center", va="center", fontsize=8.5, color=INK)
+    b.text(x + 0.23, y - 0.02, v, ha="center", va="center", fontsize=19, fontweight="bold", color=DARK)
+    b.text(x + 0.23, y - 0.19, t + "\n" + s, ha="center", va="center", fontsize=8, color=INK)
 b.set_xlim(0, 1); b.set_ylim(0, 1)
 fig.suptitle("CTQ Evaluation Results", fontsize=15, fontweight="bold", color=INK)
 fig.tight_layout(rect=[0, 0, 1, 0.93])

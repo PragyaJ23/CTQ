@@ -441,6 +441,7 @@ export default function Matcher() {
   const [cohortResult, setCohortResult] = useState(null);
   const [activeCohort, setActiveCohort] = useState(0);
   const [trialScope, setTrialScope] = useState("all");   // "all" | "5" | "10" | "15"
+  const topK = trialScope === "all" ? null : Number(trialScope);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 

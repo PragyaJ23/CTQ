@@ -647,13 +647,29 @@ async def extract_document(file: UploadFile = File(...)):
         notes = notes[:100]
 
     results = []
-    for n in notes:
-        res = extract_entities(n["text"])
-        results.append({"note_id": n["id"], "facts": res["facts"],
+    if len(notes) == 1:
+        res = extract_entities(notes[0]["text"])
+        results.append({"note_id": notes[0]["id"], "facts": res["facts"],
                         "model_used": res["model_used"],
                         "translated": bool(res.get("translated")),
                         "source_script": res.get("source_script"),
-                        "text": n["text"]})
+                        "text": notes[0]["text"]})
+    else:
+        # Multi-note files: extract notes in parallel. The DistilBERT forward
+        # pass releases the GIL, so threads genuinely help on multi-core
+        # machines; results are re-joined in note order below.
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _one(n):
+            r = extract_entities(n["text"])
+            return {"note_id": n["id"], "facts": r["facts"],
+                    "model_used": r["model_used"],
+                    "translated": bool(r.get("translated")),
+                    "source_script": r.get("source_script"),
+                    "text": n["text"]}
+
+        with ThreadPoolExecutor(max_workers=min(6, len(notes))) as pool:
+            results = list(pool.map(_one, notes))
 
     # downloadable CSV: one row per note, one column per fact
     import csv as _csv

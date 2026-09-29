@@ -27,6 +27,19 @@ from config import llm_available, settings
 # ---------------------------------------------------------------------------
 _cooldown_until: float = 0.0  # time.monotonic() deadline, 0 = breaker closed
 
+# Success cache: (patient_text, trial_id) -> parsed LLM JSON dict. Repeated
+# evaluations (re-running a cohort, evaluation flows) hit the same pairs over
+# and over; a fresh Groq client is created per call anyway, so a bounded
+# dict is all that is needed. FIFO eviction keeps memory tiny.
+_answer_cache: dict = {}
+_ANSWER_CACHE_MAX = 2048
+
+
+def _cache_key(patient_text: str, trial_id: str) -> str:
+    import hashlib
+    return hashlib.sha1(f"{patient_text}\x00{trial_id}".encode("utf-8")).hexdigest()
+
+
 _RETRY_HINT = re.compile(r"try again in\s+(?:(\d+)m)?([\d.]+)?s?", re.IGNORECASE)
 
 
@@ -180,6 +193,11 @@ def reason_over_trial(patient_text: str, trial) -> Optional[dict]:
         return None
     if time.monotonic() < _cooldown_until:
         return None  # breaker open: rule-engine fallback, no doomed Groq calls
+
+    key = _cache_key(patient_text, trial.trial_id)
+    cached = _answer_cache.get(key)
+    if cached is not None:
+        return cached
     try:
         from groq import Groq
     except ImportError:
@@ -210,6 +228,9 @@ def reason_over_trial(patient_text: str, trial) -> Optional[dict]:
         raw = response.choices[0].message.content or ""
         parsed = _parse_response(raw)
         _cooldown_until = 0.0  # successful call: close the breaker
+        if len(_answer_cache) >= _ANSWER_CACHE_MAX:
+            _answer_cache.pop(next(iter(_answer_cache)))  # FIFO eviction
+        _answer_cache[key] = parsed
         return parsed
     except ValueError:
         raise

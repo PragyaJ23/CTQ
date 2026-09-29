@@ -14,9 +14,17 @@ fully offline on CPU. It is loaded once per process.
 from __future__ import annotations
 
 import re
+import threading
 from typing import Optional
 
 _QA_MODEL = "distilbert-base-cased-distilled-squad"  # cached in the HF hub cache
+
+# Guards _get_model: without it, a parallel extraction (multi-note upload)
+# makes every thread that sees _model is None load its OWN copy of the model
+# (hundreds of MB each), and concurrent `import transformers` can fail with
+# a partial-initialisation error that silently disables extraction for that
+# call. One loader at a time; the rest wait and reuse the result.
+_model_lock = threading.Lock()
 
 # Directory holding a pre-quantized int8 copy of the QA model (generated at
 # Docker build time; see Dockerfile). Used when no local HF snapshot exists -
@@ -67,57 +75,62 @@ def _get_model():
     if _model_available is False:
         return None
     if _model is None:
-        try:
-            from transformers import AutoTokenizer  # lightweight, no torch import
-            local = _local_snapshot()
-            artifact = _artifact_dir()
-            if local:
+        with _model_lock:
+            if _model is not None:      # another thread loaded while we waited
+                return _model
+            if _model_available is False:  # another thread failed while we waited
+                return None
+            try:
+                from transformers import AutoTokenizer  # lightweight, no torch import
+                local = _local_snapshot()
+                artifact = _artifact_dir()
+                if local:
+                    import torch
+                    from transformers import AutoModelForQuestionAnswering
+                    tok = AutoTokenizer.from_pretrained(local, local_files_only=True)
+                    mdl = AutoModelForQuestionAnswering.from_pretrained(
+                        local, local_files_only=True)
+                    mdl.eval()
+                    _model = (tok, mdl, torch)
+                    _model_available = True
+                    print(f"[ml_ner] loaded {_QA_MODEL} (fp32 local snapshot, torch) "
+                          f"for extractive-QA entity extraction")
+                    return _model
+                if artifact:
+                    # ONNX runtime path: torch is never imported, saving ~300 MB
+                    # resident RAM - this is what fits the NER into 512 MB.
+                    import numpy as np
+                    import onnxruntime as ort
+                    tok = AutoTokenizer.from_pretrained(artifact, local_files_only=True)
+                    # Minimal footprint for tiny containers: single-threaded
+                    # execution and no arena growth (default thread pools +
+                    # arena blow past 512 MB on Render free instances).
+                    opts = ort.SessionOptions()
+                    opts.intra_op_num_threads = 1
+                    opts.inter_op_num_threads = 1
+                    opts.enable_cpu_mem_arena = False
+                    opts.enable_mem_pattern = False
+                    sess = ort.InferenceSession(
+                        os.path.join(artifact, "model.onnx"),
+                        sess_options=opts,
+                        providers=["CPUExecutionProvider"])
+                    _model = ("onnx", tok, sess, np)
+                    _model_available = True
+                    print(f"[ml_ner] loaded {_QA_MODEL} (ONNX int8 artifact, onnxruntime) "
+                          f"for extractive-QA entity extraction")
+                    return _model
                 import torch
                 from transformers import AutoModelForQuestionAnswering
-                tok = AutoTokenizer.from_pretrained(local, local_files_only=True)
-                mdl = AutoModelForQuestionAnswering.from_pretrained(
-                    local, local_files_only=True)
+                tok = AutoTokenizer.from_pretrained(_QA_MODEL)
+                mdl = AutoModelForQuestionAnswering.from_pretrained(_QA_MODEL)
                 mdl.eval()
                 _model = (tok, mdl, torch)
                 _model_available = True
-                print(f"[ml_ner] loaded {_QA_MODEL} (fp32 local snapshot, torch) "
+                print(f"[ml_ner] loaded {_QA_MODEL} (fp32 hub download, torch) "
                       f"for extractive-QA entity extraction")
-                return _model
-            if artifact:
-                # ONNX runtime path: torch is never imported, saving ~300 MB
-                # resident RAM - this is what fits the NER into 512 MB.
-                import numpy as np
-                import onnxruntime as ort
-                tok = AutoTokenizer.from_pretrained(artifact, local_files_only=True)
-                # Minimal footprint for tiny containers: single-threaded
-                # execution and no arena growth (default thread pools +
-                # arena blow past 512 MB on Render free instances).
-                opts = ort.SessionOptions()
-                opts.intra_op_num_threads = 1
-                opts.inter_op_num_threads = 1
-                opts.enable_cpu_mem_arena = False
-                opts.enable_mem_pattern = False
-                sess = ort.InferenceSession(
-                    os.path.join(artifact, "model.onnx"),
-                    sess_options=opts,
-                    providers=["CPUExecutionProvider"])
-                _model = ("onnx", tok, sess, np)
-                _model_available = True
-                print(f"[ml_ner] loaded {_QA_MODEL} (ONNX int8 artifact, onnxruntime) "
-                      f"for extractive-QA entity extraction")
-                return _model
-            import torch
-            from transformers import AutoModelForQuestionAnswering
-            tok = AutoTokenizer.from_pretrained(_QA_MODEL)
-            mdl = AutoModelForQuestionAnswering.from_pretrained(_QA_MODEL)
-            mdl.eval()
-            _model = (tok, mdl, torch)
-            _model_available = True
-            print(f"[ml_ner] loaded {_QA_MODEL} (fp32 hub download, torch) "
-                  f"for extractive-QA entity extraction")
-        except Exception as exc:  # model missing / corrupted
-            _model_available = False
-            print(f"[ml_ner] QA model unavailable ({exc}); extraction disabled for this call")
+            except Exception as exc:  # model missing / corrupted
+                _model_available = False
+                print(f"[ml_ner] QA model unavailable ({exc}); extraction disabled for this call")
     return _model
 
 

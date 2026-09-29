@@ -19,8 +19,10 @@ const TD = { padding: "0.4rem 0.55rem", verticalAlign: "middle" };
  *
  * patients: the payloads that were submitted (for the summary sheet)
  * results:  cohort rows [{patient_id, ok, response | error}]
+ * onOpen:   optional (patient_id) => void - renders an Open button per row
+ *           (drill-down to the full per-patient results page)
  */
-export default function ResultsTable({ patients = [], results = [] }) {
+export default function ResultsTable({ patients = [], results = [], onOpen }) {
   const [onlyEligible, setOnlyEligible] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [dlErr, setDlErr] = useState("");
@@ -80,8 +82,9 @@ export default function ResultsTable({ patients = [], results = [] }) {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
           <thead>
             <tr>
-              {["Patient", "Trial", "Title", "Eligibility", "Match", "Phase", "Key reasons"].map((h) => (
-                <th key={h} style={TH}>{h}</th>
+              {["Patient", "Trial", "Title", "Eligibility", "Match", "Phase", "Key reasons",
+                ...(onOpen ? [""] : [])].map((h, i) => (
+                <th key={i} style={TH}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -109,11 +112,20 @@ export default function ResultsTable({ patients = [], results = [] }) {
                       || "—"}
                   </div>
                 </td>
+                {onOpen && (
+                  <td style={TD}>
+                    <button type="button" className="btn secondary"
+                      style={{ padding: "0.2rem 0.6rem", fontSize: "0.78rem" }}
+                      onClick={() => onOpen(pid)}>
+                      Open
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: "0.9rem", textAlign: "center", color: "rgba(128,128,128,1)" }}>
+                <td colSpan={onOpen ? 8 : 7} style={{ padding: "0.9rem", textAlign: "center", color: "rgba(128,128,128,1)" }}>
                   {onlyEligible
                     ? "No Potentially Eligible rows — untick the filter to see every check."
                     : "No result rows."}

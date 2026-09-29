@@ -4,7 +4,7 @@ import {
   analyzePatient, analyzeCohort, exportCohortExcel, buildPayload, extractDocument,
   uploadPatients, apiErrorMessage,
 } from "../services/api.js";
-import { Banner, Loading, EligibilityBadge, MatchScore, MetaChip } from "../components/ui.jsx";
+import { Banner, Loading } from "../components/ui.jsx";
 import ResultsTable from "../components/ResultsTable.jsx";
 
 const COMORBIDITIES = [
@@ -181,87 +181,6 @@ function profileToForm(p) {
   return out;
 }
 
-/** Shared per-patient viewer for "Results for all patients" (any tab). */
-function AllResultsViewer({ allResult, allActive, setAllActive }) {
-  const navigate = useNavigate();
-  const ok = allResult.results.filter((r) => r.ok);
-  const failed = allResult.results.filter((r) => !r.ok);
-  const active = ok[allActive];
-  if (!active) return <Banner kind="warn">No patient results available.</Banner>;
-  const trials = active.response?.results || [];
-  const counts = trials.reduce((acc, t) => {
-    acc[t.eligibility] = (acc[t.eligibility] || 0) + 1; return acc;
-  }, {});
-  return (
-    <div className="section-gap">
-      <h2>Results for all patients</h2>
-      <Banner kind={failed.length === 0 ? "success" : "warn"}>
-        {ok.length} of {allResult.results.length} patients analysed
-        {failed.length > 0 && <> · failed: {failed.map((f) => f.patient_id).join(", ")}</>}
-      </Banner>
-      <div className="card section-gap">
-        <div className="btn-row" style={{ flexWrap: "wrap", marginBottom: "0.6rem" }}>
-          {ok.map((r, i) => (
-            <button key={r.patient_id} type="button"
-              className={`btn ${i === allActive ? "primary" : ""}`}
-              style={{ padding: "0.35rem 0.9rem" }}
-              onClick={() => setAllActive(i)}>
-              {r.patient_id}
-            </button>
-          ))}
-        </div>
-        <div className="btn-row" style={{ marginBottom: "0.6rem" }}>
-          <button type="button" className="btn secondary" disabled={allActive === 0}
-            onClick={() => setAllActive((i) => Math.max(0, i - 1))}>
-            ← Previous patient
-          </button>
-          <span style={{ fontWeight: 600 }}>Patient {allActive + 1} of {ok.length}</span>
-          <button type="button" className="btn secondary"
-            disabled={allActive >= ok.length - 1}
-            onClick={() => setAllActive((i) => Math.min(ok.length - 1, i + 1))}>
-            Next patient →
-          </button>
-          <button type="button" className="btn"
-            onClick={() => {
-              sessionStorage.setItem("ctq_results", JSON.stringify(
-                { response: active.response, profile: {} }));
-              navigate("/results");
-            }}>
-            Open full page view for {active.patient_id}
-          </button>
-        </div>
-        <h3>Trials for {active.patient_id} — {trials.length} checked</h3>
-        <p className="hint" style={{ margin: "0.2rem 0 0.6rem" }}>
-          {Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(" · ")}
-        </p>
-        {trials.map((t) => (
-          <div key={t.trial_id}
-            className={`result-card section-gap ${t.eligibility === "Potentially Eligible" ? "eligible" : t.eligibility === "Not Eligible" ? "not-eligible" : "insufficient"}`}
-            style={{ padding: "0.8rem 1rem" }}>
-            <div className="result-head">
-              <div>
-                <div className="trial-id">{t.trial_id}</div>
-                <div className="result-title">{t.title}</div>
-              </div>
-            </div>
-            <div className="result-meta">
-              <EligibilityBadge status={t.eligibility} />
-              <MatchScore percent={t.match_percent ?? Math.round((t.similarity_score || 0) * 100)}
-                similarity={t.similarity_score} />
-              <MetaChip>{t.condition}</MetaChip>
-              <MetaChip>{t.status}</MetaChip>
-            </div>
-            {t.reasons_for?.length > 0 && (
-              <ul className="hint" style={{ margin: "0.4rem 0 0" }}>
-                {t.reasons_for.slice(0, 3).map((x, i) => <li key={i}>{x}</li>)}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /** Unstructured panel: notes/photo/PDF -> ML NER -> matching. */
 function UnstructuredPanel() {
@@ -274,6 +193,7 @@ function UnstructuredPanel() {
   const [allActive, setAllActive] = useState(0);
   const [trialScope, setTrialScope] = useState("all");
   const topK = trialScope === "all" ? null : Number(trialScope);
+  const [inputHidden, setInputHidden] = useState(false);
   const fileRef = useRef(null);
 
   const handleFile = async (file) => {
@@ -327,6 +247,7 @@ function UnstructuredPanel() {
       const res = await analyzeCohort(built, topK);
       setAllResult(res);
       setAllActive(0);
+      setInputHidden(true);
     } catch (err) {
       setError(apiErrorMessage(err));
     } finally {
@@ -343,12 +264,12 @@ function UnstructuredPanel() {
         profile fields, and every trial in the database is checked.
       </p>
       <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg,.bmp,.webp,.csv,.xlsx,.xls,.tsv,.txt,.json"
-        disabled={!!busy}
+        disabled={!!busy} style={{ display: inputHidden ? "none" : "" }}
         onChange={(e) => handleFile(e.target.files?.[0])} />
       {busy && <Loading text={busy} />}
       {error && <Banner kind="error">{error}</Banner>}
 
-      {extracted && (
+      {extracted && !inputHidden && (
         <div className="section-gap">
           <Banner kind="success">
             Extracted structured data from <strong>{extracted.count}</strong>
@@ -420,13 +341,36 @@ function UnstructuredPanel() {
         </div>
       )}
 
-      {allResult && (
-        <AllResultsViewer allResult={allResult} allActive={allActive} setAllActive={setAllActive} />
-      )}
-      {allResult && (
-        <ResultsTable patients={extracted?.results?.map((r) => noteToFactsPayload(r.facts, r.note_id)) || []}
-                      results={allResult.results} />
-      )}
+      {allResult && (() => {
+        const ok = allResult.results.filter((r) => r.ok);
+        const failed = allResult.results.filter((r) => !r.ok);
+        return (
+          <div className="section-gap">
+            <div className="btn-row" style={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
+              <h2 style={{ margin: 0 }}>Results for all patients</h2>
+              <button type="button" className="btn secondary"
+                onClick={() => { setInputHidden(false); setAllResult(null); window.scrollTo(0, 0); }}>
+                ⤒ Upload / extract another file
+              </button>
+            </div>
+            <Banner kind={failed.length === 0 ? "success" : "warn"}>
+              {ok.length} of {allResult.results.length} patients analysed
+              {failed.length > 0 && <> · failed: {failed.map((f) => f.patient_id).join(", ")}</>}
+            </Banner>
+            <ResultsTable
+              patients={extracted?.results?.map((r) => noteToFactsPayload(r.facts, r.note_id)) || []}
+              results={allResult.results}
+              onOpen={(pid) => {
+                const r = ok.find((x) => x.patient_id === pid);
+                if (!r) return;
+                sessionStorage.setItem("ctq_results",
+                  JSON.stringify({ response: r.response, profile: {} }));
+                navigate("/results");
+              }}
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -444,6 +388,9 @@ export default function Matcher() {
   const [cohort, setCohort] = useState([]);
   const [cohortBusy, setCohortBusy] = useState("");
   const [cohortResult, setCohortResult] = useState(null);
+  // After a cohort run the results table IS the view - keep the long patient
+  // form out of the way until the user asks to edit it again.
+  const [formHidden, setFormHidden] = useState(false);
   const [activeCohort, setActiveCohort] = useState(0);
   const [trialScope, setTrialScope] = useState("all");   // "all" | "5" | "10" | "15"
   const topK = trialScope === "all" ? null : Number(trialScope);
@@ -509,6 +456,7 @@ export default function Matcher() {
       setCohortResult(null);
       setActiveCohort(0);
       setCsvMsg(`Loaded ${list.length} patient${list.length === 1 ? "" : "s"} from “${file.name}” into the form + cohort below. Now press “Find Matching Trials” (bottom of the form) to check trials for every patient.`);
+      setFormHidden(false);
       window.scrollTo(0, 0);
     } catch (err) {
       // Dedicated banner next to the upload button - the shared form error
@@ -594,6 +542,7 @@ export default function Matcher() {
         const res = await analyzeCohort(built, topK);
         setCohortResult(res);
         setActiveCohort(0);
+        setFormHidden(true);
         window.scrollTo(0, 0);
       } catch (err) {
         setError(apiErrorMessage(err));
@@ -643,7 +592,7 @@ export default function Matcher() {
         &quot;Insufficient Information&quot; verdicts rather than guesses.
       </p>
 
-      <div className="card section-gap" style={{ padding: "0.9rem 1.1rem" }}>
+      <div className="card section-gap" style={{ padding: "0.9rem 1.1rem", display: formHidden ? "none" : "" }}>
         <div style={{ fontWeight: 600, fontSize: "0.88rem", marginBottom: "0.5rem" }}>
           Try it instantly with sample data
         </div>
@@ -659,7 +608,7 @@ export default function Matcher() {
       </div>
 
       {/* -------- Cohort controls (structured multi-patient) -------- */}
-      {tab === "structured" && (
+      {tab === "structured" && !formHidden && (
         <div className="card section-gap" style={{ padding: "0.9rem 1.1rem" }}>
           <div className="result-head">
             <div>
@@ -697,7 +646,7 @@ export default function Matcher() {
           {cohort.length > 0 && (
             <div className="btn-row section-gap" style={{ marginBottom: 0 }}>
               <button type="button" className="btn secondary"
-                onClick={() => { setCohort([]); setCohortResult(null); }}>
+                onClick={() => { setCohort([]); setCohortResult(null); setFormHidden(false); }}>
                 Clear cohort ({cohort.length + 1} patients)
               </button>
             </div>
@@ -718,7 +667,7 @@ export default function Matcher() {
 
       {tab === "unstructured" && <UnstructuredPanel />}
 
-      <form onSubmit={submit} style={{ display: tab === "structured" ? "" : "none" }}>
+      <form onSubmit={submit} style={{ display: tab === "structured" && !formHidden ? "" : "none" }}>
         {error && <Banner kind="error">{error}</Banner>}
 
         {cohort.map((p, i) => (
@@ -962,83 +911,39 @@ export default function Matcher() {
 
       {cohortResult && (
         <div className="section-gap">
-          <h2>Cohort Results</h2>
           {(() => {
             const ok = cohortResult.results.filter((r) => r.ok);
             const failed = cohortResult.results.filter((r) => !r.ok);
-            const active = ok[activeCohort];
-            if (!active) return <Banner kind="warn">No patient results available.</Banner>;
-            const trials = active.response?.results || [];
             return (
               <>
+                <div className="btn-row" style={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
+                  <h2 style={{ margin: 0 }}>Cohort Results</h2>
+                  {formHidden && (
+                    <button type="button" className="btn secondary"
+                      onClick={() => { setFormHidden(false); window.scrollTo(0, 0); }}>
+                      ✎ Edit patient data
+                    </button>
+                  )}
+                </div>
                 <Banner kind={failed.length === 0 ? "success" : "warn"}>
                   {ok.length} of {cohortResult.results.length} patients analysed
                   {failed.length > 0 && <> · failed: {failed.map((f) => f.patient_id).join(", ")}</>}
                 </Banner>
-                <div className="card section-gap">
-                  <div className="btn-row" style={{ flexWrap: "wrap", marginBottom: "0.6rem" }}>
-                    {ok.map((r, i) => (
-                      <button key={r.patient_id} type="button"
-                        className={`btn ${i === activeCohort ? "primary" : ""}`}
-                        style={{ padding: "0.35rem 0.9rem" }}
-                        onClick={() => setActiveCohort(i)}>
-                        {r.patient_id}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="btn-row" style={{ marginBottom: "0.6rem" }}>
-                    <button type="button" className="btn secondary" disabled={activeCohort === 0}
-                      onClick={() => setActiveCohort((i) => Math.max(0, i - 1))}>
-                      ← Previous patient
-                    </button>
-                    <span style={{ fontWeight: 600 }}>Patient {activeCohort + 1} of {ok.length}</span>
-                    <button type="button" className="btn secondary"
-                      disabled={activeCohort >= ok.length - 1}
-                      onClick={() => setActiveCohort((i) => Math.min(ok.length - 1, i + 1))}>
-                      Next patient →
-                    </button>
-                    <button type="button" className="btn"
-                      onClick={() => {
-                        sessionStorage.setItem("ctq_results", JSON.stringify(
-                          { response: active.response, profile: {} }));
-                        navigate("/results");
-                      }}>
-                      Open full page view for {active.patient_id}
-                    </button>
-                  </div>
-                  <h3>Trials for {active.patient_id} — {trials.length} checked</h3>
-                  {trials.map((t) => (
-                    <div key={t.trial_id}
-                      className={`result-card section-gap ${t.eligibility === "Potentially Eligible" ? "eligible" : t.eligibility === "Not Eligible" ? "not-eligible" : "insufficient"}`}
-                      style={{ padding: "0.8rem 1rem" }}>
-                      <div className="result-head">
-                        <div>
-                          <div className="trial-id">{t.trial_id}</div>
-                          <div className="result-title">{t.title}</div>
-                        </div>
-                      </div>
-                      <div className="result-meta">
-                        <EligibilityBadge status={t.eligibility} />
-                        <MatchScore percent={t.match_percent ?? Math.round((t.similarity_score || 0) * 100)}
-                          similarity={t.similarity_score} />
-                        <MetaChip>{t.condition}</MetaChip>
-                        <MetaChip>{t.status}</MetaChip>
-                      </div>
-                      {t.reasons_for?.length > 0 && (
-                        <ul className="hint" style={{ margin: "0.4rem 0 0" }}>
-                          {t.reasons_for.slice(0, 3).map((x, i) => <li key={i}>{x}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <ResultsTable
+                  patients={[form, ...cohort]}
+                  results={cohortResult.results}
+                  onOpen={(pid) => {
+                    const r = ok.find((x) => x.patient_id === pid);
+                    if (!r) return;
+                    sessionStorage.setItem("ctq_results",
+                      JSON.stringify({ response: r.response, profile: {} }));
+                    navigate("/results");
+                  }}
+                />
               </>
             );
           })()}
         </div>
-      )}
-      {cohortResult && (
-        <ResultsTable patients={[form, ...cohort]} results={cohortResult.results} />
       )}
     </div>
   );

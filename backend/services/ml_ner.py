@@ -270,6 +270,13 @@ def _condition_from(text: str, question: str) -> Optional[str]:
     bad = re.search(r"\b(smok|alcohol|pregnan|never|none|no condition|healthy|no chronic|unknown)\b", ans, re.I)
     if bad:
         return None
+    # a negation or a bare symptom is not a diagnosis ("no known cancer",
+    # "shortness of breath") - reject and let the fallbacks try
+    if re.match(r"^\s*(no|not|none|never|unknown)\b", ans, re.I) \
+            or re.search(r"\bno known\b|\bno history\b|\bnot known\b", ans, re.I):
+        return None
+    if re.search(r"\b(breath|swelling|dizziness|fatigue|weakness|numbness|thirst|nausea|vomiting|fever|cough)\b", ans, re.I):
+        return None
     idx = text.lower().find(ans.lower()[:15])
     if idx >= 0 and _negated(text, idx):
         return None  # span comes from a negated sentence ("No history of liver disease")
@@ -290,6 +297,8 @@ def _diagnosis_from_sentence(text: str) -> Optional[str]:
             continue
         if re.match(r"^\s*(no|not|never|denies|without)\b", low):
             continue  # the sentence itself denies disease ("No chronic disease.")
+        if re.search(r"\bno known\b|\bno history\b|\bnot known\b|\bnever had\b", low):
+            continue  # post-noun negation ("... no known cancer") - not a diagnosis
         idx = text.lower().find(low[:25])
         if idx >= 0 and _negated(text, idx):
             continue
@@ -301,12 +310,17 @@ def _diagnosis_from_sentence(text: str) -> Optional[str]:
             cand = re.sub(r"^(?:a|an|the|also)\s+", "", m.group(1).strip(" ,."), flags=re.I)
             if len(cand) >= 4:
                 return cand[:80]
-        # disease word present but no cue phrase - use the sentence itself,
-        # trimmed to a reasonable condition phrase
-        dm = re.search(r"([A-Za-z][A-Za-z0-9 ,\-]{3,60}" + "(?:" + "|".join(disease_words) + r")[A-Za-z0-9 ,\-]{0,30})", sentence, re.I)
-        if dm:
-            return dm.group(1).strip(" ,.")[:80]
-    if re.search(r"healthy|no chronic disease|no significant medical history", text, re.I):
+        # disease word present but no cue phrase - return the tight disease
+        # term itself ("type 2 diabetes"), not a runaway sentence span
+        term_m = re.search(
+            r"\b(type 2 diabetes|type 1 diabetes|diabetes mellitus|diabetes"
+            r"|hypertension|heart failure|myocardial infarction|asthma|copd"
+            r"|breast cancer|cancer|nephropathy|prediabetes|arthritis"
+            r"|hepatitis|cirrhosis)\b", low)
+        if term_m:
+            return term_m.group(0)[:80]
+    if re.search(r"healthy|no chronic disease|no known chronic|no significant medical history"
+                 r"|no known (?:diabetes|disease|cancer|condition)", text, re.I):
         return "Healthy Volunteer"
     return None
 
@@ -370,6 +384,12 @@ def extract_medications(text: str) -> list:
         name = re.sub(r"\b(once|twice|thrice|daily|weekly|night|morning|every\s+\d+\s*hours?)\b", "",
                       name, flags=re.I).strip(" ,.-")
         name = re.sub(r"^(?:tab|caps?|tablet|cap)\s+", "", name, flags=re.I)
+        if re.match(r"^\s*(no|not|none|never)\b", name, re.I):
+            return None  # the model echoed a negation ("no diabetes medicine")
+        if re.search(r"\b(hba1c|glucose|creatinine|egfr|mmhg|dlib|hemoglobin)\b|\bd\s*l\b", name, re.I):
+            return None  # lab values are not medications ("glucose / dL")
+        if re.search(r"\bmedication|medicine|\bpregnan", name, re.I):
+            return None  # QA phrase noise ("diabetes medication", "5 months pregnant")
         return name if 3 <= len(name) <= 40 else None
 
     meds = []

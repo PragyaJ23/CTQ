@@ -107,6 +107,23 @@ def needs_translation(text: str) -> bool:
     return detect_non_english(text) is not None
 
 
+def _offline_fallback(text: str, script: str) -> Optional[dict]:
+    """Offline Hindi->English rescue when the LLM cannot translate.
+
+    Uses the built-in medical lexicon (hi_lexicon) so Hindi notes still yield
+    a full profile while Groq is rate-limited or unconfigured. Returns None
+    for scripts the lexicon does not cover.
+    """
+    try:
+        from services.hi_lexicon import translate_hindi_offline, is_hindi
+        if script == "Devanagari" or is_hindi(text):
+            return {"text": translate_hindi_offline(text), "translated": True,
+                    "source_script": script, "note": None}
+    except Exception:  # noqa: BLE001 - never break extraction on fallback
+        return None
+    return None
+
+
 def translate_to_english(text: str) -> dict:
     """Translate a non-English clinical note to English via Groq.
 
@@ -114,7 +131,9 @@ def translate_to_english(text: str) -> dict:
       { "text": <text to extract from>, "translated": bool,
         "source_script": <name or None>, "note": <human hint or None> }
 
-    Never raises: any failure returns the original text untranslated.
+    Never raises: any failure falls back to the built-in offline Hindi
+    medical lexicon (when the script is covered) and only then to the
+    original untranslated text.
     """
     script = detect_non_english(text)
     if script is None:
@@ -126,11 +145,17 @@ def translate_to_english(text: str) -> dict:
         from config import llm_available, settings
 
         if not llm_available():
+            off = _offline_fallback(text, script)
+            if off:
+                return off
             return {"text": text, "translated": False, "source_script": script,
                     "note": f"{script}-script note detected but no LLM configured - "
                             f"untranslated text sent to the NER (lab values with Latin "
                             f"anchors may still be found)"}
         if _time.monotonic() < _llm._cooldown_until:
+            off = _offline_fallback(text, script)
+            if off:
+                return off
             return {"text": text, "translated": False, "source_script": script,
                     "note": f"{script}-script note detected but Groq is rate-limited - "
                             f"untranslated text sent to the NER"}
@@ -160,6 +185,16 @@ def translate_to_english(text: str) -> dict:
     except Exception as exc:  # noqa: BLE001 - translation must never break extraction
         from config import llm_available
         limited = llm_available() and "429" in str(exc)
+        if limited:
+            # trip the shared breaker so the remaining notes skip Groq instantly
+            try:
+                _llm._trip_cooldown(exc)
+            except Exception:
+                pass
+        off = _offline_fallback(text, script)
+        if off:
+            print(f"[translate] LLM unavailable ({exc}); used offline Hindi lexicon")
+            return off
         note = (f"{script}-script note detected but translation failed"
                 + (" (Groq rate-limited)" if limited else "") + " - untranslated text sent to the NER")
         print(f"[translate] {note}: {exc}")

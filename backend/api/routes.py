@@ -408,7 +408,24 @@ async def _read_tabular(upload: UploadFile) -> pd.DataFrame:
                 df = pd.read_csv(io.StringIO(text), sep=None, engine="python")
         elif name.endswith(".csv"):
             text = raw.decode("utf-8", errors="replace")
-            df = pd.read_csv(io.StringIO(text))
+            try:
+                df = pd.read_csv(io.StringIO(text))
+            except Exception:
+                # Many research/export CSVs (European locale, R/SPSS exports) are
+                # semicolon-delimited - retry with delimiter sniffing before
+                # failing with a raw pandas tokenizer error.
+                try:
+                    df = pd.read_csv(io.StringIO(text), sep=None, engine="python")
+                except Exception as exc2:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Could not parse this CSV as comma- or semicolon-delimited data. "
+                               "Please upload a file with a header row and one patient per row - "
+                               "see 'Download all patients (Excel)' for the expected shape, or "
+                               "sample_data/structured_patients_sample.csv. If your file contains "
+                               "free-text notes instead, use the Unstructured Data tab. "
+                               f"Parser error: {exc2}",
+                    ) from exc2
         else:
             raise HTTPException(
                 status_code=400,

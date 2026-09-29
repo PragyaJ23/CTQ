@@ -473,9 +473,10 @@ export default function Matcher() {
    *  so row 1 of the CSV must populate those states too, not just `form`. */
   const csvFileRef = useRef(null);
   const [csvMsg, setCsvMsg] = useState("");
+  const [csvErr, setCsvErr] = useState("");
   const handleStructuredCsv = async (file) => {
     if (!file) return;
-    setError(""); setCsvMsg("");
+    setError(""); setCsvMsg(""); setCsvErr("");
     try {
       const res = await uploadPatients(file);
       const list = res.patients || [];
@@ -502,10 +503,14 @@ export default function Matcher() {
       setCohort(rest);
       setCohortResult(null);
       setActiveCohort(0);
-      setCsvMsg(`Loaded ${list.length} patient${list.length === 1 ? "" : "s"} from “${file.name}” into the form + cohort below.`);
+      setCsvMsg(`Loaded ${list.length} patient${list.length === 1 ? "" : "s"} from “${file.name}” into the form + cohort below. Now press “Find Matching Trials” (bottom of the form) to check trials for every patient.`);
       window.scrollTo(0, 0);
     } catch (err) {
-      setError(apiErrorMessage(err));
+      // Dedicated banner next to the upload button - the shared form error
+      // renders far below the fold, which made failures look like the
+      // button "did nothing".
+      setCsvErr(apiErrorMessage(err));
+      window.scrollTo(0, 0);
     }
   };
 
@@ -680,6 +685,9 @@ export default function Matcher() {
           </div>
           {csvMsg && (
             <Banner kind="success" >{csvMsg}</Banner>
+          )}
+          {csvErr && (
+            <Banner kind="error">{csvErr}</Banner>
           )}
           {cohort.length > 0 && (
             <div className="btn-row section-gap" style={{ marginBottom: 0 }}>

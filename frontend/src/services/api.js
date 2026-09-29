@@ -169,4 +169,9 @@ export const analyzeCohort = (patients, topK = null) =>
 export const exportCohortExcel = (patients) =>
   api.post("/cohort/export", { patients }, { responseType: "blob" }).then((r) => r.data);
 
+/** Excel download of cohort matching RESULTS (one row per patient-trial). */
+export const exportResultsExcel = (patients, results) =>
+  api.post("/cohort/export-results", { patients, results },
+           { responseType: "blob", timeout: 120000 }).then((r) => r.data);
+
 export default api;

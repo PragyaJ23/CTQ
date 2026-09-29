@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getTrial, apiErrorMessage } from "../services/api.js";
 import { EligibilityBadge, MatchScore, Reason, Banner, MetaChip } from "../components/ui.jsx";
+import ResultsTable from "../components/ResultsTable.jsx";
 
 const STATUSES = ["Potentially Eligible", "Not Eligible", "Insufficient Information"];
 
@@ -233,6 +234,13 @@ export default function Results() {
           </div>
         </div>
       ))}
+
+      {results.length > 0 && (
+        <ResultsTable
+          patients={[query.profile || {}]}
+          results={[{ patient_id: query.response?.patient_id || "P001", ok: true, response: query.response }]}
+        />
+      )}
 
       {results.length > 0 && (
         <div className="btn-row section-gap" style={{ justifyContent: "center" }}>

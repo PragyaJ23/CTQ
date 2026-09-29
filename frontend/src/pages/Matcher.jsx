@@ -5,6 +5,7 @@ import {
   uploadPatients, apiErrorMessage,
 } from "../services/api.js";
 import { Banner, Loading, EligibilityBadge, MatchScore, MetaChip } from "../components/ui.jsx";
+import ResultsTable from "../components/ResultsTable.jsx";
 
 const COMORBIDITIES = [
   "Diabetes", "Hypertension", "Cardiovascular disease", "Kidney disease", "Liver disease",
@@ -421,6 +422,10 @@ function UnstructuredPanel() {
 
       {allResult && (
         <AllResultsViewer allResult={allResult} allActive={allActive} setAllActive={setAllActive} />
+      )}
+      {allResult && (
+        <ResultsTable patients={extracted?.results?.map((r) => noteToFactsPayload(r.facts, r.note_id)) || []}
+                      results={allResult.results} />
       )}
     </div>
   );
@@ -1031,6 +1036,9 @@ export default function Matcher() {
             );
           })()}
         </div>
+      )}
+      {cohortResult && (
+        <ResultsTable patients={[form, ...cohort]} results={cohortResult.results} />
       )}
     </div>
   );

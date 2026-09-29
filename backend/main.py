@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from api.cohort import cohort_router
+from api.results_export import results_export_router
 from api.routes import router
 from api.samples import samples_router
 from config import BACKEND_DIR
@@ -31,6 +32,7 @@ app.add_middleware(
 
 app.include_router(router)
 app.include_router(cohort_router)
+app.include_router(results_export_router)
 app.include_router(samples_router)
 
 # ---------------------------------------------------------------------------

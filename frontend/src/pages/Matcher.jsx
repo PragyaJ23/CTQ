@@ -589,7 +589,7 @@ export default function Matcher() {
       <p style={{ color: "var(--muted)" }}>
         Enter patient information to find potentially relevant Indian clinical trials. All fields
         except age are optional - missing information leads to honest
-        &quot;Insufficient Information&quot; verdicts rather than guesses.
+        &quot;Partially Eligible&quot; verdicts rather than guesses.
       </p>
 
       <div className="card section-gap" style={{ padding: "0.9rem 1.1rem", display: formHidden ? "none" : "" }}>

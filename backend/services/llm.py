@@ -249,8 +249,8 @@ def merge_rule_and_llm(rule_result: dict, llm_result: Optional[dict]) -> dict:
       * Rule-detected hard failures always win -> Not Eligible (the LLM can
         never upgrade them, but it can add its own violations).
       * Rule-detected missing required information keeps the verdict at
-        Insufficient Information - an LLM "Eligible" that ignores the gap is
-        not accepted.
+        Partially Eligible - an LLM "Eligible" that ignores the gap is not
+        accepted (the gap is still listed so the user can supply it).
       * When the rules found every parseable criterion satisfied, the verdict
         stays Potentially Eligible unless the LLM reports a concrete violated
         criterion (an exclusion the rule parser may have missed). Vague
@@ -275,13 +275,13 @@ def merge_rule_and_llm(rule_result: dict, llm_result: Optional[dict]) -> dict:
     if rule_failed:
         status = rule_status
     elif rule_missing:
-        status = "Insufficient Information"
+        status = "Partially Eligible"
     elif llm_failed:
         status = "Not Eligible"  # LLM caught a violation the rules missed
     elif llm_result.get("status") == "Insufficient Information":
         # LLM (with its no-invented-gaps prompt) concluded required written
         # criteria cannot be evaluated with the given profile.
-        status = "Insufficient Information"
+        status = "Partially Eligible"
     else:
         status = "Potentially Eligible"
 

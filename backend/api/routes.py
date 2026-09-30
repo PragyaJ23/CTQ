@@ -830,7 +830,7 @@ def cohort_analyze(payload: dict):
     per_trial: dict = {}
     per_site: dict = {}
     per_patient: list = []
-    verdict_totals = {"Potentially Eligible": 0, "Not Eligible": 0, "Insufficient Information": 0}
+    verdict_totals = {"Potentially Eligible": 0, "Partially Eligible": 0, "Not Eligible": 0}
     pairs_considered = 0
 
     # TOP_K_TRIALS = 0 means "check every trial"; a plain slice of 0 would
@@ -862,7 +862,7 @@ def cohort_analyze(payload: dict):
                 "trial_id": trial.trial_id, "title": trial.title, "condition": trial.condition,
                 "status": trial.status, "phase": trial.phase, "locations": trial.locations,
                 "source": trial.source,
-                "Potentially Eligible": 0, "Not Eligible": 0, "Insufficient Information": 0,
+                "Potentially Eligible": 0, "Partially Eligible": 0, "Not Eligible": 0,
                 "total_similarity": 0.0, "pairs": 0,
             })
             bucket[status] += 1
@@ -875,7 +875,7 @@ def cohort_analyze(payload: dict):
                     per_site[loc]["Potentially Eligible"] += 1
             if status == "Potentially Eligible":
                 eligible_count += 1
-            elif status == "Insufficient Information":
+            elif status == "Partially Eligible":
                 insufficient_count += 1
             if best is None and status == "Potentially Eligible":
                 best = {"trial_id": trial.trial_id, "title": trial.title,

@@ -43,7 +43,7 @@ function ConfusionMatrix({ c }) {
       </div>
       <p className="hint" style={{ marginTop: "0.6rem" }}>
         TP = true positive, FP = false positive, FN = false negative, TN = true negative.
-        Rows where the model answered "Insufficient Information" are excluded from the binary
+        Rows where the model answered "Partially Eligible" are excluded from the binary
         matrix and reported separately.
       </p>
     </div>
@@ -198,7 +198,7 @@ export default function Evaluation() {
         <h3>2 · Labelled structured data * (ground truth)</h3>
         <p className="hint">
           CSV with columns <span className="mono">patient_id, trial_id, actual_label</span> — actual_label:
-          1 = Potentially Eligible, 0 = Not Eligible, 2 = Insufficient Information.
+          1 = Potentially Eligible, 0 = Not Eligible, 2 = Partially Eligible.
         </p>
         <input ref={labelRef} type="file" accept=".csv,.json,.txt,.tsv,.xlsx,.xls" disabled={!!busy}
           onChange={(e) => handleLabels(e.target.files?.[0])} />

@@ -10,7 +10,7 @@ from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 
 EligibilityStatus = Literal[
-    "Potentially Eligible", "Not Eligible", "Insufficient Information"
+    "Potentially Eligible", "Partially Eligible", "Not Eligible"
 ]
 
 YES_NO_UNKNOWN = Literal["Yes", "No", "Unknown"]
@@ -205,7 +205,7 @@ class AnalyzeResponse(BaseModel):
 class EvaluationRow(BaseModel):
     patient_id: str
     trial_id: str
-    predicted: str  # Potentially Eligible / Not Eligible / Insufficient Information
+    predicted: str  # Potentially Eligible / Partially Eligible / Not Eligible
     actual: str     # 1 (eligible) / 0 (not eligible) / 2 (insufficient info)
 
 

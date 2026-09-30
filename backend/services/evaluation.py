@@ -1,13 +1,13 @@
 """Evaluation engine: compare CTQ predictions against ground-truth labels.
 
 Binary protocol (positive class = Potentially Eligible):
-  * Rows whose PREDICTION is "Insufficient Information" are excluded from
+  * Rows whose PREDICTION is "Partially Eligible" are excluded from
     TP/FP/FN/TN - the model declined to classify, so counting them as a
     class would be guessing. They are reported as excluded_pred_insufficient.
   * Rows whose ACTUAL label is 2 (insufficient) are also excluded from the
     binary matrix and tracked separately.
   * insufficient_detection_rate: among rows where the truth is 2, the share
-    where CTQ also answered "Insufficient Information" - a useful, honest
+    where CTQ also answered "Partially Eligible" - a useful, honest
     measure of the system's ability to say "I don't know".
 
 Metrics: accuracy, precision, recall, F1, specificity, confusion matrix,
@@ -20,14 +20,14 @@ from models import EvaluationResponse, EvaluationRow
 
 
 def _normalise_label(value) -> str:
-    """Accept 0/1/2 ints or textual labels."""
+    """Accept 0/1/2 ints or textual labels (historic ground truth included)."""
     s = str(value).strip().lower()
     if s in ("1", "eligible", "potentially eligible"):
         return "Potentially Eligible"
     if s in ("0", "not eligible", "ineligible"):
         return "Not Eligible"
-    if s in ("2", "insufficient information", "insufficient"):
-        return "Insufficient Information"
+    if s in ("2", "insufficient information", "insufficient", "partially eligible"):
+        return "Partially Eligible"
     return "Unknown"
 
 
@@ -50,13 +50,13 @@ def compute_metrics(rows: List[EvaluationRow]) -> EvaluationResponse:
         norm = EvaluationRow(patient_id=row.patient_id, trial_id=row.trial_id, predicted=pred, actual=actual)
         detail.append(norm)
 
-        if actual == "Insufficient Information":
+        if actual == "Partially Eligible":
             actual_ins_total += 1
-            if pred == "Insufficient Information":
+            if pred == "Partially Eligible":
                 actual_ins_detected += 1
             excluded_actual_ins += 1
             continue
-        if pred == "Insufficient Information":
+        if pred == "Partially Eligible":
             excluded_pred_ins += 1
             continue
 

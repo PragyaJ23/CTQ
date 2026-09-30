@@ -4,7 +4,7 @@ import { getTrial, apiErrorMessage } from "../services/api.js";
 import { EligibilityBadge, MatchScore, Reason, Banner, MetaChip } from "../components/ui.jsx";
 import ResultsTable from "../components/ResultsTable.jsx";
 
-const STATUSES = ["Potentially Eligible", "Not Eligible", "Insufficient Information"];
+const STATUSES = ["Potentially Eligible", "Partially Eligible", "Not Eligible"];
 
 /** Full trial details, fetched on demand from the trial database. */
 function TrialDetailModal({ trialId, onClose }) {
@@ -112,7 +112,10 @@ export default function Results() {
     if (filters.status !== "All") list = list.filter((r) => r.status === filters.status);
     if (filters.phase !== "All") list = list.filter((r) => r.phase === filters.phase);
     if (filters.sort === "match") list.sort((a, b) => b.similarity_score - a.similarity_score);
-    if (filters.sort === "eligible") list.sort((a, b) => (a.eligibility === "Potentially Eligible" ? -1 : 1) - (b.eligibility === "Potentially Eligible" ? -1 : 1));
+    if (filters.sort === "eligible") list.sort((a, b) =>
+      (["Potentially Eligible", "Partially Eligible", "Not Eligible"].indexOf(a.eligibility)
+        - ["Potentially Eligible", "Partially Eligible", "Not Eligible"].indexOf(b.eligibility))
+      || ((b.similarity_score || 0) - (a.similarity_score || 0)));
     return list;
   }, [results, filters]);
 
@@ -222,8 +225,8 @@ export default function Results() {
               <div>
                 <h3>Missing information</h3>
                 {r.missing_information.map((x, i) => <Reason key={`m${i}`} kind="missing">{x}</Reason>)}
-                {r.eligibility === "Insufficient Information" && (
-                  <p className="hint">Classified as <strong>Insufficient Information</strong> - provide these details for a firmer verdict.</p>
+                {r.eligibility === "Partially Eligible" && (
+                  <p className="hint">Classified as <strong>Partially Eligible</strong> - supply the missing details above for a firmer verdict.</p>
                 )}
               </div>
             )}

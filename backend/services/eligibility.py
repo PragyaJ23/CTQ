@@ -11,9 +11,9 @@ Runs BEFORE any LLM call:
   * missing-information detection
 
 Produces one of:
-  Potentially Eligible      - all known criteria satisfied
-  Not Eligible              - a known criterion clearly fails
-  Insufficient Information  - required data missing, nothing failed
+  Potentially Eligible   - all known criteria satisfied
+  Partially Eligible     - no criterion failed, but required data is missing
+  Not Eligible           - a known criterion clearly fails
 
 The LLM later reasons only over the trials that survive filtering, and can
 never override a rule-detected hard failure.
@@ -25,7 +25,7 @@ from models import PatientProfile, Trial
 
 FORCED_INELIGIBLE = "Not Eligible"
 POTENTIALLY_ELIGIBLE = "Potentially Eligible"
-INSUFFICIENT = "Insufficient Information"
+PARTIALLY_ELIGIBLE = "Partially Eligible"
 
 
 def _has(value) -> bool:
@@ -582,16 +582,16 @@ def evaluate_eligibility(trial: Trial, profile: PatientProfile) -> dict:
     if hard_failed:
         status = FORCED_INELIGIBLE
     elif missing:
-        # Mirror the LLM verdict rule: only INCLUSION-side gaps make the verdict
-        # "Insufficient Information". Unverified EXCLUSION-side facts (lab values
-        # or histories to rule out - verified at the study site anyway) keep the
-        # patient "Potentially Eligible" with the gaps still listed.
+        # Gaps decide HOW GOOD the verdict is, never a separate bucket:
+        #   * only EXCLUSION-side facts unknown (lab values / histories to rule
+        #     out - verified at the study site anyway) -> Potentially Eligible
+        #   * at least one INCLUSION-side fact missing -> Partially Eligible
         exclusion_side = all(
             "(trial exclusion" in m or "(trial excludes" in m
             or m.startswith("Pregnancy/breastfeeding status")
             for m in missing
         )
-        status = POTENTIALLY_ELIGIBLE if exclusion_side else INSUFFICIENT
+        status = POTENTIALLY_ELIGIBLE if exclusion_side else PARTIALLY_ELIGIBLE
     else:
         status = POTENTIALLY_ELIGIBLE
 

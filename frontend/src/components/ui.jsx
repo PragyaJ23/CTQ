@@ -1,20 +1,29 @@
 const STATUS_CLASS = {
   "Potentially Eligible": "eligible",
+  "Partially Eligible": "insufficient",
   "Not Eligible": "not-eligible",
-  "Insufficient Information": "insufficient",
+  "Insufficient Information": "insufficient", // legacy payloads
 };
 
 const STATUS_ICON = {
   "Potentially Eligible": "\u2713",
+  "Partially Eligible": "\u25D0",
   "Not Eligible": "\u2717",
-  "Insufficient Information": "?",
+  "Insufficient Information": "?", // legacy payloads
 };
 
-/** Coloured eligibility badge. */
-export function EligibilityBadge({ status }) {
+const STATUS_HI = {
+  "Potentially Eligible": "पात्र",
+  "Partially Eligible": "आंशिक रूप से पात्र",
+  "Not Eligible": "पात्र नहीं",
+  "Insufficient Information": "अपर्याप्त जानकारी",
+};
+
+/** Coloured eligibility badge (optional Hindi label). */
+export function EligibilityBadge({ status, hi }) {
   return (
     <span className={`badge ${STATUS_CLASS[status] || "neutral"}`}>
-      {STATUS_ICON[status] || ""} {status}
+      {STATUS_ICON[status] || ""} {hi ? (STATUS_HI[status] || status) : status}
     </span>
   );
 }

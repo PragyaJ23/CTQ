@@ -5,8 +5,19 @@ import { exportResultsExcel, apiErrorMessage } from "../services/api.js";
 function verdictColor(e) {
   return e === "Potentially Eligible" ? "#1a7f37"
     : e === "Not Eligible" ? "#b02a37"
-    : "#8a6d00";
+    : "#8a6d00"; // Partially Eligible (and any legacy verdict)
 }
+
+/** Verdict label in the chosen language; reasons always stay English. */
+const HI_VERDICT = {
+  "Potentially Eligible": "पात्र",
+  "Partially Eligible": "आंशिक रूप से पात्र",
+  "Not Eligible": "पात्र नहीं",
+};
+const HI_HEADER = {
+  Patient: "मरीज़", Trial: "ट्रायल", Title: "शीर्षक", Eligibility: "पात्रता",
+  Match: "मैच %", Phase: "चरण", "Key reasons": "मुख्य कारण",
+};
 
 const TH = { textAlign: "left", padding: "0.45rem 0.55rem", whiteSpace: "nowrap",
              borderBottom: "2px solid rgba(128,128,128,.35)", position: "sticky", top: 0,
@@ -26,6 +37,9 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
   const [onlyEligible, setOnlyEligible] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [dlErr, setDlErr] = useState("");
+  const [lang, setLang] = useState("en");
+  const hi = lang === "hi";
+  const label = (en) => (hi ? HI_HEADER[en] || en : en);
 
   const ok = results.filter((r) => r.ok);
   const failed = results.filter((r) => !r.ok);
@@ -44,7 +58,7 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
     setDownloading(true);
     setDlErr("");
     try {
-      const blob = await exportResultsExcel(patients, results);
+      const blob = await exportResultsExcel(patients, results, hi ? "hi" : "en");
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -61,19 +75,30 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
   return (
     <div className="section-gap">
       <div className="btn-row" style={{ flexWrap: "wrap", alignItems: "center", gap: "0.6rem" }}>
-        <strong>Results table</strong>
+        <strong>{hi ? "परिणाम तालिका" : "Results table"}</strong>
         <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.85rem", cursor: "pointer" }}>
           <input type="checkbox" checked={onlyEligible}
             onChange={(e) => setOnlyEligible(e.target.checked)} />
-          Only Potentially Eligible
+          {hi ? "केवल पूर्ण पात्र" : "Only Potentially Eligible"}
         </label>
+        <div style={{ display: "flex", gap: 0 }}>
+          {["en", "hi"].map((l) => (
+            <button key={l} type="button" className={`btn ${lang === l ? "primary" : "secondary"}`}
+              style={{ padding: "0.25rem 0.7rem", fontSize: "0.8rem" }}
+              onClick={() => setLang(l)}>
+              {l === "en" ? "English" : "हिंदी"}
+            </button>
+          ))}
+        </div>
         <button type="button" className="btn" onClick={download}
           disabled={downloading || allRows.length === 0}>
-          {downloading ? "Preparing Excel..." : "⤓ Download results (Excel)"}
+          {downloading ? (hi ? "Excel तैयार हो रहा है..." : "Preparing Excel...")
+            : hi ? "⤓ परिणाम डाउनलोड करें (Excel)" : "⤓ Download results (Excel)"}
         </button>
         <span className="hint">
-          {rows.length} of {allRows.length} patient-trial rows
-          {failed.length > 0 && <> · {failed.length} patient(s) failed</>}
+          {hi ? `${rows.length} / ${allRows.length} पंक्तियाँ`
+            : <>{rows.length} of {allRows.length} patient-trial rows</>}
+          {failed.length > 0 && <> · {hi ? `${failed.length} मरीज़ असफल` : `${failed.length} patient(s) failed`}</>}
         </span>
       </div>
       {dlErr && <Banner kind="error">{dlErr}</Banner>}
@@ -84,7 +109,7 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
             <tr>
               {["Patient", "Trial", "Title", "Eligibility", "Match", "Phase", "Key reasons",
                 ...(onOpen ? [""] : [])].map((h, i) => (
-                <th key={i} style={TH}>{h}</th>
+                <th key={i} style={TH}>{h ? label(h) : ""}</th>
               ))}
             </tr>
           </thead>
@@ -97,7 +122,7 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
                   <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                        title={t.title}>{t.title}</div>
                 </td>
-                <td style={TD}><EligibilityBadge status={t.eligibility} /></td>
+                <td style={TD}><EligibilityBadge status={t.eligibility} hi={hi} /></td>
                 <td style={{ ...TD, fontWeight: 600, color: verdictColor(t.eligibility), whiteSpace: "nowrap" }}>
                   {t.match_percent ?? Math.round((t.similarity_score || 0) * 100)}%
                 </td>
@@ -106,10 +131,13 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
                   <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                        title={[...(t.reasons_for || []), ...(t.reasons_against || []),
                                ...(t.failed_criteria || [])].join("  |  ")}>
-                    {(t.reasons_for || []).slice(0, 2).join("; ")
-                      || (t.reasons_against || [])[0]
-                      || (t.missing_information || [])[0]
-                      || "—"}
+                    {hi
+                      ? (t.reasons_for || [])[0] || (t.reasons_against || [])[0]
+                        || (t.missing_information || [])[0] || "—"
+                      : (t.reasons_for || []).slice(0, 2).join("; ")
+                        || (t.reasons_against || [])[0]
+                        || (t.missing_information || [])[0]
+                        || "—"}
                   </div>
                 </td>
                 {onOpen && (
@@ -127,8 +155,9 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
               <tr>
                 <td colSpan={onOpen ? 8 : 7} style={{ padding: "0.9rem", textAlign: "center", color: "rgba(128,128,128,1)" }}>
                   {onlyEligible
-                    ? "No Potentially Eligible rows — untick the filter to see every check."
-                    : "No result rows."}
+                    ? (hi ? "कोई पूर्ण पात्र पंक्ति नहीं — सभी जाँच देखने के लिए फ़िल्टर हटाएँ।"
+                          : "No Potentially Eligible rows — untick the filter to see every check.")
+                    : (hi ? "कोई परिणाम पंक्ति नहीं।" : "No result rows.")}
                 </td>
               </tr>
             )}

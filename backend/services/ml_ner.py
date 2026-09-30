@@ -271,9 +271,11 @@ def _condition_from(text: str, question: str) -> Optional[str]:
     if bad:
         return None
     # a negation or a bare symptom is not a diagnosis ("no known cancer",
-    # "shortness of breath") - reject and let the fallbacks try
+    # "shortness of breath", "He does not smoke") - reject and let the
+    # fallbacks try
     if re.match(r"^\s*(no|not|none|never|unknown)\b", ans, re.I) \
-            or re.search(r"\bno known\b|\bno history\b|\bnot known\b", ans, re.I):
+            or re.search(r"\bno known\b|\bno history\b|\bnot known\b", ans, re.I) \
+            or re.search(r"\b(?:does|do|did) not\b|\bnever\b", ans, re.I):
         return None
     if re.search(r"\b(breath|swelling|dizziness|fatigue|weakness|numbness|thirst|nausea|vomiting|fever|cough)\b", ans, re.I):
         return None

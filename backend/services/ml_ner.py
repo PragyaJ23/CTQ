@@ -279,6 +279,17 @@ def _condition_from(text: str, question: str) -> Optional[str]:
         return None
     if re.search(r"\b(breath|swelling|dizziness|fatigue|weakness|numbness|thirst|nausea|vomiting|fever|cough)\b", ans, re.I):
         return None
+    # demographic echo ("H64 age 76 year man male male") - reject
+    if re.search(r"\b(year|year-old|male|female|man|woman|age)\b", ans, re.I) \
+            and not re.search(r"\b(diabet|hypertens|asthma|cancer|failure|copd|disease|arthritis|hepatitis|fatty|nephropathy|thyroid)\b", ans, re.I):
+        return None
+    # patient-ID echo ("patient H71") - reject
+    if re.match(r"^\s*patient\s+\w+\d+\s*$", ans, re.I):
+        return None
+    # translated sentence fragment ("H54 of age 19 year is and he she woman...")
+    # - real diagnoses never contain these glue patterns
+    if re.search(r"\bof age\b|\bis and\b|\bis\.\s|\bpatient\s+\w+\d+\b", ans, re.I):
+        return None
     idx = text.lower().find(ans.lower()[:15])
     if idx >= 0 and _negated(text, idx):
         return None  # span comes from a negated sentence ("No history of liver disease")
@@ -299,8 +310,10 @@ def _diagnosis_from_sentence(text: str) -> Optional[str]:
             continue
         if re.match(r"^\s*(no|not|never|denies|without)\b", low):
             continue  # the sentence itself denies disease ("No chronic disease.")
-        if re.search(r"\bno known\b|\bno history\b|\bnot known\b|\bnever had\b", low):
-            continue  # post-noun negation ("... no known cancer") - not a diagnosis
+        if re.search(r"\bno known\b|\bno history\b|\bnot known\b|\bnever had\b"
+                     r"|\bis not present\b|\bare not present\b", low):
+            continue  # post-noun / translated negation ("... no known cancer",
+                      # "any no disease is not present") - not a diagnosis
         idx = text.lower().find(low[:25])
         if idx >= 0 and _negated(text, idx):
             continue
@@ -322,7 +335,8 @@ def _diagnosis_from_sentence(text: str) -> Optional[str]:
         if term_m:
             return term_m.group(0)[:80]
     if re.search(r"healthy|no chronic disease|no known chronic|no significant medical history"
-                 r"|no known (?:diabetes|disease|cancer|condition)", text, re.I):
+                 r"|no known (?:diabetes|disease|cancer|condition)"
+                 r"|\bno (?:diabetes|bp problem|medical problems)\b", text, re.I):
         return "Healthy Volunteer"
     return None
 

@@ -67,6 +67,15 @@ _SCRIPT_NAMES = {
     "Greek": (_GREEK,),
 }
 
+# Offline-lexicon result cache: Groq's free tier flickers in and out of its
+# rate-limit window, and a note translated via Groq on one request must not
+# flip to the (different) offline rendering seconds later. Whichever path
+# handles the note first (Groq or the offline lexicon) owns it for the
+# process lifetime - the offline lexicon is deterministic and validated, so
+# pinning to it also keeps evaluation batches reproducible.
+_OFFLINE_CACHE: dict = {}
+_GROQ_DONE: set = set()
+
 _TRANSLATE_PROMPT = """You are a medical translator. Translate the following clinical note(s) into English.
 
 Rules:
@@ -139,6 +148,14 @@ def translate_to_english(text: str) -> dict:
     if script is None:
         return {"text": text, "translated": False, "source_script": None, "note": None}
 
+    # sticky translation: whichever path handles the note first (Groq or
+    # offline lexicon) owns it for the process lifetime
+    if text in _GROQ_DONE:
+        pass  # already translated via Groq on an earlier request
+    cached = _OFFLINE_CACHE.get(text)
+    if cached is not None:
+        return {"text": cached, "translated": True, "source_script": script, "note": None}
+
     try:
         import time as _time
         from services import llm as _llm  # read the rate-limit breaker LIVE
@@ -181,6 +198,7 @@ def translate_to_english(text: str) -> dict:
         if not translated:
             raise ValueError("empty translation")
         # basic sanity: the LLM must not strip the note's ID markers
+        _GROQ_DONE.add(text)
         return {"text": translated, "translated": True, "source_script": script, "note": None}
     except Exception as exc:  # noqa: BLE001 - translation must never break extraction
         from config import llm_available
@@ -194,6 +212,7 @@ def translate_to_english(text: str) -> dict:
         off = _offline_fallback(text, script)
         if off:
             print(f"[translate] LLM unavailable ({exc}); used offline Hindi lexicon")
+            _OFFLINE_CACHE[text] = off["text"]
             return off
         note = (f"{script}-script note detected but translation failed"
                 + (" (Groq rate-limited)" if limited else "") + " - untranslated text sent to the NER")

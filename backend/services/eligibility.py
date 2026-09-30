@@ -530,6 +530,14 @@ def check_condition_relevance(trial: Trial, profile: PatientProfile):
     pc, tc = profile.condition.lower(), trial.condition.lower()
     patient_fams = _condition_families(pc)
     trial_fams = _condition_families(tc)
+    # A healthy volunteer cannot match a trial that studies a real disease
+    # ("Healthy Volunteer" patient vs PNH / RA / diabetes trial) - including
+    # rare-disease trials whose condition is outside every known family.
+    patient_is_healthy = bool(re.search(r"healthy", pc)) and not (
+        patient_fams - {"healthy"})
+    trial_is_healthy_trial = bool(re.search(r"healthy|normal volunteer", tc))
+    if patient_is_healthy and not trial_is_healthy_trial:
+        return [], [f'Patient is a healthy volunteer; this trial studies "{trial.condition}"'], []
     if patient_fams and trial_fams and not (patient_fams & trial_fams):
         return [], [f'Patient condition "{profile.condition}" does not match the condition studied by this trial "{trial.condition}"'], []
     words_pc = set(re.findall(r"[a-z]{3,}", pc))

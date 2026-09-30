@@ -26,8 +26,11 @@ import re
 
 # Order matters: longer keys are replaced before their substrings.
 _PHRASES = {
+    # --- Latin abbreviations common in Indian notes -------------------------
+    "BP": "blood pressure",
     # --- demographics -------------------------------------------------------
     "वर्षीय": "year-old",
+    "की उम्र": "aged",          # "मरीज़ H55 की उम्र 43 वर्ष" -> "patient H55 aged 43 year"
     "वर्ष का": "years old",
     "वर्ष की": "years old",
     "वर्ष के": "years old",
@@ -158,7 +161,8 @@ _PHRASES = {
     "अधिक": "high",
     "लंबे समय से": "for a long time",
     # --- negations / glue (the NER's negation logic reads these) ------------
-    "नहीं है": "no not present",
+    "नहीं है": "is not present",
+    "नहीं हैं": "is not present",
     "नहीं": "not no never",
     "कोई": "any no",
     "का कोई इतिहास नहीं": "no history of",
@@ -235,10 +239,11 @@ def translate_hindi_offline(text: str) -> str:
     # it early keeps sentence-level logic working on the translated text.
     out = out.replace("\u0964", ". ").replace("\u0965", ". ")
 
-    # Hindi negates AFTER the disease ("...का कोई इतिहास नहीं है"); English
+    # Hindi negates AFTER the disease ("...का कोई इतिहास नहीं (है)"); English
     # negation logic in ml_ner reads BEFORE the span, so move the negation in
-    # front: "X का [कोई] [ज्ञात] इतिहास नहीं" -> "no history of X".
-    out = re.sub(r"([\u0900-\u097F][\u0900-\u097F ]*?)\s+का\s+(?:कोई\s+)?(?:ज्ञात\s+)?इतिहास\s+नहीं",
+    # front: "X का [कोई] [ज्ञात] इतिहास नहीं [है]" -> "no history of X".
+    # The disease span may be Hindi, Latin ("kidney disease"), or mixed.
+    out = re.sub(r"([\u0900-\u097F\w][\u0900-\u097F\w ,/-]*?)\s+का\s+(?:कोई\s+)?(?:ज्ञात\s+)?इतिहास\s+नहीं(?:\s+हैं?)?",
                  r" no history of \1", out)
     # "कोई ज्ञात X नहीं" -> "no known X"
     out = re.sub(r"कोई\s+ज्ञात\s+([\u0900-\u097F][\u0900-\u097F ]*?)\s+नहीं",
@@ -261,6 +266,10 @@ def translate_hindi_offline(text: str) -> str:
         else:
             pieces.append(tok)
     result = " ".join(pieces)
+
+    # 2b) drop patient-ID tokens ("patient H54 aged 19 year"): the QA model
+    # otherwise reads the digits adjacent to the ID as the patient's age.
+    result = re.sub(r"(?<=patient )\s*[A-Za-z]{0,2}?\d{1,4}\b", "", result)
 
     # 3) tidy: collapse the spacing the phrase pass introduced
     result = re.sub(r"\s+([,.;:%])", r"\1", result)

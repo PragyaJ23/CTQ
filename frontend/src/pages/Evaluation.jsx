@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import {
   extractDocument, uploadLabels, runEvaluation, getEvaluationSample, apiErrorMessage,
+  calibrateThresholds, getThresholds,
 } from "../services/api.js";
 import { Banner, Loading } from "../components/ui.jsx";
 
@@ -59,6 +60,106 @@ function downloadText(content, filename, type = "text/csv") {
 }
 
 const pct = (v) => (v == null ? "-" : `${(v * 100).toFixed(1)}%`);
+
+/** Minimal inline SVG curve with an optional operating-point dot [x, y]. */
+function CurveBlock({ title, x, y, xs, ys, dot }) {
+  if (!xs || !ys || xs.length < 2) return null;
+  const W = 420, H = 200, PAD = 34;
+  const pts = xs.map((v, i) => [v, ys[Math.min(i, ys.length - 1)]]);
+  const px = (v) => PAD + v * (W - PAD - 8);
+  const py = (v) => H - PAD - v * (H - PAD - 10);
+  const path = pts.map(([a, b], i) => `${i ? "L" : "M"}${px(a).toFixed(1)},${py(b).toFixed(1)}`).join(" ");
+  return (
+    <div style={{ display: "inline-block", margin: "0.5rem 1rem 0.5rem 0", textAlign: "center" }}>
+      <svg width={W} height={H} style={{ background: "rgba(128,128,128,.06)", borderRadius: 8 }}>
+        <path d={path} fill="none" stroke="#1F4E78" strokeWidth="2" />
+        {dot && <circle cx={px(dot[0])} cy={py(dot[1])} r="4" fill="#b02a37" />}
+        <text x={PAD} y={14} fontSize="11" fill="rgba(128,128,128,1)">{title}</text>
+        <text x={W / 2} y={H - 8} fontSize="10" textAnchor="middle" fill="rgba(128,128,128,1)">{x}</text>
+        <text x={10} y={H / 2} fontSize="10" transform={`rotate(-90 10 ${H / 2})`}
+          textAnchor="middle" fill="rgba(128,128,128,1)">{y}</text>
+      </svg>
+    </div>
+  );
+}
+
+function ThresholdCalibration() {
+  const [busy, setBusy] = useState("");
+  const [error, setError] = useState("");
+  const [cal, setCal] = useState(null);
+
+  const run = async () => {
+    setBusy("Scoring 1600 labelled pairs and sweeping thresholds...");
+    setError("");
+    try {
+      setCal(await calibrateThresholds());
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const load = async () => {
+    setError("");
+    try {
+      const r = await getThresholds();
+      if (r.thresholds) setCal(r.thresholds);
+      else setError("No saved calibration yet - press Calibrate.");
+    } catch (err) {
+      setError(apiErrorMessage(err));
+    }
+  };
+
+  const fp = cal?.f1_point?.best;
+  const ap = cal?.accuracy_point?.best;
+  return (
+    <div className="card section-gap">
+      <h3>Similarity threshold calibration</h3>
+      <p className="hint">
+        Scores every labelled patient-trial pair ({cal?.pairs_used || 1600} pairs) with the production
+        embedder and picks the thresholds that maximise F1 and accuracy - precision, recall, F1 and
+        accuracy at every candidate cut, plus PR/ROC curve analysis. The F1-optimal cut is saved and
+        used by the matching engine to upgrade high-similarity partial profiles to Potentially
+        Eligible.
+      </p>
+      <div className="btn-row">
+        <button type="button" className="btn primary" onClick={run} disabled={!!busy}>
+          Calibrate thresholds on labelled data
+        </button>
+        <button type="button" className="btn" onClick={load} disabled={!!busy}>
+          Load saved calibration
+        </button>
+      </div>
+      {busy && <Loading text={busy} />}
+      {error && <Banner kind="error">{error}</Banner>}
+      {cal && (
+        <div className="section-gap">
+          <div className="metric-tiles">
+            <MetricTile label="Threshold (F1-optimal)" value={cal.potentially?.toFixed(3) ?? "-"} />
+            <MetricTile label="F1 @ threshold" value={fp ? fp.f1.toFixed(3) : "-"} />
+            <MetricTile label="Precision @ threshold" value={fp ? pct(fp.precision) : "-"} />
+            <MetricTile label="Recall @ threshold" value={fp ? pct(fp.recall) : "-"} />
+            <MetricTile label="Accuracy @ threshold" value={fp ? pct(fp.accuracy) : "-"} />
+            <MetricTile label="Accuracy-optimal cut" value={ap ? ap.threshold.toFixed(3) : "-"} />
+            <MetricTile label="ROC AUC" value={cal.f1_point?.roc_auc?.toFixed(3) ?? "-"} />
+            <MetricTile label="Avg precision (PR AUC)" value={cal.f1_point?.average_precision?.toFixed(3) ?? "-"} />
+          </div>
+          <CurveBlock title="Precision-Recall curve" x="recall" y="precision"
+            xs={cal.f1_point?.pr_curve?.recall} ys={cal.f1_point?.pr_curve?.precision}
+            dot={fp ? [fp.recall, fp.precision] : null} />
+          <CurveBlock title="ROC curve" x="fpr" y="tpr"
+            xs={cal.f1_point?.roc_curve?.fpr} ys={cal.f1_point?.roc_curve?.tpr} />
+          <p className="hint">
+            Calibrated {cal.calibrated_at} · {cal.pairs_used} pairs ({cal.positives} eligible / {cal.negatives} not)
+            · {cal.patients} patients × {cal.trials} trials · {cal.seconds}s. Mean similarity:
+            eligible {cal.score_stats?.mean_positive}, not-eligible {cal.score_stats?.mean_negative}.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Evaluation() {
   const [unstructured, setUnstructured] = useState(null);   // {patients:[...]}
@@ -174,6 +275,8 @@ export default function Evaluation() {
           Load bundled sample data (10 patients, 17 labels)
         </button>
       </div>
+
+      <ThresholdCalibration />
 
       <div className="card section-gap">
         <h3>1 · Unstructured patient data * (PDF / photo / CSV / Excel / TXT / JSON)</h3>

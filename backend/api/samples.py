@@ -70,3 +70,31 @@ def find_trials_sample_data():
     if not patients:
         raise HTTPException(status_code=500, detail="Bundled sample patient notes are empty.")
     return {"patients": patients, "file": FIND_TRIALS_PATIENTS_FILE}
+
+
+# ---------------------------------------------------------------------------
+# Similarity-threshold calibration (labelled pairs -> F1/accuracy-optimal cut)
+# ---------------------------------------------------------------------------
+
+@samples_router.post("/evaluation/calibrate-thresholds")
+def calibrate_thresholds():
+    """Calibrate similarity thresholds on the bundled labelled dataset.
+
+    Computes cosine similarity for all 1600 labelled patient-trial pairs,
+    sweeps candidate thresholds and picks the F1-optimal (and accuracy-
+    optimal) cut with full precision/recall/F1/accuracy curves, PR and ROC
+    analysis. The F1-optimal threshold is persisted and used by the matching
+    engine to separate Partially Eligible from Potentially Eligible.
+    """
+    from services.thresholds import run_calibration
+    try:
+        return run_calibration()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Calibration failed: {exc}")
+
+
+@samples_router.get("/evaluation/thresholds")
+def get_thresholds():
+    """Current persisted calibration (null when never calibrated)."""
+    from services.thresholds import load_thresholds
+    return {"thresholds": load_thresholds()}

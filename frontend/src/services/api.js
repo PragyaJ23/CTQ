@@ -155,6 +155,14 @@ export const getNERStatus = () => api.get("/ner/status").then((r) => r.data);
 export const getEvaluationSample = () =>
   api.get("/evaluation/sample-data").then((r) => r.data);
 
+/** Calibrate similarity thresholds on the bundled labelled dataset. */
+export const calibrateThresholds = () =>
+  api.post("/evaluation/calibrate-thresholds", null, { timeout: 300000 }).then((r) => r.data);
+
+/** Persisted threshold calibration (null when never calibrated). */
+export const getThresholds = () =>
+  api.get("/evaluation/thresholds").then((r) => r.data);
+
 export const analyzeBatch = (patients, labels) =>
   api.post("/patient/analyze-batch", { patients, labels }, { timeout: 600000 }).then((r) => r.data);
 

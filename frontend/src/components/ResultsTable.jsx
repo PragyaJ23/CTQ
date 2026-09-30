@@ -25,15 +25,17 @@ const TH = { textAlign: "left", padding: "0.45rem 0.55rem", whiteSpace: "nowrap"
 const TD = { padding: "0.4rem 0.55rem", verticalAlign: "middle" };
 
 /**
- * Tabular patient x trial view of a cohort run (structured or unstructured),
- * with a "download as Excel" button backed by /cohort/export-results.
+ * Per-patient tabular results for a cohort run (structured or unstructured):
+ * a button per patient ("Patient 1", "Patient 2", ... plus "All patients")
+ * shows one table at a time, with an English/हिंदी toggle and an Excel
+ * download (Hindi mode adds Hindi sheets) backed by /cohort/export-results.
  *
- * patients: the payloads that were submitted (for the summary sheet)
+ * patients: the payloads that were submitted (for the Excel summary sheet)
  * results:  cohort rows [{patient_id, ok, response | error}]
  * onOpen:   optional (patient_id) => void - renders an Open button per row
- *           (drill-down to the full per-patient results page)
  */
 export default function ResultsTable({ patients = [], results = [], onOpen }) {
+  const [activeP, setActiveP] = useState(0); // index into ok patients; ok.length = "All"
   const [onlyEligible, setOnlyEligible] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [dlErr, setDlErr] = useState("");
@@ -45,14 +47,34 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
   const failed = results.filter((r) => !r.ok);
 
   const allRows = [];
-  for (const r of ok) {
+  ok.forEach((r, pidx) => {
     for (const t of r.response?.results || []) {
-      allRows.push({ pid: r.patient_id, t });
+      allRows.push({ pid: r.patient_id, pidx, t });
     }
-  }
+  });
+
+  const showAll = activeP >= ok.length;
+  const scopedRows = showAll ? allRows : allRows.filter((x) => x.pidx === activeP);
   const rows = onlyEligible
-    ? allRows.filter((x) => x.t.eligibility === "Potentially Eligible")
-    : allRows;
+    ? scopedRows.filter((x) => x.t.eligibility === "Potentially Eligible")
+    : scopedRows;
+
+  // per-patient verdict counts for the button badges + summary line
+  const countsByPatient = ok.map((r) => {
+    const c = { total: 0, pe: 0, partial: 0, ne: 0 };
+    for (const t of r.response?.results || []) {
+      c.total += 1;
+      if (t.eligibility === "Potentially Eligible") c.pe += 1;
+      else if (t.eligibility === "Partially Eligible") c.partial += 1;
+      else c.ne += 1;
+    }
+    return c;
+  });
+  const activeCounts = showAll
+    ? countsByPatient.reduce((a, c) => ({ total: a.total + c.total, pe: a.pe + c.pe,
+                                          partial: a.partial + c.partial, ne: a.ne + c.ne }),
+                             { total: 0, pe: 0, partial: 0, ne: 0 })
+    : countsByPatient[activeP] || { total: 0, pe: 0, partial: 0, ne: 0 };
 
   const download = async () => {
     setDownloading(true);
@@ -71,6 +93,10 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
       setDownloading(false);
     }
   };
+
+  const columns = showAll
+    ? ["Patient", "Trial", "Title", "Eligibility", "Match", "Phase", "Key reasons"]
+    : ["Trial", "Title", "Eligibility", "Match", "Phase", "Key reasons"];
 
   return (
     <div className="section-gap">
@@ -96,19 +122,49 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
             : hi ? "⤓ परिणाम डाउनलोड करें (Excel)" : "⤓ Download results (Excel)"}
         </button>
         <span className="hint">
-          {hi ? `${rows.length} / ${allRows.length} पंक्तियाँ`
-            : <>{rows.length} of {allRows.length} patient-trial rows</>}
+          {hi ? `${rows.length} / ${scopedRows.length} पंक्तियाँ`
+            : <>{rows.length} of {scopedRows.length} rows</>}
           {failed.length > 0 && <> · {hi ? `${failed.length} मरीज़ असफल` : `${failed.length} patient(s) failed`}</>}
         </span>
       </div>
+
+      {/* ---- per-patient buttons ---- */}
+      <div className="btn-row" style={{ flexWrap: "wrap", gap: "0.35rem", margin: "0.5rem 0 0.2rem" }}>
+        {ok.map((r, i) => (
+          <button key={r.patient_id} type="button"
+            className={`btn ${i === activeP ? "primary" : "secondary"}`}
+            style={{ padding: "0.3rem 0.75rem", fontSize: "0.8rem" }}
+            onClick={() => setActiveP(i)}>
+            {hi ? `मरीज़ ${i + 1}` : `Patient ${i + 1}`}
+            {" · "}
+            <span style={{ color: verdictColor("Potentially Eligible") }}>{countsByPatient[i].pe}</span>
+          </button>
+        ))}
+        <button type="button" className={`btn ${showAll ? "primary" : "secondary"}`}
+          style={{ padding: "0.3rem 0.75rem", fontSize: "0.8rem" }}
+          onClick={() => setActiveP(ok.length)}>
+          {hi ? "सभी मरीज़" : "All patients"}
+        </button>
+      </div>
+
+      {/* ---- summary line for the active view ---- */}
+      <p className="hint" style={{ margin: "0.2rem 0 0.4rem" }}>
+        {showAll
+          ? (hi ? `सभी ${ok.length} मरीज़ मिलकर` : `All ${ok.length} patients combined`)
+          : (hi ? `${ok[activeP]?.patient_id || `मरीज़ ${activeP + 1}`}` : ok[activeP]?.patient_id || `Patient ${activeP + 1}`)}
+        {" · "}
+        {hi
+          ? `${activeCounts.total} ट्रायल जाँचे · ${activeCounts.pe} पात्र · ${activeCounts.partial} आंशिक · ${activeCounts.ne} पात्र नहीं`
+          : `${activeCounts.total} trials checked · ${activeCounts.pe} Potentially Eligible · ${activeCounts.partial} Partially · ${activeCounts.ne} Not Eligible`}
+      </p>
+
       {dlErr && <Banner kind="error">{dlErr}</Banner>}
       <div style={{ maxHeight: 460, overflow: "auto",
-                    border: "1px solid rgba(128,128,128,.3)", borderRadius: 8, marginTop: "0.5rem" }}>
+                    border: "1px solid rgba(128,128,128,.3)", borderRadius: 8, marginTop: "0.25rem" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
           <thead>
             <tr>
-              {["Patient", "Trial", "Title", "Eligibility", "Match", "Phase", "Key reasons",
-                ...(onOpen ? [""] : [])].map((h, i) => (
+              {[...columns, ...(onOpen ? [""] : [])].map((h, i) => (
                 <th key={i} style={TH}>{h ? label(h) : ""}</th>
               ))}
             </tr>
@@ -116,7 +172,9 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
           <tbody>
             {rows.map(({ pid, t }) => (
               <tr key={`${pid}-${t.trial_id}`} style={{ borderBottom: "1px solid rgba(128,128,128,.18)" }}>
-                <td style={{ ...TD, fontWeight: 600, whiteSpace: "nowrap" }}>{pid}</td>
+                {showAll && (
+                  <td style={{ ...TD, fontWeight: 600, whiteSpace: "nowrap" }}>{pid}</td>
+                )}
                 <td style={TD}>{t.trial_id}</td>
                 <td style={{ ...TD, maxWidth: 320 }}>
                   <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
@@ -145,7 +203,7 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
                     <button type="button" className="btn secondary"
                       style={{ padding: "0.2rem 0.6rem", fontSize: "0.78rem" }}
                       onClick={() => onOpen(pid)}>
-                      Open
+                      {hi ? "खोलें" : "Open"}
                     </button>
                   </td>
                 )}
@@ -153,7 +211,8 @@ export default function ResultsTable({ patients = [], results = [], onOpen }) {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={onOpen ? 8 : 7} style={{ padding: "0.9rem", textAlign: "center", color: "rgba(128,128,128,1)" }}>
+                <td colSpan={columns.length + (onOpen ? 1 : 0)}
+                    style={{ padding: "0.9rem", textAlign: "center", color: "rgba(128,128,128,1)" }}>
                   {onlyEligible
                     ? (hi ? "कोई पूर्ण पात्र पंक्ति नहीं — सभी जाँच देखने के लिए फ़िल्टर हटाएँ।"
                           : "No Potentially Eligible rows — untick the filter to see every check.")

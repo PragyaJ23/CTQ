@@ -22,6 +22,7 @@ from services import trial_retrieval
 from services.embeddings import score_to_match_percent
 from services.eligibility import evaluate_eligibility
 from services.llm import LLMUnavailable, merge_rule_and_llm, reason_over_trial
+from services.thresholds import potentially_threshold
 
 # How many of the most-similar trials get the (slow, rate-limited) LLM review.
 # "All trials" matching would otherwise fire one Groq call PER TRIAL, which is
@@ -36,6 +37,13 @@ def _workers() -> int:
 def analyze_patient(profile: PatientProfile, top_k: int = None) -> AnalyzeResponse:
     retrieval = trial_retrieval.retrieve_and_rank(profile, top_k=top_k)
     ranked = retrieval["ranked"]
+
+    # Calibrated similarity cut (labelled-pair F1 optimum, see
+    # services/thresholds.py): a Partially Eligible pair whose text similarity
+    # reaches the calibrated threshold behaves like the labelled eligible
+    # pairs, so it is upgraded to Potentially Eligible (missing fields stay
+    # listed). Uncalibrated installs keep the rule-engine verdict.
+    sim_cut = potentially_threshold()
 
     # LLM review only for the head of the ranking (most similar trials);
     # the rest are decided by the rule engine alone.
@@ -59,6 +67,10 @@ def analyze_patient(profile: PatientProfile, top_k: int = None) -> AnalyzeRespon
                 print(f"[match] LLM returned invalid JSON, ignoring: {exc}")
 
         merged = merge_rule_and_llm(rule_result, llm_result)
+        eligibility = merged["status"]
+        if (sim_cut is not None and eligibility == "Partially Eligible"
+                and item["similarity"] >= sim_cut):
+            eligibility = "Potentially Eligible"
         return MatchResult(
             trial_id=trial.trial_id,
             title=trial.title,
@@ -69,7 +81,7 @@ def analyze_patient(profile: PatientProfile, top_k: int = None) -> AnalyzeRespon
             sponsor=trial.sponsor,
             source=trial.source,
             last_updated=trial.last_updated,
-            eligibility=merged["status"],
+            eligibility=eligibility,
             similarity_score=item["similarity"],
             match_percent=score_to_match_percent(item["similarity"]),
             reasons_for=merged["reasons_for"],
@@ -87,7 +99,8 @@ def analyze_patient(profile: PatientProfile, top_k: int = None) -> AnalyzeRespon
                 llm_used = True
             results.append(r)
 
-    results.sort(key=lambda r: (r.eligibility != "Potentially Eligible", -r.similarity_score))
+    rank = {"Potentially Eligible": 0, "Partially Eligible": 1}
+    results.sort(key=lambda r: (rank.get(r.eligibility, 2), -r.similarity_score))
     return AnalyzeResponse(
         patient_id=profile.patient_id,
         results=results,

@@ -34,6 +34,11 @@ function TrialDetailModal({ trialId, onClose }) {
               <div>
                 <div className="trial-id">{trial.trial_id}</div>
                 <h2>{trial.title}</h2>
+                {trial.title_hi && (
+                  <p style={{ color: "var(--muted)", fontWeight: 500, margin: "0.2rem 0 0" }}>
+                    {trial.title_hi}
+                  </p>
+                )}
               </div>
               <button className="btn secondary" onClick={onClose}>Close</button>
             </div>
@@ -46,11 +51,26 @@ function TrialDetailModal({ trialId, onClose }) {
             </div>
             <h3 className="section-gap">Condition &amp; Intervention</h3>
             <p>{trial.condition}</p>
+            {trial.condition_hi && (
+              <p style={{ color: "var(--muted)", margin: "0.2rem 0 0.4rem" }}>{trial.condition_hi}</p>
+            )}
             <p>{(trial.interventions || []).join(", ") || "Observational - no intervention"}</p>
             <h3>Inclusion Criteria</h3>
             <ul>{(trial.inclusion_criteria || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
+            {(trial.inclusion_criteria_hi || []).length > 0 && (
+              <>
+                <h3>समावेशन मानदंड (हिंदी)</h3>
+                <ul>{trial.inclusion_criteria_hi.map((c, i) => <li key={i}>{c}</li>)}</ul>
+              </>
+            )}
             <h3>Exclusion Criteria</h3>
             <ul>{(trial.exclusion_criteria || []).map((c, i) => <li key={i}>{c}</li>)}</ul>
+            {(trial.exclusion_criteria_hi || []).length > 0 && (
+              <>
+                <h3>अपवर्जन मानदंड (हिंदी)</h3>
+                <ul>{trial.exclusion_criteria_hi.map((c, i) => <li key={i}>{c}</li>)}</ul>
+              </>
+            )}
             <h3>Locations</h3>
             <p>{(trial.locations || []).join(" · ") || "Not listed"}</p>
             <div className="kv section-gap">

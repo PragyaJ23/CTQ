@@ -191,6 +191,17 @@ class MatchResult(BaseModel):
     failed_criteria: List[str] = Field(default_factory=list)
     reasoning_method: str = "rule"  # rule | rule+llm
 
+    # Hindi renderings (offline glossary, services/en_hi.py) used by the
+    # results table in हिंदी mode and the Hindi Excel sheets. Optional so
+    # results produced before this field existed still validate; the frontend
+    # and exporter fall back to the English values when missing.
+    title_hi: Optional[str] = None
+    condition_hi: Optional[str] = None
+    reasons_for_hi: Optional[List[str]] = None
+    reasons_against_hi: Optional[List[str]] = None
+    missing_information_hi: Optional[List[str]] = None
+    failed_criteria_hi: Optional[List[str]] = None
+
 
 class AnalyzeResponse(BaseModel):
     patient_id: str

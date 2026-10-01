@@ -240,7 +240,15 @@ def validate_patient(payload: dict):
 # ---------------------------------------------------------------------------
 
 def _trial_to_dict(t: Trial) -> dict:
-    return t.model_dump()
+    """Trial JSON with Hindi renderings (offline glossary) for the results UI."""
+    from services.en_hi import to_hindi
+
+    d = t.model_dump()
+    d["title_hi"] = to_hindi(t.title)
+    d["condition_hi"] = to_hindi(t.condition)
+    d["inclusion_criteria_hi"] = [to_hindi(c) for c in t.inclusion_criteria]
+    d["exclusion_criteria_hi"] = [to_hindi(c) for c in t.exclusion_criteria]
+    return d
 
 
 @router.get("/trials")

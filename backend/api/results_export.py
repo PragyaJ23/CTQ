@@ -1,14 +1,18 @@
 """Excel export of cohort matching RESULTS (not the input patients).
 
-Two sheets:
+Two sheets (English workbook), plus two fully-Hindi sheets when lang=hi:
   * "Trial Results"  - one row per patient-trial pair: eligibility, match %,
-                       reasons, failed criteria, locations, phase, status.
+                       reasons, failed criteria, criteria lists, locations.
   * "Patient Summary"- one row per patient: totals per verdict, best match,
                        and how the analysis was done (rule engine vs LLM).
+  * "परिणाम (हिंदी)" / "मरीज़ सारांश (हिंदी)" - same data with Hindi headers,
+                       verdicts, titles, reasons AND criteria (via the offline
+                       English→Hindi glossary, services/en_hi.py - no LLM).
 
 The frontend posts the same {patients, results} payload it already holds in
 memory after a cohort run (structured OR unstructured - both use the same
-cohort endpoint), so one endpoint serves both tabs.
+cohort endpoint), so one endpoint serves both tabs. Result rows produced
+before the Hindi fields existed fall back to translating title/reasons here.
 """
 from io import BytesIO
 
@@ -32,6 +36,7 @@ HI_HEADERS = {
     "reasoning_method": "विश्लेषण विधि", "reasons_for": "पात्रता के कारण",
     "reasons_against": "अपात्रता के कारण", "missing_information": "अनुपलब्ध जानकारी",
     "failed_criteria": "असफल मानदंड",
+    "inclusion_criteria": "समावेशन मानदंड", "exclusion_criteria": "अपवर्जन मानदंड",
     "age": "उम्र", "gender": "लिंग", "condition": "बीमारी",
     "trials_checked": "जाँचे गए ट्रायल", "potentially_eligible": "पूर्ण पात्र",
     "partially_eligible": "आंशिक पात्र", "not_eligible": "पात्र नहीं",
@@ -44,9 +49,41 @@ HI_RESPONSES = {
     "Not Eligible": "पात्र नहीं",
 }
 
+_TRIAL_CACHE: dict | None = None
+
+
+def _trial_by_id(trial_id):
+    """Trial object for criteria lookup (local DB; never raises)."""
+    global _TRIAL_CACHE
+    if _TRIAL_CACHE is None:
+        try:
+            from services.trial_retrieval import load_trials
+
+            _TRIAL_CACHE = {t.trial_id: t for t in load_trials()}
+        except Exception:
+            _TRIAL_CACHE = {}
+    t = _TRIAL_CACHE.get(trial_id or "")
+    if t is None:
+        try:
+            from services import database
+
+            t = database.get_trial(trial_id or "")
+        except Exception:
+            t = None
+    return t
+
+
+def _hi(text) -> str:
+    """Hindi rendering via the offline glossary (empty-safe)."""
+    if not text:
+        return ""
+    from services.en_hi import to_hindi
+
+    return to_hindi(text) or ""
+
 
 def _hi_verdict(v) -> str:
-    """Verdict in Hindi for sheet display (reasons stay English - technical)."""
+    """Verdict in Hindi for sheet display."""
     return HI_RESPONSES.get(v, v or "")
 
 
@@ -90,8 +127,8 @@ def _cell(value):
 def export_results(payload: dict):
     """Download matching results as an Excel workbook.
 
-    Payload: {"patients": [patient dicts], "results": [cohort result rows]}
-    where each result row is {patient_id, ok, response | error}.
+    Payload: {"patients": [patient dicts], "results": [cohort result rows],
+    "lang": "en" | "hi"} where each result row is {patient_id, ok, response}.
     """
     import openpyxl
     from openpyxl.styles import Alignment, Font, PatternFill
@@ -115,10 +152,8 @@ def export_results(payload: dict):
         "status", "sponsor", "source", "locations", "eligibility",
         "match_percent", "similarity_score", "reasoning_method",
         "reasons_for", "reasons_against", "missing_information", "failed_criteria",
+        "inclusion_criteria", "exclusion_criteria",
     ]
-    hi_filename = 'attachment; filename="ctq_matching_results_hindi.xlsx"' \
-        if (payload.get("lang") or "").lower() in ("hi", "hindi", "हिंदी") \
-        else 'attachment; filename="ctq_matching_results.xlsx"'
     ws.append(columns)
     header_fill = PatternFill("solid", fgColor="1F4E78")
     for cell in ws[1]:
@@ -132,16 +167,22 @@ def export_results(payload: dict):
         "Not Eligible": PatternFill("solid", fgColor="FFC7CE"),          # red
     }
 
+    def _criteria_row(t: dict):
+        """(inclusion, exclusion) joined strings from the trial database."""
+        tr = _trial_by_id(t.get("trial_id"))
+        inc = list(getattr(tr, "inclusion_criteria", []) or []) if tr else []
+        exc = list(getattr(tr, "exclusion_criteria", []) or []) if tr else []
+        return _join(inc), _join(exc)
+
     n_pairs = 0
     for r in results:
         pid = _s(r.get("patient_id"))
         if not r.get("ok"):
-            ws.append([pid, "", "", "", "", "", "", "", "", f"ANALYSIS FAILED: {_s(r.get('error'))}",
-                       None, None, None, None, None, None, None])
+            ws.append([pid] + [""] * 8 + [f"ANALYSIS FAILED: {_s(r.get('error'))}"] + [None] * 9)
             n_pairs += 1
             continue
-        pin = patient_rows.get(pid, {})
         for t in (r.get("response") or {}).get("results") or []:
+            inc, exc = _criteria_row(t)
             ws.append([
                 pid,
                 _s(t.get("trial_id")),
@@ -160,16 +201,18 @@ def export_results(payload: dict):
                 _join(t.get("reasons_against")),
                 _join(t.get("missing_information")),
                 _join(t.get("failed_criteria")),
+                inc,
+                exc,
             ])
             n_pairs += 1
             row = ws[ws.max_row]
             fill = verdict_fills.get(t.get("eligibility"))
             if fill:
                 row[9].fill = fill  # eligibility column
-            row[9].alignment = Alignment(vertical="center")
+            row[9].alignment = Alignment(vertical="center", wrap_text=True)
             row[1].alignment = Alignment(vertical="center")
 
-    widths = [12, 14, 42, 20, 8, 14, 18, 8, 34, 22, 13, 15, 14, 40, 40, 32, 40]
+    widths = [12, 14, 42, 20, 8, 14, 18, 8, 34, 22, 13, 15, 14, 40, 40, 32, 40, 60, 60]
     for idx, w in enumerate(widths, start=1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(idx)].width = w
     ws.freeze_panes = "A2"
@@ -188,6 +231,15 @@ def export_results(payload: dict):
         cell.font = Font(bold=True, color="FFFFFF")
         cell.fill = header_fill
 
+    def _best_match(trials):
+        counts = {v: 0 for v in EN_VERDICTS}
+        for t in trials:
+            counts[t.get("eligibility")] = counts.get(t.get("eligibility"), 0) + 1
+        ranked = [t for t in trials if t.get("eligibility") == "Potentially Eligible"] \
+            or sorted(trials, key=lambda t: (t.get("similarity_score") or 0), reverse=True)
+        best = ranked[0] if ranked else None
+        return counts, best
+
     for r in results:
         pid = _s(r.get("patient_id"))
         pin = patient_rows.get(pid, {})
@@ -197,12 +249,7 @@ def export_results(payload: dict):
                         None, None, None, None, f"FAILED: {_s(r.get('error'))}"])
             continue
         trials = (r.get("response") or {}).get("results") or []
-        counts = {v: 0 for v in EN_VERDICTS}
-        for t in trials:
-            counts[t.get("eligibility")] = counts.get(t.get("eligibility"), 0) + 1
-        ranked = [t for t in trials if t.get("eligibility") == "Potentially Eligible"] \
-            or sorted(trials, key=lambda t: (t.get("similarity_score") or 0), reverse=True)
-        best = ranked[0] if ranked else None
+        counts, best = _best_match(trials)
         ws2.append([
             pid, _cell(pin.get("age")), _cell(pin.get("gender")), _cell(pin.get("condition")),
             len(trials),
@@ -225,9 +272,8 @@ def export_results(payload: dict):
     ws2.auto_filter.ref = f"A1:{openpyxl.utils.get_column_letter(len(sum_cols))}{ws2.max_row}"
 
     # ------------------------------------------------------------------ #
-    # Sheet 3 (lang=hi): Hindi version of both sheets - same data, Hindi
-    # headers and verdict labels. Reason texts stay in English (medical
-    # terminology); the structural verdict columns are fully Hindi.
+    # Sheets 3+4 (lang=hi): FULLY Hindi - headers, verdicts, titles,
+    # conditions, reasons AND inclusion/exclusion criteria (offline glossary).
     # ------------------------------------------------------------------ #
     if (payload.get("lang") or "").lower() in ("hi", "hindi", "हिंदी"):
         ws3 = wb.create_sheet("परिणाम (हिंदी)")
@@ -244,14 +290,19 @@ def export_results(payload: dict):
             pid = _s(r.get("patient_id"))
             if not r.get("ok"):
                 ws3.append([pid, "", "", "", "", "", "", "", "",
-                            f"विश्लेषण असफल: {_s(r.get('error'))}"] + [None] * 7)
+                            f"विश्लेषण असफल: {_s(r.get('error'))}"] + [None] * 9)
                 continue
             for t in (r.get("response") or {}).get("results") or []:
+                tr = _trial_by_id(t.get("trial_id"))
+                inc_hi = [_hi(c) for c in (getattr(tr, "inclusion_criteria", None) or [])] if tr \
+                    else [c for c in (t.get("inclusion_criteria") or [])]
+                exc_hi = [_hi(c) for c in (getattr(tr, "exclusion_criteria", None) or [])] if tr \
+                    else [c for c in (t.get("exclusion_criteria") or [])]
                 ws3.append([
                     pid,
                     _s(t.get("trial_id")),
-                    _s(t.get("title")),
-                    _s(t.get("condition")),
+                    t.get("title_hi") or _hi(t.get("title")),
+                    t.get("condition_hi") or _hi(t.get("condition")),
                     _s(t.get("phase")),
                     _s(t.get("status")),
                     _s(t.get("sponsor")),
@@ -261,10 +312,12 @@ def export_results(payload: dict):
                     t.get("match_percent"),
                     t.get("similarity_score"),
                     _method_hi(t.get("reasoning_method")),
-                    _join(t.get("reasons_for")),
-                    _join(t.get("reasons_against")),
-                    _join(t.get("missing_information")),
-                    _join(t.get("failed_criteria")),
+                    _join(t.get("reasons_for_hi") or [_hi(x) for x in (t.get("reasons_for") or [])]),
+                    _join(t.get("reasons_against_hi") or [_hi(x) for x in (t.get("reasons_against") or [])]),
+                    _join(t.get("missing_information_hi") or [_hi(x) for x in (t.get("missing_information") or [])]),
+                    _join(t.get("failed_criteria_hi") or [_hi(x) for x in (t.get("failed_criteria") or [])]),
+                    _join(inc_hi) or None,
+                    _join(exc_hi) or None,
                 ])
                 row = ws3[ws3.max_row]
                 fill = verdict_fills.get(t.get("eligibility"))
@@ -277,8 +330,7 @@ def export_results(payload: dict):
         ws3.auto_filter.ref = f"A1:{openpyxl.utils.get_column_letter(len(columns))}{ws3.max_row}"
 
         ws4 = wb.create_sheet("मरीज़ सारांश (हिंदी)")
-        hi_sum = [HI_HEADERS.get(c, c) for c in sum_cols]
-        ws4.append(hi_sum)
+        ws4.append([HI_HEADERS.get(c, c) for c in sum_cols])
         for cell in ws4[1]:
             cell.font = Font(bold=True, color="FFFFFF")
             cell.fill = header_fill
@@ -291,21 +343,20 @@ def export_results(payload: dict):
                             None, None, None, None, f"असफल: {_s(r.get('error'))}"])
                 continue
             trials = (r.get("response") or {}).get("results") or []
-            counts = {v: 0 for v in EN_VERDICTS}
-            for t in trials:
-                counts[t.get("eligibility")] = counts.get(t.get("eligibility"), 0) + 1
-            ranked = [t for t in trials if t.get("eligibility") == "Potentially Eligible"] \
-                or sorted(trials, key=lambda t: (t.get("similarity_score") or 0), reverse=True)
-            best = ranked[0] if ranked else None
+            counts, best = _best_match(trials)
+            best_title = None
+            if best:
+                best_title = best.get("title_hi") or _hi(best.get("title")) or _s(best.get("title"))
             ws4.append([
-                pid, _cell(pin.get("age")), _cell(pin.get("gender")), _cell(pin.get("condition")),
+                pid, _cell(pin.get("age")), _cell(pin.get("gender")),
+                _hi(pin.get("condition")) or _cell(pin.get("condition")),
                 len(trials),
                 counts.get("Potentially Eligible", 0),
                 counts.get("Partially Eligible", 0),
                 counts.get("Not Eligible", 0),
                 best and _s(best.get("trial_id")),
                 best and best.get("match_percent"),
-                best and _s(best.get("title")),
+                best_title,
                 bool((r.get("response") or {}).get("llm_used")) or None,
                 "पूर्ण",
             ])
@@ -319,5 +370,7 @@ def export_results(payload: dict):
     return StreamingResponse(
         buf,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": hi_filename},
+        headers={"Content-Disposition": 'attachment; filename="ctq_matching_results_hindi.xlsx"'
+                 if (payload.get("lang") or "").lower() in ("hi", "hindi", "हिंदी")
+                 else 'attachment; filename="ctq_matching_results.xlsx"'},
     )

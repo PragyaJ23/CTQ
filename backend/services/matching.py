@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from models import AnalyzeResponse, MatchResult, PatientProfile, Trial
 from services import trial_retrieval
 from services.embeddings import score_to_match_percent
+from services.en_hi import to_hindi
 from services.eligibility import evaluate_eligibility
 from services.llm import LLMUnavailable, merge_rule_and_llm, reason_over_trial
 from services.thresholds import potentially_threshold
@@ -89,6 +90,13 @@ def analyze_patient(profile: PatientProfile, top_k: int = None) -> AnalyzeRespon
             missing_information=merged["missing_information"],
             failed_criteria=merged["failed_criteria"],
             reasoning_method=merged.get("reasoning_method", "rule"),
+            # Hindi renderings for the results UI (हिंदी toggle) + Excel sheets
+            title_hi=to_hindi(trial.title),
+            condition_hi=to_hindi(trial.condition),
+            reasons_for_hi=[to_hindi(x) for x in merged["reasons_for"]],
+            reasons_against_hi=[to_hindi(x) for x in merged["reasons_against"]],
+            missing_information_hi=[to_hindi(x) for x in merged["missing_information"]],
+            failed_criteria_hi=[to_hindi(x) for x in merged["failed_criteria"]],
         )
 
     llm_used = False
